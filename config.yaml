@@ -12,6 +12,60 @@ credentials:
       logged_in: False # Will be managed automatically
       name: Davi
       password: $2b$12$.CCizVcGEMItd6RxXjwm5OsRq6NuwMfwssxmnRg5yWJ7hTT7yZSvO
+    larissa:
+      email: bob@example.com
+      id: # Will be generated automatically
+      logged_in: False # Will be managed automatically
+      name: Larissa Hipolito
+      password: $2b$12$.CCizVcGEMItd6RxXjwm5OsRq6NuwMfwssxmnRg5yWJ7hTT7yZSvO
+    leonardo:
+      email: bob@example.com
+      id: # Will be generated automatically
+      logged_in: False # Will be managed automatically
+      name: Leonardo Sosha
+      password: $2b$12$.CCizVcGEMItd6RxXjwm5OsRq6NuwMfwssxmnRg5yWJ7hTT7yZSvO
+    renato:
+      email: bob@example.com
+      id: # Will be generated automatically
+      logged_in: False # Will be managed automatically
+      name: Renato Cardoso
+      password: $2b$12$.CCizVcGEMItd6RxXjwm5OsRq6NuwMfwssxmnRg5yWJ7hTT7yZSvO
+    uitalo:
+      email: bob@example.com
+      id: # Will be generated automatically
+      logged_in: False # Will be managed automatically
+      name: Uitalo
+      password: $2b$12$.CCizVcGEMItd6RxXjwm5OsRq6NuwMfwssxmnRg5yWJ7hTT7yZSvO
+    alexandre:
+      email: bob@example.com
+      id: # Will be generated automatically
+      logged_in: False # Will be managed automatically
+      name: Alexandre Villain
+      password: $2b$12$.CCizVcGEMItd6RxXjwm5OsRq6NuwMfwssxmnRg5yWJ7hTT7yZSvO
+    michelle:
+      email: bob@example.com
+      id: # Will be generated automatically
+      logged_in: False # Will be managed automatically
+      name: Michelle Santos
+      password: $2b$12$.CCizVcGEMItd6RxXjwm5OsRq6NuwMfwssxmnRg5yWJ7hTT7yZSvO
+    claudia:
+      email: bob@example.com
+      id: # Will be generated automatically
+      logged_in: False # Will be managed automatically
+      name: Claudia Lopes
+      password: $2b$12$.CCizVcGEMItd6RxXjwm5OsRq6NuwMfwssxmnRg5yWJ7hTT7yZSvO
+    patricia:
+      email: bob@example.com
+      id: # Will be generated automatically
+      logged_in: False # Will be managed automatically
+      name: Patricia Aragao
+      password: $2b$12$.CCizVcGEMItd6RxXjwm5OsRq6NuwMfwssxmnRg5yWJ7hTT7yZSvO
+    kissila:
+      email: bob@example.com
+      id: # Will be generated automatically
+      logged_in: False # Will be managed automatically
+      name: Kissila Nicolai
+      password: $2b$12$.CCizVcGEMItd6RxXjwm5OsRq6NuwMfwssxmnRg5yWJ7hTT7yZSvO
 cookie:
   expiry_days: 30
   key: random_signature_key # Must be string

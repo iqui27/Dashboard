@@ -229,7 +229,7 @@ if st.session_state["authentication_status"]:
                 # Use st.markdown para exibir as mensagens de uma forma estilizada
                 st.markdown(f"""
                     <div style="border-left: 2px solid #dedede; margin-left: 10px; padding-left: 10px;">
-                        <p style="font-size: 0.9em; color: #888;">{st.session_state["name"]} às {time_str}</p>
+                        <p style="font-size: 0.9em; color: #888;">{msg['name']} às {time_str}</p>
                         <p>{msg['message']}</p>
                     </div>
                 """, unsafe_allow_html=True) 
