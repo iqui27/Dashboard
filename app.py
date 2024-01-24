@@ -108,7 +108,7 @@ if st.session_state["authentication_status"]:
     if selected_project not in st.session_state.chat_messages:
         st.session_state.chat_messages[selected_project] = []
 
-with tab2:
+    with tab2:
             col1, col2, col3 = st.columns([3, 6, 3])
 
             # Main Area
@@ -188,7 +188,7 @@ with tab2:
             st.write("\n")
             st.write("\n")
 
-with tab1: 
+    with tab1: #Chat
         st.write("\n")
         st.write("\n") 
         # Crie um formulário para o input de mensagem e botão de envio
@@ -204,6 +204,7 @@ with tab1:
 
             st.session_state.chat_messages[selected_project].append({
                 "user": st.session_state.username,  # Supondo que você armazene o nome de usuário em st.session_state.username
+                "name": st.session_state.name,  # Supondo que você armazene o nome do usuário em st.session_state.name
                 "message": new_message,
                 "timestamp": time.time()  # Adiciona um timestamp para cada mensagem
             })
@@ -217,6 +218,7 @@ with tab1:
         # Exibe o chat (mensagens anteriores + nova mensagem)
         st.write("Conversa:")
         # Inicie um container para o chat
+        
         chat_container = st.container()
         with chat_container:
             for msg in st.session_state.chat_messages[selected_project]:
@@ -227,12 +229,12 @@ with tab1:
                 # Use st.markdown para exibir as mensagens de uma forma estilizada
                 st.markdown(f"""
                     <div style="border-left: 2px solid #dedede; margin-left: 10px; padding-left: 10px;">
-                        <p style="font-size: 0.9em; color: #888;">{msg['user']} às {time_str}</p>
+                        <p style="font-size: 0.9em; color: #888;">{st.session_state["name"]} às {time_str}</p>
                         <p>{msg['message']}</p>
                     </div>
                 """, unsafe_allow_html=True) 
 
-with tab3: #Editar Projetos
+    with tab3: #Editar Projetos
             col5, col6 = st.columns([6, 3])
             
 
@@ -368,7 +370,7 @@ with tab3: #Editar Projetos
 
             elif st.session_state["authentication_status"] is None:
                 st.warning('Please enter your username and password')
-with tab4:
+    with tab4: #Logout
         authenticator.logout()
 
 
