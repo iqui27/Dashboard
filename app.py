@@ -2,7 +2,6 @@ import time
 import streamlit as st
 import pandas as pd
 import locale
-from streamlit_elements import elements, mui, html
 from streamlit_authenticator import Authenticate
 import yaml
 from yaml.loader import SafeLoader
