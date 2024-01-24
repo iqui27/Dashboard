@@ -189,50 +189,69 @@ if st.session_state["authentication_status"]:
             st.write("\n")
 
     with tab1: #Chat
-        st.write("\n")
-        st.write("\n") 
-        # Crie um formulário para o input de mensagem e botão de envio
-        with st.form(key=f"form_message_{selected_project}"):
-            new_message = st.text_input("Digite sua mensagem", key=f"message_input_{selected_project}")
-            submit_button = st.form_submit_button("Enviar")
-                                
-        # Adiciona nova mensagem à lista de mensagens do projeto atual
-        if submit_button and new_message:
-            # Certifique-se de que cada projeto tem sua lista de mensagens
-            if selected_project not in st.session_state.chat_messages:
-                st.session_state.chat_messages[selected_project] = []
+        st.markdown("<h6 style='text-align: center;'>{}</h6>".format(selected_project), unsafe_allow_html=True)
+        col1, col2, col3 = st.columns([1, 4, 1])
+        with col3:
+            # Botão para limpar a conversa
+            if 'confirm_clear' not in st.session_state:
+                st.session_state.confirm_clear = False
 
-            st.session_state.chat_messages[selected_project].append({
-                "user": st.session_state.username,  # Supondo que você armazene o nome de usuário em st.session_state.username
-                "name": st.session_state.name,  # Supondo que você armazene o nome do usuário em st.session_state.name
-                "message": new_message,
-                "timestamp": time.time()  # Adiciona um timestamp para cada mensagem
-            })
+            if st.button('Limpar Conversa'):
+                st.session_state.confirm_clear = True
+
+            if st.session_state.confirm_clear:
+                if st.button('Sim, limpar mensagens'):
+                        st.session_state.chat_messages[selected_project] = []
+                        st.session_state.confirm_clear = False
+                        st.experimental_rerun()
+
+                if st.button('Não, manter mensagens'):
+                    st.session_state.confirm_clear = False 
+        with col2:
+            # Crie um formulário para o input de mensagem e botão de envio
+            with st.form(key=f"form_message_{selected_project}"):
+                new_message = st.text_input("Digite sua mensagem", key=f"message_input_{selected_project}")
+                submit_button = st.form_submit_button("Enviar")
+                                    
+            # Adiciona nova mensagem à lista de mensagens do projeto atual
+            if submit_button and new_message:
+                # Certifique-se de que cada projeto tem sua lista de mensagens
+                if selected_project not in st.session_state.chat_messages:
+                    st.session_state.chat_messages[selected_project] = []
+
+                st.session_state.chat_messages[selected_project].append({
+                    "user": st.session_state.username,  # Supondo que você armazene o nome de usuário em st.session_state.username
+                    "name": st.session_state.name,  # Supondo que você armazene o nome do usuário em st.session_state.name
+                    "message": new_message,
+                    "timestamp": time.time()  # Adiciona um timestamp para cada mensagem
+                })
+                
+                # Salva as mensagens após adicionar a nova
+                save_messages(st.session_state.chat_messages)
+                
+                # Limpa o campo de input após o envio da mensagem
+                st.experimental_rerun()
             
-            # Salva as mensagens após adicionar a nova
-            save_messages(st.session_state.chat_messages)
+
+                            
+            # Exibe o chat (mensagens anteriores + nova mensagem)
+            st.write("Conversa:")
+            # Inicie um container para o chat
             
-            # Limpa o campo de input após o envio da mensagem
-            st.experimental_rerun()
-                    
-        # Exibe o chat (mensagens anteriores + nova mensagem)
-        st.write("Conversa:")
-        # Inicie um container para o chat
-        
-        chat_container = st.container()
-        with chat_container:
-            for msg in st.session_state.chat_messages[selected_project]:
-                # Converta o timestamp para datetime e ajuste o fuso horário conforme necessário
-                timestamp = datetime.fromtimestamp(msg["timestamp"], tz=pytz.timezone("America/Sao_Paulo"))
-                # Formate a hora para exibir
-                time_str = timestamp.strftime('%H:%M:%S')
-                # Use st.markdown para exibir as mensagens de uma forma estilizada
-                st.markdown(f"""
-                    <div style="border-left: 2px solid #dedede; margin-left: 10px; padding-left: 10px;">
-                        <p style="font-size: 0.9em; color: #888;">{msg['name']} às {time_str}</p>
-                        <p>{msg['message']}</p>
-                    </div>
-                """, unsafe_allow_html=True) 
+            chat_container = st.container()
+            with chat_container:
+                for msg in st.session_state.chat_messages[selected_project]:
+                    # Converta o timestamp para datetime e ajuste o fuso horário conforme necessário
+                    timestamp = datetime.fromtimestamp(msg["timestamp"], tz=pytz.timezone("America/Sao_Paulo"))
+                    # Formate a hora para exibir
+                    time_str = timestamp.strftime('%H:%M:%S')
+                    # Use st.markdown para exibir as mensagens de uma forma estilizada
+                    st.markdown(f"""
+                        <div style="border-left: 2px solid #dedede; margin-left: 10px; padding-left: 10px;">
+                            <p style="font-size: 0.9em; color: #888;">{msg['name']} às {time_str}</p>
+                            <p>{msg['message']}</p>
+                        </div>
+                    """, unsafe_allow_html=True) 
 
     with tab3: #Editar Projetos
             col5, col6 = st.columns([6, 3])
