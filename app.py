@@ -3,11 +3,11 @@ import streamlit as st
 import pandas as pd
 import locale
 from streamlit_authenticator import Authenticate
-import yaml
 from yaml.loader import SafeLoader
 import json
 from datetime import datetime
 import pytz
+import yaml
 
 
 timezone = pytz.timezone("America/Sao_Paulo")
@@ -149,20 +149,11 @@ if st.session_state["authentication_status"]:
                 st.markdown("<h5 style='text-align: center;'>Unidade SECTI</h5>", unsafe_allow_html=True)
                 st.markdown(f"<h6 style='text-align: center; color: yellow;'>{project_details['Unidade SECTI Responsável'].values[0]}</h6>", unsafe_allow_html=True)
             with col3:
-                if 'show_observations' not in st.session_state:
-                    st.session_state.show_observations = False
-                # Botão que alterna a visibilidade das observações
-                if st.button('Observações'):
-                    st.session_state.show_observations = not st.session_state.show_observations
 
-                # Se a variável de estado 'show_observations' for True, mostre as observações
-                if st.session_state.show_observations:
-                    st.text(project_details['Observações'].values[0])
-
-                st.markdown("<h5 style='text-align: left;'>Encerramento de Parceria</h5>", unsafe_allow_html=True)
-                st.markdown(f"<h6 style='text-align: left; color: yellow;'>{project_details['Encerramento da parceria'].values[0]}</h6>", unsafe_allow_html=True)
-                st.markdown("<h5 style='text-align: left;'>Ponto Focal na Instituição Parceira</h5>", unsafe_allow_html=True)
-                st.markdown(f"<h6 style='text-align: left; color: yellow;'>{project_details['Ponto Focal na Instituição Parceira'].values[0]}</h6>", unsafe_allow_html=True)
+                st.markdown("<h5 style='text-align: right;'>Encerramento de Parceria</h5>", unsafe_allow_html=True)
+                st.markdown(f"<h6 style='text-align: right; color: yellow;'>{project_details['Encerramento da parceria'].values[0]}</h6>", unsafe_allow_html=True)
+                st.markdown("<h5 style='text-align: right;'>Ponto Focal na Instituição Parceira</h5>", unsafe_allow_html=True)
+                st.markdown(f"<h6 style='text-align: right; color: yellow;'>{project_details['Ponto Focal na Instituição Parceira'].values[0]}</h6>", unsafe_allow_html=True)
                 if st.button('Mais Informações sobre o fomento'):
                     if 'show_info' not in st.session_state:
                         st.session_state.show_info = False
@@ -172,6 +163,29 @@ if st.session_state["authentication_status"]:
                     else:
                         st.session_state.show_info = True
                         st.text(project_details['Mais informações do fomento'].values[0])
+                nomes = project_details['Comissão Gestora da Parceria'].values[0].split(',')
+                # Para centralizar os nomes e adicionar espaço
+                st.markdown("""
+                    <style>
+                    .nome-item {
+                        background-color: none; /* Cor do botão Novo Projeto */
+                        border-radius: 20px; /* Arredondamento das bordas */
+                        border: 1px solid red; /* Borda vermelha */
+                        padding: 1px 20px; /* Espaço interno */
+                        margin: 0px 0; /* Margem externa */
+                        color: white; /* Cor do texto */
+                        text-align: left; /* Alinhamento do texto */
+                    }
+                    </style>
+                    <ul style='list-style: none; padding: 0;'>
+                """, unsafe_allow_html=True)
+                st.markdown("<h5 style='text-align: right;'>Comissão Gestora da Parceria</h5>", unsafe_allow_html=True)
+                # Iterar sobre a lista de nomes e criar itens de lista estilizados
+                for nome in nomes:
+                    st.markdown(f"<li class='nome-item'>{nome}</li>", unsafe_allow_html=True)
+
+                st.markdown("</ul>", unsafe_allow_html=True)
+            
 
             st.write("\n")
             st.write("\n")
@@ -179,8 +193,20 @@ if st.session_state["authentication_status"]:
             st.markdown("<h5 style='text-align: center;'>Situação Atual</h5>", unsafe_allow_html=True)
             st.markdown(f"<h6 style='text-align: center; color: Green;'>{project_details['Situação atual'].values[0]}</h6>", unsafe_allow_html=True)
             st.write("\n")
-            st.markdown("<h5 style='text-align: center;'>Comissão Gestora da Parceria</h5>", unsafe_allow_html=True)
-            st.markdown(f"<h6 style='text-align: center; color: Green;'>{project_details['Comissão Gestora da Parceria'].values[0]}</h6>", unsafe_allow_html=True)
+            
+            
+            col1, col2, col3 = st.columns([4, 4, 4])
+            with col1:
+                with st.container(height=200, border=True):
+                    if 'show_observations' not in st.session_state:
+                        st.session_state.show_observations = False
+                    # Botão que alterna a visibilidade das observações
+                    if st.button('Observações'):
+                        st.session_state.show_observations = not st.session_state.show_observations
+
+                    # Se a variável de estado 'show_observations' for True, mostre as observações
+                    if st.session_state.show_observations:
+                        st.text(project_details['Observações'].values[0])
             st.write("\n")
             st.write("\n")
             st.write("\n")
