@@ -186,11 +186,12 @@ if st.session_state["authentication_status"]:
                 if st.session_state.show_observations:
                     st.text(project_details['Observações'].values[0])
             with col3:
-
-                st.markdown("<h5 style='text-align: right;'>Encerramento de Parceria</h5>", unsafe_allow_html=True)
-                st.markdown(f"<h6 style='text-align: right; color: yellow;'>{project_details['Encerramento da parceria'].values[0]}</h6>", unsafe_allow_html=True)
-                st.markdown("<h5 style='text-align: right;'>Ponto Focal na Instituição Parceira</h5>", unsafe_allow_html=True)
-                st.markdown(f"<h6 style='text-align: right; color: yellow;'>{project_details['Ponto Focal na Instituição Parceira'].values[0]}</h6>", unsafe_allow_html=True)
+                st.write("\n")
+                st.write("\n")
+                st.markdown("<h5 style='text-align: center;'>Encerramento de Parceria</h5>", unsafe_allow_html=True)
+                st.markdown(f"<h6 style='text-align: center; color: yellow;'>{project_details['Encerramento da parceria'].values[0]}</h6>", unsafe_allow_html=True)
+                st.markdown("<h5 style='text-align: center;'>Ponto Focal na Instituição Parceira</h5>", unsafe_allow_html=True)
+                st.markdown(f"<h6 style='text-align: center; color: yellow;'>{project_details['Ponto Focal na Instituição Parceira'].values[0]}</h6>", unsafe_allow_html=True)
                 try:
                     if st.button('Mais Informações sobre o fomento'):
                         if 'show_info' not in st.session_state:
@@ -216,19 +217,24 @@ if st.session_state["authentication_status"]:
                         color: white; /* Cor do texto */
                         text-align: left; /* Alinhamento do texto */
                         margin-bottom: 10px; /* Aumenta a distância entre os elementos */
+                        text-size: 5px;
+                    }
+                    ul.custom-list {
+                        padding: 0;
+                        list-style-type: none; /* Remove os pontos dos itens */
                     }
                     </style>
-                    <ul style='list-style: none; padding: 19;'>
-                """, unsafe_allow_html=True)
-                try:
-                    st.markdown("<h5 style='text-align: right;'>Comissão Gestora da Parceria</h5>", unsafe_allow_html=True)
-                    # Iterar sobre a lista de nomes e criar itens de lista estilizados
-                    for nome in nomes:
-                        st.markdown(f"<li class='nome-item'>{nome}</li>", unsafe_allow_html=True)
+                    """, unsafe_allow_html=True)
 
-                    st.markdown("</ul>", unsafe_allow_html=True)
-                except Exception as e:
-                    st.error(f"An error occurred while displaying the list of names: {str(e)}")
+                st.markdown("<h5 style='text-align: center;'>Comissão Gestora da Parceria</h5>", unsafe_allow_html=True)
+                # Inicia a lista com a classe customizada para remover os pontos
+                st.markdown("<ul class='custom-list'>", unsafe_allow_html=True)
+                # Iterar sobre a lista de nomes e criar itens de lista estilizados
+                for nome in nomes:
+                    st.markdown(f"<li class='nome-item'>{nome}</li>", unsafe_allow_html=True)
+
+                st.markdown("</ul>", unsafe_allow_html=True)
+                
             
 
             st.write("\n")
@@ -379,7 +385,7 @@ if st.session_state["authentication_status"]:
 
             # Verificar se um projeto foi selecionado
             if selected_project:
-                project_details = df[df['Projeto'] == selected_project].iloc
+                project_details = df[df['Projeto'] == selected_project].iloc[0]
 
             # Botão para mostrar o formulário
                     
