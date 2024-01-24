@@ -8,7 +8,6 @@ import json
 from datetime import datetime
 import pytz
 import yaml
-import matplotlib.pyplot as plt
 
 
 timezone = pytz.timezone("America/Sao_Paulo")
