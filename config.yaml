@@ -1,0 +1,21 @@
+credentials:
+  usernames:
+    admin:
+      email: henrique.filho@secti.gov.df.br
+      id: # Will be generated automatically
+      logged_in: False # Will be managed automatically
+      name: Henrique Rocha
+      password: $2b$12$ky73cn.7zZl8PQJbY1oe0OYVTy4wgW23cLAuBogICkN18DoLICWfG
+    davi:
+      email: bob@example.com
+      id: # Will be generated automatically
+      logged_in: False # Will be managed automatically
+      name: Davi
+      password: $2b$12$.CCizVcGEMItd6RxXjwm5OsRq6NuwMfwssxmnRg5yWJ7hTT7yZSvO
+cookie:
+  expiry_days: 30
+  key: random_signature_key # Must be string
+  name: random_cookie_name
+preauthorized:
+  emails:
+  - henrique.filho@secti.gov.df.br
