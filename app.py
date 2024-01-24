@@ -45,38 +45,38 @@ if st.session_state["authentication_status"]:
     st.sidebar.title("Projetos")
 
     # Cria uma barra de navegação com abas
-    tab1, tab2, tab3 = st.tabs(["Home", "Projetos", "Sair"])
+    tab1, tab2, tab3, tab4 = st.tabs(["Home", "Projetos", "Editar", "Sair"])
 
+    
+    # Setup a search box
+    search_query = st.sidebar.text_input("Busca", "")
+
+    # Filter projects based on search query
+    filtered_projects = df[df['Projeto'].str.contains(search_query, case=False)]
+
+    # Group filtered projects by classification
+    grouped_filtered_projects = filtered_projects.groupby('classificacao')
+
+    # Display filtered projects in the sidebar grouped by classification
+    st.sidebar.subheader("Classificação")
+    selected_classification = st.sidebar.selectbox("Selecione uma Classificação", grouped_filtered_projects.groups.keys())
+    if selected_classification:
+        projects = grouped_filtered_projects.get_group(selected_classification)
+        selected_project = st.sidebar.radio("Selecione um Projeto", projects['Projeto'], index=0)
+        if selected_project:
+            project_details = projects[projects['Projeto'] == selected_project]
+            valor_formatado = locale.currency(project_details['Valor'].values[0], grouping=True)
+        else:
+            project_details = None
+            valor_formatado = None
+            elected_project = "Nenhum projeto selecionado"
+
+    # Ordenar o DataFrame pela coluna "classificacao"
+    df_sorted = df.sort_values('classificacao')
+
+    # Group projects by classification
+    grouped_projects = df_sorted.groupby('classificacao')
     with tab2:
-            # Setup a search box
-            search_query = st.sidebar.text_input("Busca", "")
-
-            # Filter projects based on search query
-            filtered_projects = df[df['Projeto'].str.contains(search_query, case=False)]
-
-            # Group filtered projects by classification
-            grouped_filtered_projects = filtered_projects.groupby('classificacao')
-
-            # Display filtered projects in the sidebar grouped by classification
-            st.sidebar.subheader("Classificação")
-            selected_classification = st.sidebar.selectbox("Selecione uma Classificação", grouped_filtered_projects.groups.keys())
-            if selected_classification:
-                projects = grouped_filtered_projects.get_group(selected_classification)
-                selected_project = st.sidebar.radio("Selecione um Projeto", projects['Projeto'], index=0)
-                if selected_project:
-                    project_details = projects[projects['Projeto'] == selected_project]
-                    valor_formatado = locale.currency(project_details['Valor'].values[0], grouping=True)
-                else:
-                    project_details = None
-                    valor_formatado = None
-                    selected_project = "Nenhum projeto selecionado"
-
-            # Ordenar o DataFrame pela coluna "classificacao"
-            df_sorted = df.sort_values('classificacao')
-
-            # Group projects by classification
-            grouped_projects = df_sorted.groupby('classificacao')
-
             col1, col2, col3 = st.columns([3, 6, 3])
 
             # Main Area
@@ -156,11 +156,13 @@ if st.session_state["authentication_status"]:
             st.write("\n")
             st.write("\n")
             st.write("\n")
-
-
-            col4, col5, col6 = st.columns([3, 6, 3])
+    
+    with tab3: #Editar Projetos
+            col5, col6 = st.columns([6, 3])
+            
 
             with col5:
+                st.markdown("<h3 style='text-align: left; color: yellow;'>{}</h3>".format(selected_project), unsafe_allow_html=True)
                 if 'show_table' not in st.session_state:
                     st.session_state.show_table = False
                     # Botão que alterna a visibilidade das observações
@@ -187,21 +189,35 @@ if st.session_state["authentication_status"]:
             # Exibir formulário para novo projeto
             if st.session_state.get('show_new_project_form', False):
                 with st.form(key='new_project_form'):
-                    new_project_data = {column: st.text_input(f"{column} (novo projeto)") for column in df.columns}
+                    # Cria campos de entrada para todos os dados, exceto 'classificacao'
+                    new_project_data = {column: st.text_input(f"{column} (novo projeto)") for column in df.columns if column != 'classificacao'}
+
+                    # Cria um selectbox para a classificação com as opções limitadas que você definiu
+                    classificacao_options = ['Em Andamento', 'Eventos', 'Emendas Parlamentares', 'Novos Projetos']
+                    new_project_data['classificacao'] = st.selectbox('Classificação (novo projeto)', classificacao_options)
+
+                    # Botões para adicionar ou cancelar o novo projeto
                     submit_new_project = st.form_submit_button('Adicionar Projeto')
                     close_new_project_form = st.form_submit_button('Cancelar')
 
                     if submit_new_project:
+                        # Adiciona o novo projeto ao dataframe
                         new_row = pd.DataFrame([new_project_data])
                         df = pd.concat([df, new_row], ignore_index=True)
-                        st.session_state.show_new_project_form = False
+                        
+                        # Salva o dataframe atualizado no arquivo CSV
                         df.to_csv(csv_file_path, index=False)
+                        
+                        # Informa sucesso e reinicia a aplicação
                         st.success("Novo projeto adicionado com sucesso!")
-                        time.sleep(2)  # Sleep for 1 second to show the success message
-                        st.experimental_rerun()
+                        st.session_state.show_new_project_form = False  # Fecha o formulário de novo projeto
+                        time.sleep(2)  # Dá uma pausa para mostrar a mensagem de sucesso
+                        st.experimental_rerun()  # Reinicia a aplicação para mostrar as mudanças
 
                     if close_new_project_form:
+                        # Se cancelar, apenas fecha o formulário de novo projeto
                         st.session_state.show_new_project_form = False
+
 
 
 
@@ -213,8 +229,16 @@ if st.session_state["authentication_status"]:
                     
                 if st.session_state.show_form:
                     with st.form(key='edit_form'):
-                        new_values = {column: st.text_input(column, project_details[column]) for column in df.columns}
+                        # Use um dicionário de compreensão para criar os campos de entrada, exceto para 'classificação'
+                        new_values = {column: st.text_input(column, project_details[column]) for column in df.columns if column != 'classificacao'}
                         
+                        # Adicione um selectbox para 'classificação' com as opções desejadas
+                        new_values['classificacao'] = st.selectbox(
+                            'Classificação',
+                            ['Em Andamento', 'Eventos', 'Emendas Parlamentares', 'Novos Projetos'],
+                            index=['Em Andamento', 'Eventos', 'Emendas Parlamentares', 'Novos Projetos'].index(project_details['classificacao']) if project_details['classificacao'] in ['Em Andamento', 'Eventos', 'Emendas Parlamentares', 'Novos Projetos'] else 0
+                        )
+    
                         submit_button = st.form_submit_button('Salvar Alterações')
                         close_form_button = st.form_submit_button('Fechar Formulário')
 
@@ -269,7 +293,7 @@ if st.session_state["authentication_status"]:
 
             elif st.session_state["authentication_status"] is None:
                 st.warning('Please enter your username and password')
-    with tab3:
+    with tab4:
         authenticator.logout()
 
 
