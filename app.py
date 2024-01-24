@@ -8,6 +8,7 @@ import json
 from datetime import datetime
 import pytz
 import yaml
+import matplotlib.pyplot as plt
 
 
 timezone = pytz.timezone("America/Sao_Paulo")
@@ -68,7 +69,7 @@ if st.session_state["authentication_status"]:
     st.sidebar.title("Projetos")
 
     # Cria uma barra de navegação com abas
-    tab1, tab2, tab3, tab4 = st.tabs(["Chat", "Projetos", "Editar", "Sair"])
+    tab1, tab2, tab3, tab4, tab5 = st.tabs(["Home", "Chat", "Projetos", "Editar", "Sair"])
 
     
     # Setup a search box
@@ -108,7 +109,35 @@ if st.session_state["authentication_status"]:
     if selected_project not in st.session_state.chat_messages:
         st.session_state.chat_messages[selected_project] = []
 
-    with tab2:
+    with tab1:
+        st.header("Bem vindo ao Dashboard SECTI")
+        st.write("Aqui você pode acompanhar os projetos da SECTI")
+        st.write("Para começar, selecione um projeto na barra lateral")
+
+        # Suponha que 'df' seja o seu DataFrame e que ele tem colunas 'Projeto' e 'Valor'
+        # Certifique-se de que os valores estão em formato numérico e não há valores NaN
+        df.dropna(subset=['Valor'], inplace=True)
+        df['Valor'] = df['Valor'].astype(float)
+
+        # Crie um gráfico de barras usando st.bar_chart
+        st.bar_chart(df.set_index('Projeto')['Valor'], height=500)
+
+        st.write("\n")
+        st.write("\n")
+        st.write("\n")
+        st.write("\n")
+        st.write("\n")
+
+        # Agrupar projetos por situação atual e contar quantos projetos estão em cada categoria
+        situacao_counts = df['Situação atual'].value_counts()
+
+        # Convertendo o resultado para um DataFrame, que é necessário para o st.bar_chart()
+        situacao_df = pd.DataFrame({'Número de Projetos': situacao_counts})
+
+        # Exibir o gráfico de barras no Streamlit
+        st.bar_chart(situacao_df,height=400, color='#fd0')
+
+    with tab3:
             col1, col2, col3 = st.columns([3, 6, 3])
 
             # Main Area
@@ -148,43 +177,59 @@ if st.session_state["authentication_status"]:
                 st.write("\n")
                 st.markdown("<h5 style='text-align: center;'>Unidade SECTI</h5>", unsafe_allow_html=True)
                 st.markdown(f"<h6 style='text-align: center; color: yellow;'>{project_details['Unidade SECTI Responsável'].values[0]}</h6>", unsafe_allow_html=True)
+                if 'show_observations' not in st.session_state:
+                    st.session_state.show_observations = False
+                    # Botão que alterna a visibilidade das observações
+                if st.button('Observações'):
+                    st.session_state.show_observations = not st.session_state.show_observations
+
+                    # Se a variável de estado 'show_observations' for True, mostre as observações
+                if st.session_state.show_observations:
+                    st.text(project_details['Observações'].values[0])
             with col3:
 
                 st.markdown("<h5 style='text-align: right;'>Encerramento de Parceria</h5>", unsafe_allow_html=True)
                 st.markdown(f"<h6 style='text-align: right; color: yellow;'>{project_details['Encerramento da parceria'].values[0]}</h6>", unsafe_allow_html=True)
                 st.markdown("<h5 style='text-align: right;'>Ponto Focal na Instituição Parceira</h5>", unsafe_allow_html=True)
                 st.markdown(f"<h6 style='text-align: right; color: yellow;'>{project_details['Ponto Focal na Instituição Parceira'].values[0]}</h6>", unsafe_allow_html=True)
-                if st.button('Mais Informações sobre o fomento'):
-                    if 'show_info' not in st.session_state:
-                        st.session_state.show_info = False
+                try:
+                    if st.button('Mais Informações sobre o fomento'):
+                        if 'show_info' not in st.session_state:
+                            st.session_state.show_info = False
 
-                    if st.session_state.show_info:
-                        st.session_state.show_info = False
-                    else:
-                        st.session_state.show_info = True
-                        st.text(project_details['Mais informações do fomento'].values[0])
-                nomes = project_details['Comissão Gestora da Parceria'].values[0].split(',')
+                        if st.session_state.show_info:
+                            st.session_state.show_info = False
+                        else:
+                            st.session_state.show_info = True
+                            st.text(project_details['Mais informações do fomento'].values[0])
+                    nomes = project_details['Comissão Gestora da Parceria'].values[0].split(',')
+                except Exception as e:
+                    st.error(f"An error occurred: {str(e)}")
                 # Para centralizar os nomes e adicionar espaço
                 st.markdown("""
                     <style>
                     .nome-item {
                         background-color: none; /* Cor do botão Novo Projeto */
-                        border-radius: 20px; /* Arredondamento das bordas */
-                        border: 1px solid red; /* Borda vermelha */
+                        border-radius: 10px; /* Arredondamento das bordas */
+                        border: 0.1px solid red; /* Borda vermelha */
                         padding: 1px 20px; /* Espaço interno */
-                        margin: 0px 0; /* Margem externa */
+                        margin: 5px 0; /* Margem externa */
                         color: white; /* Cor do texto */
                         text-align: left; /* Alinhamento do texto */
+                        margin-bottom: 10px; /* Aumenta a distância entre os elementos */
                     }
                     </style>
-                    <ul style='list-style: none; padding: 0;'>
+                    <ul style='list-style: none; padding: 19;'>
                 """, unsafe_allow_html=True)
-                st.markdown("<h5 style='text-align: right;'>Comissão Gestora da Parceria</h5>", unsafe_allow_html=True)
-                # Iterar sobre a lista de nomes e criar itens de lista estilizados
-                for nome in nomes:
-                    st.markdown(f"<li class='nome-item'>{nome}</li>", unsafe_allow_html=True)
+                try:
+                    st.markdown("<h5 style='text-align: right;'>Comissão Gestora da Parceria</h5>", unsafe_allow_html=True)
+                    # Iterar sobre a lista de nomes e criar itens de lista estilizados
+                    for nome in nomes:
+                        st.markdown(f"<li class='nome-item'>{nome}</li>", unsafe_allow_html=True)
 
-                st.markdown("</ul>", unsafe_allow_html=True)
+                    st.markdown("</ul>", unsafe_allow_html=True)
+                except Exception as e:
+                    st.error(f"An error occurred while displaying the list of names: {str(e)}")
             
 
             st.write("\n")
@@ -196,17 +241,7 @@ if st.session_state["authentication_status"]:
             
             
             col1, col2, col3 = st.columns([4, 4, 4])
-            with col1:
-                with st.container(height=200, border=True):
-                    if 'show_observations' not in st.session_state:
-                        st.session_state.show_observations = False
-                    # Botão que alterna a visibilidade das observações
-                    if st.button('Observações'):
-                        st.session_state.show_observations = not st.session_state.show_observations
-
-                    # Se a variável de estado 'show_observations' for True, mostre as observações
-                    if st.session_state.show_observations:
-                        st.text(project_details['Observações'].values[0])
+    
             st.write("\n")
             st.write("\n")
             st.write("\n")
@@ -214,7 +249,7 @@ if st.session_state["authentication_status"]:
             st.write("\n")
             st.write("\n")
 
-    with tab1: #Chat
+    with tab2: #Chat
         st.markdown("<h6 style='text-align: center;'>{}</h6>".format(selected_project), unsafe_allow_html=True)
         col1, col2, col3 = st.columns([1, 4, 1])
         with col3:
@@ -279,7 +314,7 @@ if st.session_state["authentication_status"]:
                         </div>
                     """, unsafe_allow_html=True) 
 
-    with tab3: #Editar Projetos
+    with tab4: #Editar Projetos
             col5, col6 = st.columns([6, 3])
             
 
@@ -345,7 +380,7 @@ if st.session_state["authentication_status"]:
 
             # Verificar se um projeto foi selecionado
             if selected_project:
-                project_details = df[df['Projeto'] == selected_project].iloc[0]
+                project_details = df[df['Projeto'] == selected_project].iloc
 
             # Botão para mostrar o formulário
                     
@@ -415,8 +450,11 @@ if st.session_state["authentication_status"]:
 
             elif st.session_state["authentication_status"] is None:
                 st.warning('Please enter your username and password')
-    with tab4: #Logout
+    with tab5: #Logout
         authenticator.logout()
+
+
+
 
 
 # Display project details based on selection in the sidebar
