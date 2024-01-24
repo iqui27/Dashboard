@@ -39,7 +39,7 @@ if 'df' not in st.session_state:
 if st.session_state["authentication_status"]:
     st.write(f'Bem-vindo *{st.session_state["name"]}*')
     # Configurar o locale para usar o formato de moeda brasileiro
-    locale.setlocale(locale.LC_ALL, 'pt_BR')
+    locale.setlocale(locale.LC_ALL, 'pt_BR.UTF-8')
 
     # Initialize the Streamlit interface
     st.sidebar.title("Projetos")
