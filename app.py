@@ -5,6 +5,29 @@ import locale
 from streamlit_authenticator import Authenticate
 import yaml
 from yaml.loader import SafeLoader
+import json
+from datetime import datetime
+import pytz
+
+
+timezone = pytz.timezone("America/Sao_Paulo")
+
+# Função para carregar mensagens salvas
+def load_messages():
+    try:
+        with open('messages.json', 'r') as f:
+            return json.load(f)
+    except (FileNotFoundError, json.JSONDecodeError):
+        return {}
+
+# Função para salvar mensagens
+def save_messages(messages):
+    with open('messages.json', 'w') as f:
+        json.dump(messages, f, indent=4)
+
+# Carregar mensagens anteriores quando o aplicativo é iniciado
+if 'chat_messages' not in st.session_state:
+    st.session_state.chat_messages = load_messages()
 
 # Definir configurações da página
 st.set_page_config(
@@ -45,7 +68,7 @@ if st.session_state["authentication_status"]:
     st.sidebar.title("Projetos")
 
     # Cria uma barra de navegação com abas
-    tab1, tab2, tab3, tab4 = st.tabs(["Home", "Projetos", "Editar", "Sair"])
+    tab1, tab2, tab3, tab4 = st.tabs(["Chat", "Projetos", "Editar", "Sair"])
 
     
     # Setup a search box
@@ -76,7 +99,16 @@ if st.session_state["authentication_status"]:
 
     # Group projects by classification
     grouped_projects = df_sorted.groupby('classificacao')
-    with tab2:
+
+    # Inicializa o estado da sessão para armazenar as mensagens se ainda não existir
+    if 'chat_messages' not in st.session_state:
+        st.session_state.chat_messages = {}
+
+    # Inicializa uma lista vazia para o projeto atual se ainda não existir
+    if selected_project not in st.session_state.chat_messages:
+        st.session_state.chat_messages[selected_project] = []
+
+with tab2:
             col1, col2, col3 = st.columns([3, 6, 3])
 
             # Main Area
@@ -141,7 +173,6 @@ if st.session_state["authentication_status"]:
                         st.session_state.show_info = True
                         st.text(project_details['Mais informações do fomento'].values[0])
 
-
             st.write("\n")
             st.write("\n")
             st.write("\n")
@@ -156,8 +187,52 @@ if st.session_state["authentication_status"]:
             st.write("\n")
             st.write("\n")
             st.write("\n")
-    
-    with tab3: #Editar Projetos
+
+with tab1: 
+        st.write("\n")
+        st.write("\n") 
+        # Crie um formulário para o input de mensagem e botão de envio
+        with st.form(key=f"form_message_{selected_project}"):
+            new_message = st.text_input("Digite sua mensagem", key=f"message_input_{selected_project}")
+            submit_button = st.form_submit_button("Enviar")
+                                
+        # Adiciona nova mensagem à lista de mensagens do projeto atual
+        if submit_button and new_message:
+            # Certifique-se de que cada projeto tem sua lista de mensagens
+            if selected_project not in st.session_state.chat_messages:
+                st.session_state.chat_messages[selected_project] = []
+
+            st.session_state.chat_messages[selected_project].append({
+                "user": st.session_state.username,  # Supondo que você armazene o nome de usuário em st.session_state.username
+                "message": new_message,
+                "timestamp": time.time()  # Adiciona um timestamp para cada mensagem
+            })
+            
+            # Salva as mensagens após adicionar a nova
+            save_messages(st.session_state.chat_messages)
+            
+            # Limpa o campo de input após o envio da mensagem
+            st.experimental_rerun()
+                    
+        # Exibe o chat (mensagens anteriores + nova mensagem)
+        st.write("Conversa:")
+        # Inicie um container para o chat
+        chat_container = st.container()
+        with chat_container:
+            for msg in st.session_state.chat_messages[selected_project]:
+                # Converta o timestamp para datetime e ajuste o fuso horário conforme necessário
+                timestamp = datetime.fromtimestamp(msg["timestamp"], tz=pytz.timezone("America/Sao_Paulo"))
+                # Formate a hora para exibir
+                time_str = timestamp.strftime('%H:%M:%S')
+                # Use st.markdown para exibir as mensagens de uma forma estilizada
+                st.markdown(f"""
+                    <div style="border-left: 2px solid #dedede; margin-left: 10px; padding-left: 10px;">
+                        <p style="font-size: 0.9em; color: #888;">{msg['user']} às {time_str}</p>
+                        <p>{msg['message']}</p>
+                    </div>
+                """, unsafe_allow_html=True) 
+
+with tab3: #Editar Projetos
             col5, col6 = st.columns([6, 3])
             
 
@@ -293,7 +368,7 @@ if st.session_state["authentication_status"]:
 
             elif st.session_state["authentication_status"] is None:
                 st.warning('Please enter your username and password')
-    with tab4:
+with tab4:
         authenticator.logout()
 
 
