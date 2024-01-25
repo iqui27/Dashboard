@@ -378,6 +378,11 @@ if st.session_state["authentication_status"]:
                         close_new_project_form = st.form_submit_button('Cancelar')
 
                         if submit_new_project:
+                             # Replace empty fields with a dash
+                            for key, value in new_project_data.items():
+                                if value == "":
+                                    new_project_data[key] = "-"
+
                             # Adiciona o novo projeto ao dataframe
                             new_row = pd.DataFrame([new_project_data])
                             df = pd.concat([df, new_row], ignore_index=True)
