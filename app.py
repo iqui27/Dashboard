@@ -185,7 +185,7 @@ if st.session_state["authentication_status"]:
                 st.write("\n")
                 st.write("\n")
                 with elements("card_container"):
-                    with mui.Card(key="card1",style={"borderRadius": "10px","border": "1px solid #cccccc", "boxShadow": "none", "backgroundColor": "transparent"}):
+                    with mui.Card(key="card1",style={"borderRadius": "10px","border": "1px solid #0e1117", "boxShadow": "none", "backgroundColor": "transparent"}):
                         mui.CardContent([
                             mui.Typography("Observações", style={"textAlign": "center","fontFamily": "'IBM Plex Sans', sans-serif", "fontWeight": "bold", "color": "white", "marginBottom": "20px"}),
                             mui.Typography(project_details['Observações'].values[0], style={"marginTop": "16px", "color": "gray", "fontFamily": "'IBM Plex Sans', sans-serif", "fontSize": "14px"}),
@@ -219,7 +219,7 @@ if st.session_state["authentication_status"]:
                         }
                     })
                     # Cria um cartão com cantos arredondados e sombra
-                    with mui.Card(key="nomes_card", style={"borderRadius": "10px", "backgroundColor": "#0e1117", "border": "1px solid #cccccc", "boxShadow": "none"}):
+                    with mui.Card(key="nomes_card", style={"borderRadius": "10px", "backgroundColor": "#0e1117", "border": "1px solid #0e1117", "boxShadow": "none"}):
                         # Conteúdo do cartão
                         with mui.CardContent():
                             # Cabeçalho do cartão
