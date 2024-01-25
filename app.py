@@ -351,35 +351,49 @@ if st.session_state["authentication_status"]:
 
             # Exibir formulário para novo projeto
             if st.session_state.get('show_new_project_form', False):
-                with st.form(key='new_project_form'):
-                    # Cria campos de entrada para todos os dados, exceto 'classificacao'
-                    new_project_data = {column: st.text_input(f"{column} (novo projeto)") for column in df.columns if column != 'classificacao'}
-
-                    # Cria um selectbox para a classificação com as opções limitadas que você definiu
-                    classificacao_options = ['Em Andamento', 'Eventos', 'Emendas Parlamentares', 'Novos Projetos']
-                    new_project_data['classificacao'] = st.selectbox('Classificação (novo projeto)', classificacao_options)
-
-                    # Botões para adicionar ou cancelar o novo projeto
-                    submit_new_project = st.form_submit_button('Adicionar Projeto')
-                    close_new_project_form = st.form_submit_button('Cancelar')
-
-                    if submit_new_project:
-                        # Adiciona o novo projeto ao dataframe
-                        new_row = pd.DataFrame([new_project_data])
-                        df = pd.concat([df, new_row], ignore_index=True)
+                   with st.form(key='new_project_form'):
+                        # Inicializa um dicionário para os dados do novo projeto
+                        new_project_data = {}
                         
-                        # Salva o dataframe atualizado no arquivo CSV
-                        df.to_csv(csv_file_path, index=False)
-                        
-                        # Informa sucesso e reinicia a aplicação
-                        st.success("Novo projeto adicionado com sucesso!")
-                        st.session_state.show_new_project_form = False  # Fecha o formulário de novo projeto
-                        time.sleep(2)  # Dá uma pausa para mostrar a mensagem de sucesso
-                        st.experimental_rerun()  # Reinicia a aplicação para mostrar as mudanças
+                        # Loop pelos nomes das colunas para criar os widgets de entrada apropriados
+                        for column in df.columns:
+                            if column == 'Valor':
+                                # Campo para valor com entrada numérica
+                                new_project_data[column] = st.number_input(f"{column} (novo projeto)", step=1.0, format="%.2f")
+                            elif column == 'Processo SEI':
+                                # Campo para processo SEI com preenchimento automático do padrão
+                                sei_input = st.text_input(f"{column} (Adicione Apenas Números)", max_chars=17)
+                                sei_formatted = f"{sei_input[:5]}-{sei_input[5:13]}/{sei_input[13:17]}-{sei_input[17:]}"
+                                new_project_data[column] = sei_formatted
+                            elif column == 'classificacao':
+                                # Campo de seleção para classificação com opções pré-definidas
+                                classificacao_options = ['Em Andamento', 'Eventos', 'Emendas Parlamentares', 'Novos Projetos']
+                                new_project_data[column] = st.selectbox(f"{column} (novo projeto)", classificacao_options)
+                            else:
+                                # Campo de texto padrão para as outras colunas
+                                new_project_data[column] = st.text_input(f"{column} (novo projeto)")
 
-                    if close_new_project_form:
-                        # Se cancelar, apenas fecha o formulário de novo projeto
-                        st.session_state.show_new_project_form = False
+                            # Botões para adicionar ou cancelar o novo projeto
+                        submit_new_project = st.form_submit_button('Adicionar Projeto')
+                        close_new_project_form = st.form_submit_button('Cancelar')
+
+                        if submit_new_project:
+                            # Adiciona o novo projeto ao dataframe
+                            new_row = pd.DataFrame([new_project_data])
+                            df = pd.concat([df, new_row], ignore_index=True)
+                            
+                            # Salva o dataframe atualizado no arquivo CSV
+                            df.to_csv(csv_file_path, index=False)
+                            
+                            # Informa sucesso e reinicia a aplicação
+                            st.success("Novo projeto adicionado com sucesso!")
+                            st.session_state.show_new_project_form = False  # Fecha o formulário de novo projeto
+                            time.sleep(2)  # Dá uma pausa para mostrar a mensagem de sucesso
+                            st.experimental_rerun()  # Reinicia a aplicação para mostrar as mudanças
+
+                        if close_new_project_form:
+                            # Se cancelar, apenas fecha o formulário de novo projeto
+                            st.session_state.show_new_project_form = False
 
 
 
