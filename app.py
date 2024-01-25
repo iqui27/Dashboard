@@ -176,22 +176,26 @@ if st.session_state["authentication_status"]:
                 st.write("\n")
                 st.markdown("<h5 style='text-align: center;'>Unidade SECTI</h5>", unsafe_allow_html=True)
                 st.markdown(f"<h6 style='text-align: center; color: yellow;'>{project_details['Unidade SECTI Responsável'].values[0]}</h6>", unsafe_allow_html=True)
-                if 'show_observations' not in st.session_state:
-                    st.session_state.show_observations = False
-                    # Botão que alterna a visibilidade das observações
-                if st.button('Observações'):
-                    st.session_state.show_observations = not st.session_state.show_observations
-
-                    # Se a variável de estado 'show_observations' for True, mostre as observações
-                if st.session_state.show_observations:
+                st.divider()    
+                st.write("\n")
+                st.write("\n")
+                with st.container(height=200, border=True):
+                    st.markdown("<h5 style='text-align: center;'>Observações</h5>", unsafe_allow_html=True)
                     st.text(project_details['Observações'].values[0])
             with col3:
                 st.write("\n")
                 st.write("\n")
                 st.markdown("<h5 style='text-align: center;'>Encerramento de Parceria</h5>", unsafe_allow_html=True)
                 st.markdown(f"<h6 style='text-align: center; color: yellow;'>{project_details['Encerramento da parceria'].values[0]}</h6>", unsafe_allow_html=True)
+                st.write("\n")
+                st.write("\n")
+                st.write("\n")
                 st.markdown("<h5 style='text-align: center;'>Ponto Focal na Instituição Parceira</h5>", unsafe_allow_html=True)
                 st.markdown(f"<h6 style='text-align: center; color: yellow;'>{project_details['Ponto Focal na Instituição Parceira'].values[0]}</h6>", unsafe_allow_html=True)
+                st.write("\n")
+                st.write("\n")
+                st.write("\n")
+                st.write("\n")
                 try:
                     if st.button('Mais Informações sobre o fomento'):
                         if 'show_info' not in st.session_state:
@@ -206,6 +210,7 @@ if st.session_state["authentication_status"]:
                 except Exception as e:
                     st.error(f"An error occurred: {str(e)}")
                 # Para centralizar os nomes e adicionar espaço
+                st.divider()
                 st.markdown("""
                     <style>
                     .nome-item {
@@ -234,12 +239,6 @@ if st.session_state["authentication_status"]:
                     st.markdown(f"<li class='nome-item'>{nome}</li>", unsafe_allow_html=True)
 
                 st.markdown("</ul>", unsafe_allow_html=True)
-                
-            
-
-            st.write("\n")
-            st.write("\n")
-            st.write("\n")
             st.markdown("<h5 style='text-align: center;'>Situação Atual</h5>", unsafe_allow_html=True)
             st.markdown(f"<h6 style='text-align: center; color: Green;'>{project_details['Situação atual'].values[0]}</h6>", unsafe_allow_html=True)
             st.write("\n")
