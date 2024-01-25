@@ -8,6 +8,8 @@ import json
 from datetime import datetime
 import pytz
 import yaml
+import streamlit_shadcn_ui as ui
+from streamlit_elements import elements, mui
 
 
 timezone = pytz.timezone("America/Sao_Paulo")
@@ -89,6 +91,7 @@ if st.session_state["authentication_status"]:
         if selected_project:
             project_details = projects[projects['Projeto'] == selected_project]
             valor_formatado = locale.currency(project_details['Valor'].values[0], grouping=True)
+
         else:
             project_details = None
             valor_formatado = None
@@ -155,10 +158,13 @@ if st.session_state["authentication_status"]:
                 </div>
                 """, unsafe_allow_html=True)
                 st.write("\n")
-                st.write("\n")
+                st.divider()
                 st.write("\n")
                 st.markdown("<h5 style='text-align: center;'>Fonte de Custeio</h5>", unsafe_allow_html=True)
                 st.markdown("<h5 style='text-align: center;'>{}</h5>".format(project_details['Fonte de Custeio'].values[0]), unsafe_allow_html=True)
+                st.write("\n")
+                st.markdown("<h5 style='text-align: center;'>Situação Atual</h5>", unsafe_allow_html=True)
+                st.markdown(f"<h6 style='text-align: center; color: Green;'>{project_details['Situação atual'].values[0]}</h6>", unsafe_allow_html=True)
 
                 
             with col1:
@@ -176,12 +182,15 @@ if st.session_state["authentication_status"]:
                 st.write("\n")
                 st.markdown("<h5 style='text-align: center;'>Unidade SECTI</h5>", unsafe_allow_html=True)
                 st.markdown(f"<h6 style='text-align: center; color: yellow;'>{project_details['Unidade SECTI Responsável'].values[0]}</h6>", unsafe_allow_html=True)
-                st.divider()    
+                
                 st.write("\n")
                 st.write("\n")
-                with st.container(height=200, border=True):
-                    st.markdown("<h5 style='text-align: center;'>Observações</h5>", unsafe_allow_html=True)
-                    st.text(project_details['Observações'].values[0])
+                with elements("card_container"):
+                    with mui.Card(key="card1",style={"borderRadius": "10px","border": "1px solid #cccccc", "boxShadow": "none", "backgroundColor": "transparent"}):
+                        mui.CardContent([
+                            mui.Typography("Observações", style={"textAlign": "center","fontFamily": "'IBM Plex Sans', sans-serif", "fontWeight": "bold", "color": "white", "marginBottom": "20px"}),
+                            mui.Typography(project_details['Observações'].values[0], style={"marginTop": "16px", "color": "gray", "fontFamily": "'IBM Plex Sans', sans-serif", "fontSize": "14px"}),
+                        ])
             with col3:
                 st.write("\n")
                 st.write("\n")
@@ -195,53 +204,46 @@ if st.session_state["authentication_status"]:
                 st.write("\n")
                 st.write("\n")
                 st.write("\n")
-                st.write("\n")
-                try:
-                    if st.button('Mais Informações sobre o fomento'):
-                        if 'show_info' not in st.session_state:
-                            st.session_state.show_info = False
-
-                        if st.session_state.show_info:
-                            st.session_state.show_info = False
-                        else:
-                            st.session_state.show_info = True
-                            st.text(project_details['Mais informações do fomento'].values[0])
-                    nomes = project_details['Comissão Gestora da Parceria'].values[0].split(',')
-                except Exception as e:
-                    st.error(f"An error occurred: {str(e)}")
+                with st.expander("Mais Informações sobre o fomento"):
+                    st.text(project_details['Mais informações do fomento'].values[0])
+      
                 # Para centralizar os nomes e adicionar espaço
-                st.divider()
-                st.markdown("""
-                    <style>
-                    .nome-item {
-                        background-color: none; /* Cor do botão Novo Projeto */
-                        border-radius: 10px; /* Arredondamento das bordas */
-                        border: 0.1px solid red; /* Borda vermelha */
-                        padding: 1px 20px; /* Espaço interno */
-                        margin: 5px 0; /* Margem externa */
-                        color: white; /* Cor do texto */
-                        text-align: left; /* Alinhamento do texto */
-                        margin-bottom: 10px; /* Aumenta a distância entre os elementos */
-                        text-size: 5px;
-                    }
-                    ul.custom-list {
-                        padding: 0;
-                        list-style-type: none; /* Remove os pontos dos itens */
-                    }
-                    </style>
-                    """, unsafe_allow_html=True)
+                nomes = project_details['Comissão Gestora da Parceria'].values[0].split(',')
+                st.write("\n")
+                st.write("\n")
+                st.write("\n")
+                with elements("card_container1"):
+                                    # Incorporar uma fonte do Google
+                    mui.CssBaseline(options={
+                        "typography": {
+                            "fontFamily": "'Roboto', sans-serif"  # Substitua 'Roboto' pela fonte que você deseja usar
+                        }
+                    })
+                    # Cria um cartão com cantos arredondados e sombra
+                    with mui.Card(key="nomes_card", style={"borderRadius": "10px", "backgroundColor": "#0e1117", "border": "1px solid #cccccc", "boxShadow": "none"}):
+                        # Conteúdo do cartão
+                        with mui.CardContent():
+                            # Cabeçalho do cartão
+                            mui.Typography("Comissão Gestora da Parceria", style={"textAlign": "center", "fontSize": "17px", "fontFamily": "'IBM Plex Sans', sans-serif" , "fontWeight": "bold", "color": "white", "marginBottom": "20px"})
 
-                st.markdown("<h5 style='text-align: center;'>Comissão Gestora da Parceria</h5>", unsafe_allow_html=True)
-                # Inicia a lista com a classe customizada para remover os pontos
-                st.markdown("<ul class='custom-list'>", unsafe_allow_html=True)
-                # Iterar sobre a lista de nomes e criar itens de lista estilizados
-                for nome in nomes:
-                    st.markdown(f"<li class='nome-item'>{nome}</li>", unsafe_allow_html=True)
+                            # Lista de nomes
+                            for nome in nomes:
+                                # Cada nome é um item de lista com estilos aplicados
+                                mui.Typography(nome, component="li", style={
+                                    "background": "none",
+                                    "borderRadius": "10px",
+                                    "border": "0px",
+                                    "padding": "5px 20px",
+                                    "margin": "0px 0",
+                                    "color": "white",
+                                    "textAlign": "center",
+                                    "display": "block",
+                                    "fontSize": "12px",
+                                    "fontFamily": "'IBM Plex Sans', sans-serif",
+                                    "fontWeight": "bold",
+                                })
 
                 st.markdown("</ul>", unsafe_allow_html=True)
-            st.markdown("<h5 style='text-align: center;'>Situação Atual</h5>", unsafe_allow_html=True)
-            st.markdown(f"<h6 style='text-align: center; color: Green;'>{project_details['Situação atual'].values[0]}</h6>", unsafe_allow_html=True)
-            st.write("\n")
             
             
             col1, col2, col3 = st.columns([4, 4, 4])
