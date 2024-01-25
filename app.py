@@ -61,7 +61,8 @@ if 'df' not in st.session_state:
 
 # Verificação de status de login
 if st.session_state["authentication_status"]:
-    st.write(f'Bem-vindo *{st.session_state["name"]}*')
+    st.image('ID_SECTI.png', width=200)
+    st.write(f'Bem-vindo *{st.session_state["name"]}*')   
     # Configurar o locale para usar o formato de moeda brasileiro
     locale.setlocale(locale.LC_ALL, 'pt_BR.UTF-8')
 
