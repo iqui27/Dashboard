@@ -337,12 +337,7 @@ if st.session_state["authentication_status"]:
                 st.markdown(f"<h6 style='text-align: center; color:yellow;'>{project_details['Processo SEI'].values[0]}</h6>", unsafe_allow_html=True)
                 st.divider()
                 st.write("\n")
-                st.markdown("<h5 style='text-align: center;'>Fonte de Custeio</h5>", unsafe_allow_html=True)
-                st.markdown("<h5 style='text-align: center;'>{}</h5>".format(project_details['Fonte de Custeio'].values[0]), unsafe_allow_html=True)
-                st.write("\n")
-                st.markdown("<h5 style='text-align: center;'>Situação Atual</h5>", unsafe_allow_html=True)
-                st.markdown(f"<h6 style='text-align: center; color: Green;'>{project_details['Situação atual'].values[0]}</h6>", unsafe_allow_html=True)
-
+                
                 
             with col1:
                 st.write("\n")
@@ -362,12 +357,7 @@ if st.session_state["authentication_status"]:
                 
                 st.write("\n")
                 st.write("\n")
-                with elements("card_container"):
-                    with mui.Card(key="card1",style={"borderRadius": "10px","border": "1px solid #0e1117", "boxShadow": "none", "backgroundColor": "transparent"}):
-                        mui.CardContent([
-                            mui.Typography("Observações", style={"textAlign": "center","fontFamily": "'IBM Plex Sans', sans-serif", "fontWeight": "bold", "color": "white", "marginBottom": "20px"}),
-                            mui.Typography(project_details['Observações'].values[0], style={"marginTop": "16px", "color": "gray", "fontFamily": "'IBM Plex Sans', sans-serif", "fontSize": "14px"}),
-                        ])
+    
             with col3:
                 st.write("\n")
                 st.write("\n")
@@ -386,10 +376,21 @@ if st.session_state["authentication_status"]:
       
                 # Para centralizar os nomes e adicionar espaço
                 nomes = project_details['Comissão Gestora da Parceria'].values[0].split(',')
-                st.write("\n")
-                st.write("\n")
-                st.write("\n")
-                with elements("card_container1"):
+
+               
+            
+            
+            col1, col2, col3 = st.columns([4, 4, 4])
+            with col1: 
+                with elements("card_container"):
+                    with mui.Card(key="card1",style={"borderRadius": "10px","border": "1px solid #0e1117", "boxShadow": "none", "backgroundColor": "transparent"}):
+                        mui.CardContent([
+                        mui.Typography("Observações", style={"textAlign": "center","fontFamily": "'IBM Plex Sans', sans-serif", "fontWeight": "bold", "color": "white", "marginBottom": "20px"}),
+                        mui.Typography(project_details['Observações'].values[0], style={"marginTop": "16px", "color": "gray", "fontFamily": "'IBM Plex Sans', sans-serif", "fontSize": "14px"}),
+                        ])
+                    
+            with col3:
+                 with elements("card_container1"):
                                     # Incorporar uma fonte do Google
                     mui.CssBaseline(options={
                         "typography": {
@@ -420,18 +421,14 @@ if st.session_state["authentication_status"]:
                                     "fontWeight": "bold",
                                 })
 
-                st.markdown("</ul>", unsafe_allow_html=True)
-            
-            
-            col1, col2, col3 = st.columns([4, 4, 4])
-    
-            st.write("\n")
-            st.write("\n")
-            st.write("\n")
-            st.write("\n")
-            st.write("\n")
-            st.write("\n")
-
+                        st.markdown("</ul>", unsafe_allow_html=True)
+            with col2:
+                st.markdown("<h5 style='text-align: center;'>Fonte de Custeio</h5>", unsafe_allow_html=True)
+                st.markdown("<h5 style='text-align: center;'>{}</h5>".format(project_details['Fonte de Custeio'].values[0]), unsafe_allow_html=True)
+                st.write("\n")
+                st.markdown("<h5 style='text-align: center;'>Situação Atual</h5>", unsafe_allow_html=True)
+                st.markdown(f"<h6 style='text-align: center; color: Green;'>{project_details['Situação atual'].values[0]}</h6>", unsafe_allow_html=True)
+                
     with tab2: #Chat
         st.markdown("<h6 style='text-align: center;'>{}</h6>".format(selected_project), unsafe_allow_html=True)
 
