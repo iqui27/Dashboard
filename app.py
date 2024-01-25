@@ -434,8 +434,10 @@ if st.session_state["authentication_status"]:
 
     with tab2: #Chat
         st.markdown("<h6 style='text-align: center;'>{}</h6>".format(selected_project), unsafe_allow_html=True)
+
         col1, col2, col3 = st.columns([1, 4, 1])
         with col3:
+            st.write("Esse é o chat do projeto, todos os membros da equipe podem enviar mensagens aqui e ficara salvado no histórico do projeto")
             # Botão para limpar a conversa
             if 'confirm_clear' not in st.session_state:
                 st.session_state.confirm_clear = False
