@@ -116,41 +116,200 @@ if st.session_state["authentication_status"]:
     numero_de_projetos_eventos = df[df['classificacao'] == 'Eventos']['Projeto'].count()
     numero_de_projetos_novos = df[df['classificacao'] == 'Novos Projetos']['Projeto'].count()
     numero_de_projetos_concluidos = df[df['Situação atual'] == 'Concluído']['Projeto'].count()
+# Calculate the total value of projects in progress
+    valor_total_projetos_andamento = df[df['classificacao'] == 'Em Andamento']['Valor'].sum()
+    valor_total_projetos_andamento_emendas = df[df['classificacao'] == 'Emendas Parlamentares']['Valor'].sum()
+    valor_total_projetos_andamento_eventos = df[df['classificacao'] == 'Eventos']['Valor'].sum()
+    valor_total_projetos_andamento_novos = df[df['classificacao'] == 'Novos Projetos']['Valor'].sum()
+    valor_total_projetos_andamento_concluidos = df[df['Situação atual'] == 'Concluído']['Valor'].sum()
+    valor_total_projetos_andamento_formatado = locale.currency(valor_total_projetos_andamento, grouping=True)
+    valor_total_projetos_andamento_emendas_formatado = locale.currency(valor_total_projetos_andamento_emendas, grouping=True)
+    valor_total_projetos_andamento_eventos_formatado = locale.currency(valor_total_projetos_andamento_eventos, grouping=True)
+    valor_total_projetos_andamento_novos_formatado = locale.currency(valor_total_projetos_andamento_novos, grouping=True)
+    valor_total_projetos_andamento_concluidos_formatado = locale.currency(valor_total_projetos_andamento_concluidos, grouping=True)
+    
     with tab1:
-        st.header("Bem vindo ao Dashboard SECTI")
-        st.write("Aqui você pode acompanhar os projetos da SECTI")
-        st.write("Para começar, selecione um projeto na barra lateral")
-        st.write("Projetos cadastrados", numero_de_projetos,)
-        st.write("Projetos em andamento", numero_de_projetos_em_andamento,)
-        st.write("Projetos de emendas parlamentares", numero_de_projetos_emendas,)
-        st.write("Projetos de eventos", numero_de_projetos_eventos,)
-        st.write("Projetos novos", numero_de_projetos_novos,)
-        st.divider()
-        
+            col1, col2= st.columns([3, 3])
+            with col1:
+                style_container = """
+                    <style>
+                    .stats {
+                        padding: 10px 0;
+                        display: flex;
+                        align-items: center;
+                        justify-content: left;
+                        gap: 10px;
+                    }
+                    .stats div {
+                        padding: 5px 10px;
+                        background-color: #1B1F23; /* Cor do fundo do número */
+                        border-radius: 10px;
+                        color: yellow; /* Cor do texto do número */
+                        font-weight: bold;
+                    }
+                    </style>
+                    """
+                st.header("Bem vindo ao Dashboard SECTI")
+                st.write("Aqui você pode acompanhar os projetos da SECTI")
+                st.write("Para começar, selecione um projeto na barra lateral")
+                # Utilize o estilo definido acima antes dos seus elementos
+                st.markdown(style_container, unsafe_allow_html=True)
+
+                # Cada linha de estatística é formatada com o estilo definido
+                st.markdown(f"""
+                <div class="stats">
+                    <span>Projetos cadastrados:</span>
+                    <div>{numero_de_projetos}</div>
+                </div>
+                """, unsafe_allow_html=True)
+
+                st.markdown(f"""
+                <div class="stats">
+                    <span>Projetos em andamento:</span>
+                    <div>{numero_de_projetos_em_andamento}</div>
+                </div>
+                """, unsafe_allow_html=True)
+
+                # Repita para as demais categorias
+                st.markdown(f"""
+                <div class="stats">
+                    <span>Projetos de emendas parlamentares:</span>
+                    <div>{numero_de_projetos_emendas}</div>
+                </div>
+                """, unsafe_allow_html=True)
+
+                st.markdown(f"""
+                <div class="stats">
+                    <span>Projetos de eventos:</span>
+                    <div>{numero_de_projetos_eventos}</div>
+                </div>
+                """, unsafe_allow_html=True)
+
+                st.markdown(f"""
+                <div class="stats">
+                    <span>Projetos novos:</span>
+                    <div>{numero_de_projetos_novos}</div>
+                </div>
+                """, unsafe_allow_html=True)
+            with col2:
+                st.write("\n")
+                st.write("\n")
+                st.write("\n")
+                st.write("\n")
+                st.write("\n")
+                st.write("\n")
+                st.write("\n")
+                st.write("\n")
+                st.write("\n")
+                st.write("\n")
+                st.write("\n")
+                st.write("\n")
 
 
-        # Suponha que 'df' seja o seu DataFrame e que ele tem colunas 'Projeto' e 'Valor'
-        # Certifique-se de que os valores estão em formato numérico e não há valores NaN
-        df.dropna(subset=['Valor'], inplace=True)
-        df['Valor'] = df['Valor'].astype(float)
+                st.markdown(f"""
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <span>Valor total dos projetos em andamento:</span>
+                        <div style="background-color: #1B1F23; border-radius: 10px; padding: 4px 12px;">
+                            <span style="color: #26D367;">{valor_total_projetos_andamento_formatado}</span>
+                        </div>
+                    </div>
+                """, unsafe_allow_html=True)
+                st.write("\n")
+                st.markdown(f"""
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <span>Valor total dos projetos de emendas parlamentares:</span>
+                        <div style="background-color: #1B1F23; border-radius: 10px; padding: 4px 12px;">
+                            <span style="color: #26D367;">{valor_total_projetos_andamento_emendas_formatado}</span>
+                        </div>
+                    </div>
+                """, unsafe_allow_html=True)
+                st.write("\n")
+                st.markdown(f"""
+                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+                        <span>Valor total dos projetos de eventos:</span>
+                        <div style="background-color: #1B1F23; border-radius: 10px; padding: 4px 12px;">
+                            <span style="color: #26D367;">{valor_total_projetos_andamento_eventos_formatado}</span>
+                        </div>
+                    </div>
+                """, unsafe_allow_html=True)
+                st.write("\n")
+                st.markdown(f"""
+                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+                        <span>Valor total dos novos projetos:</span>
+                        <div style="background-color: #1B1F23; border-radius: 10px; padding: 4px 12px;">
+                            <span style="color: #26D367;">{valor_total_projetos_andamento_novos_formatado}</span>
+                        </div>
+                    </div>
+                """, unsafe_allow_html=True)
+                st.write("\n")
+                st.markdown(f"""
+                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+                        <span>Valor total dos projetos concluídos:</span>
+                        <div style="background-color: #1B1F23; border-radius: 10px; padding: 4px 12px;">
+                            <span style="color: #26D367;">{valor_total_projetos_andamento_concluidos_formatado}</span>
+                        </div>
+                    </div>
+                """, unsafe_allow_html=True)
 
-        # Crie um gráfico de barras usando st.bar_chart
-        st.bar_chart(df.set_index('Projeto')['Valor'], height=500)
 
-        st.write("\n")
-        st.write("\n")
-        st.write("\n")
-        st.write("\n")
-        st.write("\n")
+               
+            
 
-        # Agrupar projetos por situação atual e contar quantos projetos estão em cada categoria
-        situacao_counts = df['Situação atual'].value_counts()
 
-        # Convertendo o resultado para um DataFrame, que é necessário para o st.bar_chart()
-        situacao_df = pd.DataFrame({'Número de Projetos': situacao_counts})
+            # Suponha que 'df' seja o seu DataFrame e que ele tem colunas 'Projeto', 'Valor', 'Classificação' e 'Unidade SECTI Responsável'
+            # Certifique-se de que os valores estão em formato numérico e não há valores NaN
+            st.divider()
+            df.dropna(subset=['Valor'], inplace=True)
+            df['Valor'] = df['Valor'].astype(float)
 
-        # Exibir o gráfico de barras no Streamlit
-        st.bar_chart(situacao_df,height=400, color='#fd0')
+            # Toggle para habilitar ou desabilitar os filtros
+            enable_classificacao_filter = st.checkbox("Filtrar por Classificação")
+            enable_unidade_filter = st.checkbox("Filtrar por Unidade SECTI Responsável")
+
+            if enable_classificacao_filter:
+                # Opções de classificação
+                classificacoes = df['classificacao'].unique()
+
+                # Widget de seleção de classificação
+                selected_classificacao = st.selectbox('Selecione a Classificação', classificacoes)
+
+            if enable_unidade_filter:
+                # Opções de Unidade SECTI Responsável
+                unidades = df['Unidade SECTI Responsável'].unique()
+
+                # Widget de seleção de Unidade SECTI Responsável
+                selected_unidade = st.selectbox('Selecione a Unidade SECTI Responsável', unidades)
+
+            # Filtrar o DataFrame com base nos filtros selecionados
+            if enable_classificacao_filter and enable_unidade_filter:
+                filtered_df = df[(df['classificacao'] == selected_classificacao) & (df['Unidade SECTI Responsável'] == selected_unidade)]
+            elif enable_classificacao_filter:
+                filtered_df = df[df['classificacao'] == selected_classificacao]
+            elif enable_unidade_filter:
+                filtered_df = df[df['Unidade SECTI Responsável'] == selected_unidade]
+            else:
+                filtered_df = df
+
+            # Crie um gráfico de barras usando st.bar_chart
+            st.bar_chart(filtered_df.set_index('Projeto')['Valor'], height=500)
+
+
+    
+
+            st.write("\n")
+            st.write("\n")
+            st.write("\n")
+            st.write("\n")
+            st.write("\n")
+
+            # Agrupar projetos por situação atual e contar quantos projetos estão em cada categoria
+            situacao_counts = df['Situação atual'].value_counts()
+
+            # Convertendo o resultado para um DataFrame, que é necessário para o st.bar_chart()
+            situacao_df = pd.DataFrame({'Número de Projetos': situacao_counts})
+
+            # Exibir o gráfico de barras no Streamlit
+            st.bar_chart(situacao_df,height=400, color='#fd0')
 
     with tab3:
             col1, col2, col3 = st.columns([3, 6, 3])
@@ -222,8 +381,8 @@ if st.session_state["authentication_status"]:
                 st.write("\n")
                 st.write("\n")
                 st.write("\n")
-                with st.expander("Mais Informações sobre o fomento"):
-                    st.text(project_details['Mais informações do fomento'].values[0])
+                st.markdown("<h5 style='text-align: center;'>Mais Informações sobre o fomento</h5>", unsafe_allow_html=True)
+                st.markdown(f"<h6 style='text-align: center; color: yellow;'>{project_details['Mais informações do fomento'].values[0]}</h6>", unsafe_allow_html=True)
       
                 # Para centralizar os nomes e adicionar espaço
                 nomes = project_details['Comissão Gestora da Parceria'].values[0].split(',')
