@@ -110,11 +110,24 @@ if st.session_state["authentication_status"]:
     # Inicializa uma lista vazia para o projeto atual se ainda não existir
     if selected_project not in st.session_state.chat_messages:
         st.session_state.chat_messages[selected_project] = []
-
+    numero_de_projetos = df['Projeto'].count()
+    numero_de_projetos_em_andamento = df[df['classificacao'] == 'Em Andamento']['Projeto'].count()
+    numero_de_projetos_emendas = df[df['classificacao'] == 'Emendas Parlamentares']['Projeto'].count()
+    numero_de_projetos_eventos = df[df['classificacao'] == 'Eventos']['Projeto'].count()
+    numero_de_projetos_novos = df[df['classificacao'] == 'Novos Projetos']['Projeto'].count()
+    numero_de_projetos_concluidos = df[df['Situação atual'] == 'Concluído']['Projeto'].count()
     with tab1:
         st.header("Bem vindo ao Dashboard SECTI")
         st.write("Aqui você pode acompanhar os projetos da SECTI")
         st.write("Para começar, selecione um projeto na barra lateral")
+        st.write("Projetos cadastrados", numero_de_projetos,)
+        st.write("Projetos em andamento", numero_de_projetos_em_andamento,)
+        st.write("Projetos de emendas parlamentares", numero_de_projetos_emendas,)
+        st.write("Projetos de eventos", numero_de_projetos_eventos,)
+        st.write("Projetos novos", numero_de_projetos_novos,)
+        st.divider()
+        
+
 
         # Suponha que 'df' seja o seu DataFrame e que ele tem colunas 'Projeto' e 'Valor'
         # Certifique-se de que os valores estão em formato numérico e não há valores NaN
