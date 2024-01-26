@@ -34,10 +34,9 @@ if 'chat_messages' not in st.session_state:
 
 # Definir configurações da página
 st.set_page_config(
-    page_title='Dashboard SECTI',
-    layout='wide',  # Activate wide layout
-    initial_sidebar_state='auto',  # Set initial sidebar state (can be 'auto', 'expanded', 'collapsed')
-    theme='dark'  # Set dark theme
+   page_title='Dashboard SECTI',
+   layout='wide',  # Ativa o layout wide
+   initial_sidebar_state='auto'  # Define o estado inicial da sidebar (pode ser 'auto', 'expanded', 'collapsed')
 )
 
 
