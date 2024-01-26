@@ -37,7 +37,14 @@
     "PROJETO ECO INOVA BRAS\u00cdLIA": [],
     "CIDADE INTELIGENTE GAMA": [],
     "FETUC - 2\u00aa EDI\u00c7\u00c3O": [],
-    "BSB PLAY": [],
+    "BSB PLAY": [
+        {
+            "user": "admin",
+            "name": "Henrique Rocha",
+            "message": "ola, nao gostei ",
+            "timestamp": 1706218325.4639196
+        }
+    ],
     "AVANT CERRADO": [],
     "INNOVA HUB": [],
     "-": [],

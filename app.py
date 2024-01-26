@@ -9,6 +9,8 @@ from datetime import datetime
 import pytz
 import yaml
 from streamlit_elements import elements, mui
+import plotly.express as px
+import plotly.graph_objs as go
 
 
 timezone = pytz.timezone("America/Sao_Paulo")
@@ -52,7 +54,13 @@ authenticator = Authenticate(
 # Criação da tela de login
 authenticator.login()
 
+# Dataframe com os dados dos projetos
 df = pd.read_csv("Dashboard.csv")
+ra = pd.read_csv("RA.csv")
+relatorio2023 = pd.read_csv("Relatorio2023.csv")
+mes = pd.read_csv("mes.csv")
+estado = pd.read_csv("outroestado.csv")
+
 # Defina um caminho para o arquivo CSV
 csv_file_path = "Dashboard.csv"
 
@@ -70,7 +78,7 @@ if st.session_state["authentication_status"]:
     st.sidebar.title("Projetos")
 
     # Cria uma barra de navegação com abas
-    tab1, tab2, tab3, tab4, tab5 = st.tabs(["Home", "Chat", "Projetos", "Editar", "Sair"])
+    tab1, tab2, tab3, tab6, tab4, tab5 = st.tabs(["Home", "Chat", "Projetos","Planetário", "Editar", "Sair"])
 
     
     # Setup a search box
@@ -658,7 +666,253 @@ if st.session_state["authentication_status"]:
                 st.warning('Please enter your username and password')
     with tab5: #Logout
         authenticator.logout()
+    with tab6: #Planetário
+       
+        # Gerar um treemap usando plotly express
+        ra['Total de alunos'] = ra['Total de alunos'].replace(0, 0.1)
+        fig = px.treemap(ra, path=['DF','Localização'], values='Total de alunos',
+                        color='Total de alunos', hover_data=['DF'],
+                        color_continuous_scale='RdBu', title='Distribuição por Região Administrativa',)
+                # Create gauge charts
+        private_sum = relatorio2023[relatorio2023['tipo'] == 'Privada']['Quantidade Visitas'].sum()
+        public_sum = relatorio2023[relatorio2023['tipo'] == 'Pública']['Quantidade Visitas'].sum()
+        total_sum = relatorio2023['Quantidade Visitas'].sum()
+        # Convert 'Mês' to datetime if it's not already
+        relatorio2023['Mês'] = pd.to_datetime(relatorio2023['Mês'])
+        mes['Mês'] = pd.to_datetime(mes['Mês'])
+        
+        mes['Cúpula'] = mes['Cúpula'].replace(0, 'Em Manutenção')
 
+        relatorio2023['YearMonth'] = relatorio2023['Mês'].dt.strftime('%Y%m')
+        mes['YearMonth'] = mes['Mês'].dt.strftime('%Y%m')
+
+        # Create a month-year string representation for the dropdown
+        relatorio2023['MonthYear'] = relatorio2023['Mês'].dt.strftime('%B %Y')
+        mes['MonthYear'] = mes['Mês'].dt.strftime('%B %Y')
+
+        # Get the unique list of year-month pairs, sorted chronologically
+        sorted_month_list = relatorio2023['YearMonth'].unique()
+        sorted_month_list.sort()
+        # Map the sorted year-month to the human-readable month-year strings
+        sorted_month_year = [relatorio2023[relatorio2023['YearMonth'] == ym]['MonthYear'].iloc[0] for ym in sorted_month_list]
+
+        # User selects the month-year from the dropdown
+        selected_month_year = st.selectbox('Selecione o Mês', sorted_month_year)
+
+        # Filter the DataFrame based on the selected month-year
+        selected_month_data = relatorio2023[relatorio2023['MonthYear'] == selected_month_year]
+        selected_month_data2 = mes[mes['MonthYear'] == selected_month_year]
+        
+
+        # Calculate the total number of students for the selected month
+        total_students = selected_month_data['Quantidade Visitas'].sum()
+        total_students2 = selected_month_data2['Total de Atendimentos'].sum()
+
+        # Assuming you want to set the gauge max value to the max of any month to keep the scale consistent
+        max_value = relatorio2023.groupby('MonthYear')['Quantidade Visitas'].sum().max()
+        max_value2 = relatorio2023.groupby('MonthYear')['Quantidade Visitas'].sum().max()
+
+         #Supondo que 'df_visitas' esteja ordenado cronologicamente
+        mes['Variacao_Percentual'] = mes['Total de Atendimentos'].pct_change() * 100
+
+        # Encontrando a variação percentual para o mês selecionado
+        selected_month_year_date = pd.to_datetime(selected_month_year, format='%B %Y')
+        variacao = mes[mes['Mês'] == selected_month_year_date]['Variacao_Percentual'].values[0]
+
+        # Exibir o título do relatório
+        st.header(f"Relatório de Planetario - {selected_month_data2['MonthYear'].iloc[0]}")
+        st.write("\n")
+
+        # Verifica se a variação é um número (para evitar erros com NaN)
+        if pd.notnull(variacao):
+            cor_texto = "green" if variacao >= 0 else "red"
+            variacao_formatada = f"{variacao:.2f}%"
+        else:
+            cor_texto = "black"
+            variacao_formatada = "Dados indisponíveis"
+        col1, col2, col3 = st.columns([3, 3,3])
+
+
+        
+        with col1:
+
+            
+            st.markdown(f"""
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <span>Total de Visitantes na Cúpula:</span>
+                            <div style="background-color: #1B1F23; border-radius: 10px; padding: 4px 12px;">
+                                <span style="color: #26D367;">{selected_month_data2['Cúpula'].sum()}</span>
+                            </div>
+                        </div>
+                    """, unsafe_allow_html=True)
+            st.write("\n")
+            st.markdown(f"""
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <span>Total de Visitantes de Outro Países:</span>
+                            <div style="background-color: #1B1F23; border-radius: 10px; padding: 4px 12px;">
+                                <span style="color: #26D367;">{selected_month_data2['Outros Países'].sum()}</span>
+                            </div>
+                        </div>
+                    """, unsafe_allow_html=True)
+            st.write("\n") 
+            st.markdown(f"""
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <span>Total de Visitantes de Outros Estado:</span>
+                            <div style="background-color: #1B1F23; border-radius: 10px; padding: 4px 12px;">
+                                <span style="color: #26D367;">{selected_month_data2['Outros Estados'].sum()}</span>
+                            </div>
+                        </div>
+                    """, unsafe_allow_html=True)
+            st.write("\n")
+            st.write("\n")   
+            # Exibindo o card com a variação percentual
+              
+        with col3:
+            st.markdown(f"""
+                        <div style="display: flex; align-items: right; gap: 10px;">
+                            <span>Número de Sessões:</span>
+                            <div style="background-color: #1B1F23; border-radius: 10px; padding: 4px 12px;">
+                                <span style="color: #db3e00;">{selected_month_data2['Número de sessões'].sum()}</span>
+                            </div>
+                        </div>
+                    """, unsafe_allow_html=True)
+        st.write("\n")
+        st.write("\n")
+        st.write("\n")    
+        col1, col2, col3 = st.columns([3, 1, 3])
+        with col1:
+
+            # Personalizar o tamanho da figura
+            fig.update_layout(
+                autosize=False,
+                #width=1000,  # Largura da figura em pixels
+                height=600,#  Altura da figura em pixels
+                paper_bgcolor='rgba(0,0,0,0)',  # RGBA para cor de fundo transparente
+                plot_bgcolor='rgba(0,0,0,0)',     # Altura da figura em pixel
+            )
+            # Atualizar as propriedades do texto para os rótulos
+            fig.update_traces(
+                textinfo="label+value",
+                textfont_size=15,  # Tamanho da fonte dos rótulos 
+            )
+
+            fig.update_traces(marker=dict(cornerradius=5))
+            # Exibir o treemap no Streamlit
+   
+            
+            fig4 = go.Figure()
+            # Criação do gráfico de donut
+
+            fig4.add_trace(go.Indicator(
+            mode="gauge+number",
+            value=total_students,
+            title={'text': f"Estudantes - {selected_month_year}"},
+            domain={'x': [0, 1], 'y': [0, 1]},
+            gauge={
+                'axis': {'range': [None, max_value], 'tickwidth': 1, 'tickcolor': "#0693e3"},
+                'bar': {'color': "#0693e3"},
+                'steps': [
+                    {'range': [0, total_students], 'color': '#0693e3'},
+                    {'range': [total_students, max_value], 'color': '#0693e3'}
+                ],
+            }
+        ))
+            
+            fig5 = go.Figure()
+            # Criação do gráfico de donut
+
+            fig5.add_trace(go.Indicator(
+            mode="gauge+number",
+            value=total_students2,
+            title={'text': f"Visitantes - {selected_month_year}"},
+            domain={'x': [0, 1], 'y': [0, 1]},
+            gauge={
+                'axis': {'range': [None, max_value2], 'tickwidth': 1, 'tickcolor': "orange"},
+                'bar': {'color': "orange"},
+                'steps': [
+                    {'range': [0, total_students2], 'color': 'orange'},
+                    {'range': [total_students2, max_value2], 'color': 'lightgray'}
+                ],
+            }
+        ))
+            fig5.update_layout(
+                margin=dict(t=100)  # Increase top margin to 100 pixels; adjust the number as needed
+            )
+                # Criação do gráfico de donut
+            fig2 = go.Figure(data=[go.Pie(labels=selected_month_data['tipo'], values=selected_month_data['Quantidade Visitas'], hole=.3)])
+
+            # Personalização do gráfico
+            fig2.update_traces(marker=dict(colors=['#8ED1FC', '#0693e3'], line=dict(color='#FFFFFF', width=1)))
+            fig2.update_layout(
+                title_text=f'Escolas Privadas e Escolas Públicas - {selected_month_year}',  # Título do gráfico
+                # Personalização da legenda
+                legend=dict(
+                    orientation="h",
+                    yanchor="bottom",
+                    y=1.02,
+                    xanchor="right",
+                    x=1
+                ),
+                # Personalização do papel e da cor de fundo do gráfico
+                paper_bgcolor='rgba(0,0,0,0)',
+                plot_bgcolor='rgba(0,0,0,0)',
+                showlegend=True
+            )
+            st.plotly_chart(fig2,use_container_width=True)
+            st.markdown(f"""
+                <div style="background-color: #1B1F23; border-radius: 10px; padding: 4px 12px; margin: 10px 0;">
+                    <h4 style="text-align: center;">Variação de Visitantes em Relação ao Mês Anterior</h4>
+                    <p style="text-align: center; color: {cor_texto}; font-size: 24px;">{variacao_formatada}</p>
+                </div>
+            """, unsafe_allow_html=True)   
+            st.write("\n")
+            st.write("\n")
+            st.write("\n")
+
+
+            # Assuming you want to set the gauge max value to the max of any month to keep the sca
+            col4, col5 = st.columns([1, 1])
+            with col4:
+                st.plotly_chart(fig4, use_container_width=True)
+            with col5:
+                st.plotly_chart(fig5, use_container_width=True)
+            
+        with col3:
+                
+          
+
+            # Exibe o gráfico
+            st.plotly_chart(fig, use_container_width=True)
+
+            # Criação do gráfico de linha total de alunos escola
+            relatorio2023['Mês'] = pd.to_datetime(relatorio2023['Mês'])
+            relatorio_agrupado = relatorio2023.groupby(relatorio2023['Mês'].dt.to_period('M')).agg({
+                'Quantidade Visitas': 'sum'
+            }).reset_index()
+            # Agora, converter o índice de período para datetime para gráficos
+            relatorio_agrupado['Mês'] = relatorio_agrupado['Mês'].dt.to_timestamp()
+            # Criação do gráfico de linha
+            fig3 = px.line(relatorio_agrupado, x='Mês', y='Quantidade Visitas', title='Soma de Visitas por Mês')
+
+            # Personalização do gráfico
+            fig3.update_layout(
+                xaxis_title='Mês',
+                yaxis_title='Quantidade de Visitas',
+                xaxis=dict(
+                    tickmode='auto',
+                    nticks=20,
+                    tickformat='%b\n%Y'  # Formato do mês como 'Jan\n2020'
+                ),
+                yaxis=dict(
+                    tickmode='auto',
+                    nticks=15  # Ajuste conforme necessário para o seu conjunto de dados
+                ),
+                showlegend=True
+            )
+
+            # Exibindo o gráfico no Streamlit
+            st.plotly_chart(fig3,use_container_width=True)
+            
 
 
 
