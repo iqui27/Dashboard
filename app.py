@@ -337,8 +337,8 @@ if st.session_state["authentication_status"]:
                 st.divider()
                 st.markdown(f"""
                 <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 0rem 0;">
-                    <span style="font-size: 0.75rem; font-weight: light; color: white; margin-bottom: 0rem;">Processo SEI</span>
-                    <span style="background-color: #1B1F23 ; padding: 0.25rem 0.75rem; border-radius: 10px; color: yellow; font-weight: light; font-size: 0.75rem;">{project_details['Processo SEI'].values[0]}</span>
+                    <span style="font-size: 1.10rem; font-weight: light; color: white; margin-bottom: 0rem;">Processo SEI</span>
+                    <span style="background-color: #1B1F23 ; padding: 0.25rem 3.75rem; border-radius: 10px; color: yellow; font-weight: light; font-size: 1.15rem;">{project_details['Processo SEI'].values[0]}</span>
                 </div>
                 """, unsafe_allow_html=True)
                 st.write("\n")
@@ -385,16 +385,16 @@ if st.session_state["authentication_status"]:
                
             
             
-            col1, col2, col3 = st.columns([4, 4, 4])
+            col1, col2, col3, col4, col5, col6 = st.columns([4, 1, 4, 4, 1, 4])
             with col1:
-                st.markdown(f"""
-                <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 1rem 0;">
-                    <span style="font-size: 1.35rem; font-weight: bold; color: white; margin-bottom: 0.5rem;">Situação Atual</span>
-                    <span style="background-color: #1B1F23 ; padding: 0.25rem 0.75rem; border-radius: 10px; color: #26D367; font-weight: bold; font-size: 1.25rem;">{project_details['Situação atual'].values[0]}</span>
-                </div>
-                """, unsafe_allow_html=True) 
+                with elements("card_container"):
+                    with mui.Card(key="card1",style={"borderRadius": "10px","border": "1px solid #0e1117", "boxShadow": "none", "backgroundColor": "transparent"}):
+                        mui.CardContent([
+                        mui.Typography("Observações", style={"textAlign": "center","fontFamily": "'IBM Plex Sans', sans-serif", "fontWeight": "bold", "color": "white", "marginBottom": "20px"}),
+                        mui.Typography(project_details['Observações'].values[0], style={"marginTop": "16px", "color": "gray", "fontFamily": "'IBM Plex Sans', sans-serif", "fontSize": "14px"}),
+                        ])
                     
-            with col3:
+            with col6:
                  with elements("card_container1"):
                                     # Incorporar uma fonte do Google
                     mui.CssBaseline(options={
@@ -427,20 +427,23 @@ if st.session_state["authentication_status"]:
                                 })
 
                         st.markdown("</ul>", unsafe_allow_html=True)
-            with elements("card_container"):
-                    with mui.Card(key="card1",style={"borderRadius": "10px","border": "1px solid #0e1117", "boxShadow": "none", "backgroundColor": "transparent"}):
-                        mui.CardContent([
-                        mui.Typography("Observações", style={"textAlign": "center","fontFamily": "'IBM Plex Sans', sans-serif", "fontWeight": "bold", "color": "white", "marginBottom": "20px"}),
-                        mui.Typography(project_details['Observações'].values[0], style={"marginTop": "16px", "color": "gray", "fontFamily": "'IBM Plex Sans', sans-serif", "fontSize": "14px"}),
-                        ])
             
-            with col2:
-                st.markdown(f"""
+            
+            with col4:
+                    st.markdown(f"""
+                    <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 1rem 0;">
+                        <span style="font-size: 1.35rem; font-weight: bold; color: white; margin-bottom: 0.5rem;">Fonte de Custeio</span>
+                        <span style="background-color: #1B1F23 ; padding: 0.25rem 0.75rem; border-radius: 10px; color: gray; font-weight: bold; font-size: 1.25rem;">{project_details['Fonte de Custeio'].values[0]}</span>
+                    </div>
+                    """, unsafe_allow_html=True)
+            with col3:
+                    st.markdown(f"""
                 <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 1rem 0;">
-                    <span style="font-size: 1.35rem; font-weight: bold; color: white; margin-bottom: 0.5rem;">Fonte de Custeio</span>
-                    <span style="background-color: #1B1F23 ; padding: 0.25rem 0.75rem; border-radius: 10px; color: gray; font-weight: bold; font-size: 1.25rem;">{project_details['Fonte de Custeio'].values[0]}</span>
+                    <span style="font-size: 1.35rem; font-weight: bold; color: white; margin-bottom: 0.5rem;">Situação Atual</span>
+                    <span style="background-color: #1B1F23 ; padding: 0.25rem 0.75rem; border-radius: 10px; color: #26D367; font-weight: bold; font-size: 1.25rem;">{project_details['Situação atual'].values[0]}</span>
                 </div>
-                """, unsafe_allow_html=True)
+                """, unsafe_allow_html=True) 
+
                 
     with tab2: #Chat
         st.markdown("<h6 style='text-align: center;'>{}</h6>".format(selected_project), unsafe_allow_html=True)
