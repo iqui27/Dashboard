@@ -34,9 +34,10 @@ if 'chat_messages' not in st.session_state:
 
 # Definir configurações da página
 st.set_page_config(
-   page_title='Dashboard SECTI',
-   layout='wide',  # Ativa o layout wide
-   initial_sidebar_state='auto'  # Define o estado inicial da sidebar (pode ser 'auto', 'expanded', 'collapsed')
+    page_title='Dashboard SECTI',
+    layout='wide',  # Activate wide layout
+    initial_sidebar_state='auto',  # Set initial sidebar state (can be 'auto', 'expanded', 'collapsed')
+    theme='dark'  # Set dark theme
 )
 
 
@@ -845,7 +846,7 @@ if st.session_state["authentication_status"]:
             fig2 = go.Figure(data=[go.Pie(labels=selected_month_data['tipo'], values=selected_month_data['Quantidade Visitas'], hole=.3)])
 
             # Personalização do gráfico
-            fig2.update_traces(marker=dict(colors=['#8ED1FC', '#0693e3'], line=dict(color='#FFFFFF', width=1)))
+            fig2.update_traces(marker=dict(colors=['#f44336', '#c2185b'], line=dict(color='#FFFFFF', width=0)))
             fig2.update_layout(
                 title_text=f'Escolas Privadas e Escolas Públicas - {selected_month_year}',  # Título do gráfico
                 # Personalização da legenda
