@@ -331,7 +331,7 @@ if st.session_state["authentication_status"]:
                 st.markdown(f"""
                 <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 1rem 0;">
                     <span style="font-size: 2.25rem; font-weight: bold; color: white; margin-bottom: 0.5rem;">Valor</span>
-                    <span style="background-color: #1B1F23 ; padding: 0.25rem 0.75rem; border-radius: 10px; color: #26D367; font-weight: bold; font-size: 3.25rem;">{valor_formatado}</span>
+                    <span style="background-color: #1B1F23 ; padding: 0.25rem 0.75rem; border-radius: 10px; color: #388e3c; font-weight: bold; font-size: 3.00rem;">{valor_formatado}</span>
                 </div>
                 """, unsafe_allow_html=True)
                 st.divider()
@@ -348,17 +348,17 @@ if st.session_state["authentication_status"]:
                 st.write("\n")
                 st.write("\n")
                 st.markdown("<h5 style='text-align: center;'>Primeiro Intituicao Parceira</h5>", unsafe_allow_html=True)
-                st.markdown(f"<h6 style='text-align: center; color: yellow;'>{project_details['Instituição Parceira'].values[0]}</h6>", unsafe_allow_html=True)
+                st.markdown(f"<h6 style='text-align: center; color: #0097a7;'>{project_details['Instituição Parceira'].values[0]}</h6>", unsafe_allow_html=True)
                 st.write("\n")
                 st.write("\n")
                 st.write("\n")
                 st.markdown("<h5 style='text-align: center;'>Primeiro Execução do Projeto</h5>", unsafe_allow_html=True)
-                st.markdown(f"<h6 style='text-align: center; color: yellow;'>{project_details['Execução do Projeto'].values[0]}</h6>", unsafe_allow_html=True)
+                st.markdown(f"<h6 style='text-align: center; color: #0097a7;'>{project_details['Execução do Projeto'].values[0]}</h6>", unsafe_allow_html=True)
                 st.write("\n")
                 st.write("\n")
                 st.write("\n")
                 st.markdown("<h5 style='text-align: center;'>Unidade SECTI</h5>", unsafe_allow_html=True)
-                st.markdown(f"<h6 style='text-align: center; color: yellow;'>{project_details['Unidade SECTI Responsável'].values[0]}</h6>", unsafe_allow_html=True)
+                st.markdown(f"<h6 style='text-align: center; color: #0097a7;'>{project_details['Unidade SECTI Responsável'].values[0]}</h6>", unsafe_allow_html=True)
                 
                 st.write("\n")
                 st.write("\n")
@@ -367,17 +367,17 @@ if st.session_state["authentication_status"]:
                 st.write("\n")
                 st.write("\n")
                 st.markdown("<h5 style='text-align: center;'>Encerramento de Parceria</h5>", unsafe_allow_html=True)
-                st.markdown(f"<h6 style='text-align: center; color: yellow;'>{project_details['Encerramento da parceria'].values[0]}</h6>", unsafe_allow_html=True)
+                st.markdown(f"<h6 style='text-align: center; color: #ffb74d;'>{project_details['Encerramento da parceria'].values[0]}</h6>", unsafe_allow_html=True)
                 st.write("\n")
                 st.write("\n")
                 st.write("\n")
                 st.markdown("<h5 style='text-align: center;'>Ponto Focal na Instituição Parceira</h5>", unsafe_allow_html=True)
-                st.markdown(f"<h6 style='text-align: center; color: yellow;'>{project_details['Ponto Focal na Instituição Parceira'].values[0]}</h6>", unsafe_allow_html=True)
+                st.markdown(f"<h6 style='text-align: center; color: #ffb74d;'>{project_details['Ponto Focal na Instituição Parceira'].values[0]}</h6>", unsafe_allow_html=True)
                 st.write("\n")
                 st.write("\n")
                 st.write("\n")
                 st.markdown("<h5 style='text-align: center;'>Mais Informações sobre o fomento</h5>", unsafe_allow_html=True)
-                st.markdown(f"<h6 style='text-align: center; color: yellow;'>{project_details['Mais informações do fomento'].values[0]}</h6>", unsafe_allow_html=True)
+                st.markdown(f"<h6 style='text-align: center; color: #ffb74d;'>{project_details['Mais informações do fomento'].values[0]}</h6>", unsafe_allow_html=True)
       
                 # Para centralizar os nomes e adicionar espaço
                 nomes = project_details['Comissão Gestora da Parceria'].values[0].split(',')
@@ -390,8 +390,8 @@ if st.session_state["authentication_status"]:
                 with elements("card_container"):
                     with mui.Card(key="card1",style={"borderRadius": "10px","border": "1px solid #0e1117", "boxShadow": "none", "backgroundColor": "transparent"}):
                         mui.CardContent([
-                        mui.Typography("Observações", style={"textAlign": "center","fontFamily": "'IBM Plex Sans', sans-serif", "fontWeight": "bold", "color": "white", "marginBottom": "20px"}),
-                        mui.Typography(project_details['Observações'].values[0], style={"marginTop": "16px", "color": "gray", "fontFamily": "'IBM Plex Sans', sans-serif", "fontSize": "14px"}),
+                        mui.Typography("Observações", style={"textAlign": "center","fontFamily": "'Roboto', sans-serif", "fontWeight": "bold", "color": "white", "marginBottom": "20px"}),
+                        mui.Typography(project_details['Observações'].values[0], style={"marginTop": "16px", "color": "gray", "fontFamily": "'IRoboto', sans-serif", "fontSize": "14px"}),
                         ])
                     
             with col6:
@@ -403,26 +403,26 @@ if st.session_state["authentication_status"]:
                         }
                     })
                     # Cria um cartão com cantos arredondados e sombra
-                    with mui.Card(key="nomes_card", style={"borderRadius": "10px", "backgroundColor": "#0e1117", "border": "1px solid #0e1117", "boxShadow": "none"}):
+                    with mui.Card(key="nomes_card", style={"borderRadius": "10px", "backgroundColor": "transparent", "border": "1px solid #0e1117", "boxShadow": "none"}):
                         # Conteúdo do cartão
                         with mui.CardContent():
                             # Cabeçalho do cartão
-                            mui.Typography("Comissão Gestora da Parceria", style={"textAlign": "center", "fontSize": "17px", "fontFamily": "'IBM Plex Sans', sans-serif" , "fontWeight": "bold", "color": "white", "marginBottom": "20px"})
+                            mui.Typography("Comissão Gestora da Parceria", style={"textAlign": "center", "fontSize": "17px", "fontFamily": "'Roboto', sans-serif" , "fontWeight": "bold", "color": "white", "marginBottom": "20px"})
 
                             # Lista de nomes
                             for nome in nomes:
                                 # Cada nome é um item de lista com estilos aplicados
                                 mui.Typography(nome, component="li", style={
-                                    "background": "none",
+                                    "background": "transparent",
                                     "borderRadius": "10px",
-                                    "border": "0px",
+                                    "border": "2px",
                                     "padding": "5px 20px",
                                     "margin": "0px 0",
-                                    "color": "white",
+                                    "color": "#ff9800",
                                     "textAlign": "center",
                                     "display": "block",
                                     "fontSize": "12px",
-                                    "fontFamily": "'IBM Plex Sans', sans-serif",
+                                    "fontFamily": "'Roboto', sans-serif",
                                     "fontWeight": "bold",
                                 })
 
@@ -440,10 +440,12 @@ if st.session_state["authentication_status"]:
                     st.markdown(f"""
                 <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 1rem 0;">
                     <span style="font-size: 1.35rem; font-weight: bold; color: white; margin-bottom: 0.5rem;">Situação Atual</span>
-                    <span style="background-color: #1B1F23 ; padding: 0.25rem 0.75rem; border-radius: 10px; color: #26D367; font-weight: bold; font-size: 1.25rem;">{project_details['Situação atual'].values[0]}</span>
+                    <span style="background-color: #1B1F23 ; padding: 0.25rem 0.75rem; border-radius: 10px; color: #388e3c; font-weight: bold; font-size: 1.25rem;">{project_details['Situação atual'].values[0]}</span>
                 </div>
-                """, unsafe_allow_html=True) 
-
+                """, unsafe_allow_html=True)
+            st.divider() 
+            st.markdown("<h5 style='text-align: left;'>Finalidade do Projeto</h5>", unsafe_allow_html=True)
+            st.markdown(f"<h6 style='text-align: left; color: #0097a7;'>{project_details['Objeto/Finalidade'].values[0]}</h6>", unsafe_allow_html=True)
                 
     with tab2: #Chat
         st.markdown("<h6 style='text-align: center;'>{}</h6>".format(selected_project), unsafe_allow_html=True)
