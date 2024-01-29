@@ -682,6 +682,7 @@ if st.session_state["authentication_status"]:
         private_sum = relatorio2023[relatorio2023['tipo'] == 'Privada']['Quantidade Visitas'].sum()
         public_sum = relatorio2023[relatorio2023['tipo'] == 'Pública']['Quantidade Visitas'].sum()
         total_sum = relatorio2023['Quantidade Visitas'].sum()
+        
         # Convert 'Mês' to datetime if it's not already
         relatorio2023['Mês'] = pd.to_datetime(relatorio2023['Mês'])
         mes['Mês'] = pd.to_datetime(mes['Mês'])
@@ -700,6 +701,7 @@ if st.session_state["authentication_status"]:
         sorted_month_list.sort()
         # Map the sorted year-month to the human-readable month-year strings
         sorted_month_year = [relatorio2023[relatorio2023['YearMonth'] == ym]['MonthYear'].iloc[0] for ym in sorted_month_list]
+        
 
         # User selects the month-year from the dropdown
         selected_month_year = st.selectbox('Selecione o Mês', sorted_month_year)
@@ -707,6 +709,9 @@ if st.session_state["authentication_status"]:
         # Filter the DataFrame based on the selected month-year
         selected_month_data = relatorio2023[relatorio2023['MonthYear'] == selected_month_year]
         selected_month_data2 = mes[mes['MonthYear'] == selected_month_year]
+
+        # Aplicar capitalize na coluna 'MonthYear'
+        selected_month_data2['MonthYear'] = selected_month_data2['MonthYear'].apply(lambda x: x.capitalize())
         
 
         # Calculate the total number of students for the selected month
