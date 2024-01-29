@@ -704,6 +704,10 @@ if st.session_state["authentication_status"]:
 
         # Usuário seleciona o mês-ano do dropdown
         selected_month_year = st.selectbox('Selecione o Mês', sorted_month_year)
+        # Adicionar uma nova coluna que representa o dia da semana
+        locale.setlocale(locale.LC_TIME, 'pt_BR.utf8')
+        
+        
 
         if selected_month_year == "Todos os Meses":
             cupula_sum = mes['Cúpula'].sum()
@@ -716,6 +720,12 @@ if st.session_state["authentication_status"]:
             max_value2 = relatorio2023['Quantidade Visitas'].sum().max()
             private_sum = relatorio2023[relatorio2023['tipo'] == 'Privada']['Quantidade Visitas'].sum()
             public_sum = relatorio2023[relatorio2023['tipo'] == 'Pública']['Quantidade Visitas'].sum()
+            relatorio2023['Dia da Semana'] = relatorio2023['Mês'].dt.strftime('%A')
+            visitas_por_dia_da_semana = relatorio2023.groupby('Dia da Semana')['Quantidade Visitas'].sum().reset_index()
+            visitas_por_dia_da_semana.sort_values(by='Quantidade Visitas', ascending=False, inplace=True)
+            visitas_por_dia_da_semana = visitas_por_dia_da_semana.set_index('Dia da Semana')
+            # Obter o dia da semana com mais visitas
+            dia_com_mais_visitas = visitas_por_dia_da_semana.iloc[0]
         else:
             mes['Cúpula'] = mes['Cúpula'].replace(0, 'Em Manutenção')
             # Filter the DataFrame based on the selected month-year
@@ -750,6 +760,12 @@ if st.session_state["authentication_status"]:
             numero_sessoes = selected_month_data2['Número de sessões'].sum()
             private_sum = selected_month_data[selected_month_data['tipo'] == 'Privada']['Quantidade Visitas'].sum() 
             public_sum = selected_month_data[selected_month_data['tipo'] == 'Pública']['Quantidade Visitas'].sum()
+            selected_month_data['Dia da Semana'] = selected_month_data['Mês'].dt.strftime('%A')
+            visitas_por_dia_da_semana = selected_month_data.groupby('Dia da Semana')['Quantidade Visitas'].sum().reset_index()
+            visitas_por_dia_da_semana.sort_values(by='Quantidade Visitas', ascending=False, inplace=True)
+            visitas_por_dia_da_semana = visitas_por_dia_da_semana.set_index('Dia da Semana')
+            # Obter o dia da semana com mais visitas
+            dia_com_mais_visitas = visitas_por_dia_da_semana.iloc[0]
 
             # Verifica se a variação é um número (para evitar erros com NaN)
             if pd.notnull(variacao):
@@ -804,6 +820,17 @@ if st.session_state["authentication_status"]:
                             </div>
                         </div>
                     """, unsafe_allow_html=True)
+            st.write("\n")
+            st.markdown(f"""
+                        <div style="display: flex; align-items: right; gap: 10px;">
+                            <span>Dia Mais Visitado:</span>
+                            <div style="background-color: #1B1F23; border-radius: 10px; padding: 4px 12px;">
+                                <span style="color: Yellow;">{dia_com_mais_visitas.name}</span>
+                            </div>
+                        </div>
+                    """, unsafe_allow_html=True)
+            st.write("\n")
+            
         st.write("\n")
         st.write("\n")
         st.write("\n")    
