@@ -682,7 +682,6 @@ if st.session_state["authentication_status"]:
         private_sum = relatorio2023[relatorio2023['tipo'] == 'Privada']['Quantidade Visitas'].sum()
         public_sum = relatorio2023[relatorio2023['tipo'] == 'Pública']['Quantidade Visitas'].sum()
         total_sum = relatorio2023['Quantidade Visitas'].sum()
-        
         # Convert 'Mês' to datetime if it's not already
         relatorio2023['Mês'] = pd.to_datetime(relatorio2023['Mês'])
         mes['Mês'] = pd.to_datetime(mes['Mês'])
@@ -895,14 +894,14 @@ if st.session_state["authentication_status"]:
             st.plotly_chart(fig, use_container_width=True)
 
             # Criação do gráfico de linha total de alunos escola
-            relatorio2023['Mês'] = pd.to_datetime(relatorio2023['Mês'])
-            relatorio_agrupado = relatorio2023.groupby(relatorio2023['Mês'].dt.to_period('M')).agg({
-                'Quantidade Visitas': 'sum'
+            mes['Mês'] = pd.to_datetime(mes['Mês'])
+            relatorio_agrupado = mes.groupby(mes['Mês'].dt.to_period('M')).agg({
+                'Total de Atendimentos': 'sum'
             }).reset_index()
             # Agora, converter o índice de período para datetime para gráficos
             relatorio_agrupado['Mês'] = relatorio_agrupado['Mês'].dt.to_timestamp()
             # Criação do gráfico de linha
-            fig3 = px.line(relatorio_agrupado, x='Mês', y='Quantidade Visitas', title='Soma de Visitas por Mês')
+            fig3 = px.line(relatorio_agrupado, x='Mês', y='Total de Atendimentos', title='Soma de Visitas por Mês')
 
             # Personalização do gráfico
             fig3.update_layout(
