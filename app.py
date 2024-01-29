@@ -725,7 +725,7 @@ if st.session_state["authentication_status"]:
         variacao = mes[mes['Mês'] == selected_month_year_date]['Variacao_Percentual'].values[0]
 
         # Exibir o título do relatório
-        st.header(f"Relatório de Planetario - {selected_month_data2['MonthYear'].iloc[0]}")
+        st.header(f"Relatório do Planetario - {selected_month_data2['MonthYear'].iloc[0]}")
         st.write("\n")
 
         # Verifica se a variação é um número (para evitar erros com NaN)
