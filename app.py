@@ -679,14 +679,11 @@ if st.session_state["authentication_status"]:
                         color='Total de alunos', hover_data=['DF'],
                         color_continuous_scale='RdBu', title='Distribuição por Região Administrativa',)
                 # Create gauge charts
-        private_sum = relatorio2023[relatorio2023['tipo'] == 'Privada']['Quantidade Visitas'].sum()
-        public_sum = relatorio2023[relatorio2023['tipo'] == 'Pública']['Quantidade Visitas'].sum()
         total_sum = relatorio2023['Quantidade Visitas'].sum()
         # Convert 'Mês' to datetime if it's not already
         relatorio2023['Mês'] = pd.to_datetime(relatorio2023['Mês'])
         mes['Mês'] = pd.to_datetime(mes['Mês'])
-        
-        mes['Cúpula'] = mes['Cúpula'].replace(0, 'Em Manutenção')
+
 
         relatorio2023['YearMonth'] = relatorio2023['Mês'].dt.strftime('%Y%m')
         mes['YearMonth'] = mes['Mês'].dt.strftime('%Y%m')
@@ -702,43 +699,65 @@ if st.session_state["authentication_status"]:
         sorted_month_year = [relatorio2023[relatorio2023['YearMonth'] == ym]['MonthYear'].iloc[0] for ym in sorted_month_list]
         
 
-        # User selects the month-year from the dropdown
+        # Adiciona "Todos os Meses" no início da lista de meses
+        sorted_month_year = ["Todos os Meses"] + sorted_month_year
+
+        # Usuário seleciona o mês-ano do dropdown
         selected_month_year = st.selectbox('Selecione o Mês', sorted_month_year)
 
-        # Filter the DataFrame based on the selected month-year
-        selected_month_data = relatorio2023[relatorio2023['MonthYear'] == selected_month_year]
-        selected_month_data2 = mes[mes['MonthYear'] == selected_month_year]
-
-        # Aplicar capitalize na coluna 'MonthYear'
-        selected_month_data2['MonthYear'] = selected_month_data2['MonthYear'].apply(lambda x: x.capitalize())
-        
-
-        # Calculate the total number of students for the selected month
-        total_students = selected_month_data['Quantidade Visitas'].sum()
-        total_students2 = selected_month_data2['Total de Atendimentos'].sum()
-
-        # Assuming you want to set the gauge max value to the max of any month to keep the scale consistent
-        max_value = relatorio2023.groupby('MonthYear')['Quantidade Visitas'].sum().max()
-        max_value2 = relatorio2023.groupby('MonthYear')['Quantidade Visitas'].sum().max()
-
-         #Supondo que 'df_visitas' esteja ordenado cronologicamente
-        mes['Variacao_Percentual'] = mes['Total de Atendimentos'].pct_change() * 100
-
-        # Encontrando a variação percentual para o mês selecionado
-        selected_month_year_date = pd.to_datetime(selected_month_year, format='%B %Y')
-        variacao = mes[mes['Mês'] == selected_month_year_date]['Variacao_Percentual'].values[0]
-
-        # Exibir o título do relatório
-        st.header(f"Relatório do Planetario - {selected_month_data2['MonthYear'].iloc[0]}")
-        st.write("\n")
-
-        # Verifica se a variação é um número (para evitar erros com NaN)
-        if pd.notnull(variacao):
-            cor_texto = "green" if variacao >= 0 else "red"
-            variacao_formatada = f"{variacao:.2f}%"
+        if selected_month_year == "Todos os Meses":
+            cupula_sum = mes['Cúpula'].sum()
+            outros_paises_sum = mes['Outros Países'].sum()
+            outros_estados_sum = mes['Outros Estados'].sum()
+            numero_sessoes = mes['Número de sessões'].sum()
+            total_students = mes['Estudantes'].sum()
+            total_students2 = mes['Total de Atendimentos'].sum()
+            max_value = relatorio2023['Quantidade Visitas'].sum().max()
+            max_value2 = relatorio2023['Quantidade Visitas'].sum().max()
+            private_sum = relatorio2023[relatorio2023['tipo'] == 'Privada']['Quantidade Visitas'].sum()
+            public_sum = relatorio2023[relatorio2023['tipo'] == 'Pública']['Quantidade Visitas'].sum()
         else:
-            cor_texto = "black"
-            variacao_formatada = "Dados indisponíveis"
+            mes['Cúpula'] = mes['Cúpula'].replace(0, 'Em Manutenção')
+            # Filter the DataFrame based on the selected month-year
+            selected_month_data = relatorio2023[relatorio2023['MonthYear'] == selected_month_year]
+            selected_month_data2 = mes[mes['MonthYear'] == selected_month_year]
+
+            # Aplicar capitalize na coluna 'MonthYear'
+            selected_month_data2['MonthYear'] = selected_month_data2['MonthYear'].apply(lambda x: x.capitalize())
+            
+
+            # Calculate the total number of students for the selected month
+            total_students = selected_month_data['Quantidade Visitas'].sum()
+            total_students2 = selected_month_data2['Total de Atendimentos'].sum()
+
+            # Assuming you want to set the gauge max value to the max of any month to keep the scale consistent
+            max_value = relatorio2023.groupby('MonthYear')['Quantidade Visitas'].sum().max()
+            max_value2 = relatorio2023.groupby('MonthYear')['Quantidade Visitas'].sum().max()
+
+            #Supondo que 'df_visitas' esteja ordenado cronologicamente
+            mes['Variacao_Percentual'] = mes['Total de Atendimentos'].pct_change() * 100
+
+            # Encontrando a variação percentual para o mês selecionado
+            selected_month_year_date = pd.to_datetime(selected_month_year, format='%B %Y')
+            variacao = mes[mes['Mês'] == selected_month_year_date]['Variacao_Percentual'].values[0]
+
+            # Exibir o título do relatório
+            st.header(f"Relatório do Planetario - {selected_month_data2['MonthYear'].iloc[0]}")
+            st.write("\n")
+            cupula_sum = selected_month_data2['Cúpula'].sum()
+            outros_paises_sum = selected_month_data2['Outros Países'].sum()
+            outros_estados_sum = selected_month_data2['Outros Estados'].sum()
+            numero_sessoes = selected_month_data2['Número de sessões'].sum()
+            private_sum = selected_month_data[selected_month_data['tipo'] == 'Privada']['Quantidade Visitas'].sum() 
+            public_sum = selected_month_data[selected_month_data['tipo'] == 'Pública']['Quantidade Visitas'].sum()
+
+            # Verifica se a variação é um número (para evitar erros com NaN)
+            if pd.notnull(variacao):
+                cor_texto = "green" if variacao >= 0 else "red"
+                variacao_formatada = f"{variacao:.2f}%"
+            else:
+                cor_texto = "black"
+                variacao_formatada = "Dados indisponíveis"
         col1, col2, col3 = st.columns([3, 3,3])
 
 
@@ -750,7 +769,7 @@ if st.session_state["authentication_status"]:
                         <div style="display: flex; align-items: center; gap: 10px;">
                             <span>Total de Visitantes na Cúpula:</span>
                             <div style="background-color: #1B1F23; border-radius: 10px; padding: 4px 12px;">
-                                <span style="color: #26D367;">{selected_month_data2['Cúpula'].sum()}</span>
+                                <span style="color: #26D367;">{cupula_sum}</span>
                             </div>
                         </div>
                     """, unsafe_allow_html=True)
@@ -759,7 +778,7 @@ if st.session_state["authentication_status"]:
                         <div style="display: flex; align-items: center; gap: 10px;">
                             <span>Total de Visitantes de Outro Países:</span>
                             <div style="background-color: #1B1F23; border-radius: 10px; padding: 4px 12px;">
-                                <span style="color: #26D367;">{selected_month_data2['Outros Países'].sum()}</span>
+                                <span style="color: #26D367;">{outros_paises_sum}</span>
                             </div>
                         </div>
                     """, unsafe_allow_html=True)
@@ -768,7 +787,7 @@ if st.session_state["authentication_status"]:
                         <div style="display: flex; align-items: center; gap: 10px;">
                             <span>Total de Visitantes de Outros Estado:</span>
                             <div style="background-color: #1B1F23; border-radius: 10px; padding: 4px 12px;">
-                                <span style="color: #26D367;">{selected_month_data2['Outros Estados'].sum()}</span>
+                                <span style="color: #26D367;">{outros_estados_sum}</span>
                             </div>
                         </div>
                     """, unsafe_allow_html=True)
@@ -781,7 +800,7 @@ if st.session_state["authentication_status"]:
                         <div style="display: flex; align-items: right; gap: 10px;">
                             <span>Número de Sessões:</span>
                             <div style="background-color: #1B1F23; border-radius: 10px; padding: 4px 12px;">
-                                <span style="color: #db3e00;">{selected_month_data2['Número de sessões'].sum()}</span>
+                                <span style="color: #db3e00;">{numero_sessoes}</span>
                             </div>
                         </div>
                     """, unsafe_allow_html=True)
@@ -847,8 +866,28 @@ if st.session_state["authentication_status"]:
             fig5.update_layout(
                 margin=dict(t=100)  # Increase top margin to 100 pixels; adjust the number as needed
             )
-                # Criação do gráfico de donut
-            fig2 = go.Figure(data=[go.Pie(labels=selected_month_data['tipo'], values=selected_month_data['Quantidade Visitas'], hole=.3)])
+            # Criação do gráfico de donut
+            if selected_month_year == "Todos os Meses":
+                # Preparar os dados para o gráfico de donut
+                data_donut = {
+                    'Tipo': ['Privada', 'Pública'],
+                    'Quantidade Visitas': [public_sum, private_sum]
+                }
+                # Cria um DataFrame a partir dos dados
+                df_donut = pd.DataFrame(data_donut)
+
+                # Criar o gráfico de donut com Plotly
+                fig2 = go.Figure(data=[go.Pie(
+                    labels=df_donut['Tipo'], 
+                    values=df_donut['Quantidade Visitas'], 
+                    hole=.3
+                )])
+                fig2.update_layout(
+                    title_text='Distribuição das Visitas por Tipo de Escola',
+                    annotations=[dict(text='Visitas', x=0.5, y=0.5, font_size=20, showarrow=False)]
+                )
+            else:
+                fig2 = go.Figure(data=[go.Pie(labels=selected_month_data['tipo'], values=selected_month_data['Quantidade Visitas'], hole=.3)])
 
             # Personalização do gráfico
             fig2.update_traces(marker=dict(colors=['#f44336', '#c2185b'], line=dict(color='#FFFFFF', width=0)))
@@ -868,15 +907,19 @@ if st.session_state["authentication_status"]:
                 showlegend=True
             )
             st.plotly_chart(fig2,use_container_width=True)
-            st.markdown(f"""
-                <div style="background-color: #1B1F23; border-radius: 10px; padding: 4px 12px; margin: 10px 0;">
-                    <h4 style="text-align: center;">Variação de Visitantes em Relação ao Mês Anterior</h4>
-                    <p style="text-align: center; color: {cor_texto}; font-size: 24px;">{variacao_formatada}</p>
-                </div>
-            """, unsafe_allow_html=True)   
-            st.write("\n")
-            st.write("\n")
-            st.write("\n")
+            if selected_month_year == "Todos os Meses":
+                # Exibir a variação percentual
+                st.write("\n")
+            else:
+                st.markdown(f"""
+                    <div style="background-color: #1B1F23; border-radius: 10px; padding: 4px 12px; margin: 10px 0;">
+                        <h4 style="text-align: center;">Variação de Visitantes em Relação ao Mês Anterior</h4>
+                        <p style="text-align: center; color: {cor_texto}; font-size: 24px;">{variacao_formatada}</p>
+                    </div>
+                """, unsafe_allow_html=True)   
+                st.write("\n")
+                st.write("\n")
+                st.write("\n")
 
 
             # Assuming you want to set the gauge max value to the max of any month to keep the sca
