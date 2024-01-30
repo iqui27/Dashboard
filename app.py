@@ -90,7 +90,7 @@ if st.session_state["authentication_status"]:
     st.markdown(css, unsafe_allow_html=True)
     
     # Setup a search box
-    search_query = st.sidebar.text_input("Busca", "")
+    search_query = st.sidebar.text_input("Busca", "", autocomplete="on")
 
     # Filter projects based on search query
     filtered_projects = df[df['Projeto'].str.contains(search_query, case=False)]
@@ -771,6 +771,8 @@ if st.session_state["authentication_status"]:
             visitas_por_dia_da_semana = visitas_por_dia_da_semana.set_index('Dia da Semana')
             # Obter o dia da semana com mais visitas
             dia_com_mais_visitas = visitas_por_dia_da_semana.iloc[0]
+            st.header(f"Relatório do Planetario - 2023")
+            st.write("\n")
         else:
             mes['Cúpula'] = mes['Cúpula'].replace(0, 'Em Manutenção')
             # Filter the DataFrame based on the selected month-year
@@ -955,7 +957,7 @@ if st.session_state["authentication_status"]:
                 )])
                 fig2.update_layout(
                     title_text='Distribuição das Visitas por Tipo de Escola',
-                    annotations=[dict(text='Visitas', x=0.5, y=0.5, font_size=20, showarrow=False)]
+                    annotations=[dict(text='', x=0.5, y=0.5, font_size=40, showarrow=False)]
                 )
             else:
                 fig2 = go.Figure(data=[go.Pie(labels=selected_month_data['tipo'], values=selected_month_data['Quantidade Visitas'], hole=.3)])
