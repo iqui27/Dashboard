@@ -14,7 +14,20 @@ import plotly.graph_objs as go
 
 
 timezone = pytz.timezone("America/Sao_Paulo")
+# Function to load projects from persistent storage
+def load_projects():
+    try:
+        with open('projects.json', 'r') as f:
+            return json.load(f)
+    except FileNotFoundError:
+        # Return an empty dictionary if the file does not exist
+        return {}
+    # Function to save the entire projects state, including channels and messages
+def save_projects():
+    with open('projects.json', 'w') as f:
+        json.dump(st.session_state['projects'], f, indent=4)
 
+        
 # Função para carregar mensagens salvas
 def load_messages():
     try:
@@ -31,6 +44,14 @@ def save_messages(messages):
 # Carregar mensagens anteriores quando o aplicativo é iniciado
 if 'chat_messages' not in st.session_state:
     st.session_state.chat_messages = load_messages()
+
+# Function to get or create channels for the selected project
+def get_or_create_project_channels(project_name):
+    if project_name not in st.session_state['projects']:
+        # If the project doesn't exist, initialize it with a general channel
+        st.session_state['projects'][project_name] = {'channels': ['Geral'], 'chat_messages': {'Geral': []}}
+        save_projects()  # Save the new project state
+    return st.session_state['projects'][project_name]
 
 # Definir configurações da página
 st.set_page_config(
@@ -119,13 +140,8 @@ if st.session_state["authentication_status"]:
     # Group projects by classification
     grouped_projects = df_sorted.groupby('classificacao')
 
-    # Inicializa o estado da sessão para armazenar as mensagens se ainda não existir
-    if 'chat_messages' not in st.session_state:
-        st.session_state.chat_messages = {}
 
     # Inicializa uma lista vazia para o projeto atual se ainda não existir
-    if selected_project not in st.session_state.chat_messages:
-        st.session_state.chat_messages[selected_project] = []
     numero_de_projetos = df['Projeto'].count()
     numero_de_projetos_em_andamento = df[df['classificacao'] == 'Em Andamento']['Projeto'].count()
     numero_de_projetos_emendas = df[df['classificacao'] == 'Emendas Parlamentares']['Projeto'].count()
@@ -525,9 +541,49 @@ if st.session_state["authentication_status"]:
                 
     with tab2: #Chat
         st.markdown("<h4 style='text-align: center;'>{}</h4>".format(selected_project), unsafe_allow_html=True)
+        # Initialize session states if they are not already set
+        # Initialize session states if they are not already set
+        if 'projects' not in st.session_state:
+            st.session_state['projects'] = load_projects()
+        if 'selected_project' not in st.session_state:
+            st.session_state['selected_project'] = None  # No project selected by default
+        if 'selected_channel' not in st.session_state:
+            st.session_state['selected_channel'] = 'Geral'  # Default channel
 
+
+        # Ensure each project has at least a 'general' channel
+        if selected_project not in st.session_state['projects']:
+            st.session_state['projects'][selected_project] = {'channels': ['Geral'], 'chat_messages': {'Geral': []}}
+
+        current_project_channels = st.session_state['projects'][selected_project]['channels']
+        selected_channel = st.session_state.get('selected_channel', current_project_channels[0])
         col1, col2, col3 = st.columns([1, 4, 1])
+
+        with col1:
+            st.write("\n") 
+            st.write("\n")   
+           # Create new channel
+            new_channel = st.text_input("Novo Canal", key=f"new_channel_{selected_project}").lower()
+            if st.button("Adicionar"):
+                if new_channel and new_channel not in current_project_channels:
+                    current_project_channels.append(new_channel)
+                    st.session_state['projects'][selected_project]['chat_messages'][new_channel] = []
+                    get_or_create_project_channels(selected_channel)
+                    st.experimental_rerun()
+                        
+            # List channels for selection
+            selected_channel = st.radio("Disponiveis", current_project_channels, key=f"radio_{selected_project}")
+
+            #Remove channel button
+            if st.button("Remover"):
+                if selected_channel in current_project_channels:
+                    current_project_channels.remove(selected_channel)
+                    st.experimental_rerun()
         with col3:
+            st.write("\n")
+            st.write("\n")
+            st.write("\n")
+            st.write("\n")
             st.write("Esse é o chat do projeto, todos os membros da equipe podem enviar mensagens aqui e ficará salvo no histórico do projeto")
             # Botão para limpar a conversa
             if 'confirm_clear' not in st.session_state:
@@ -538,57 +594,62 @@ if st.session_state["authentication_status"]:
 
             if st.session_state.confirm_clear:
                 if st.button('Sim, limpar mensagens'):
-                        st.session_state.chat_messages[selected_project] = []
+                        st.session_state['projects'][selected_project]['chat_messages'][selected_channel] = []
                         st.session_state.confirm_clear = False
                         st.experimental_rerun()
 
                 if st.button('Não, manter mensagens'):
                     st.session_state.confirm_clear = False 
         with col2:
-            # Crie um formulário para o input de mensagem e botão de envio
-            with st.form(key=f"form_message_{selected_project}"):
-                new_message = st.text_input("Digite sua mensagem", key=f"message_input_{selected_project}")
-                submit_button = st.form_submit_button("Enviar")
-                                    
-            # Adiciona nova mensagem à lista de mensagens do projeto atual
-            if submit_button and new_message:
-                # Certifique-se de que cada projeto tem sua lista de mensagens
-                if selected_project not in st.session_state.chat_messages:
-                    st.session_state.chat_messages[selected_project] = []
+            st.header(f"Conversa no #{selected_channel}")
+            chat_area = st.container()
+            with chat_area:
+                messages = st.session_state['projects'][selected_project]['chat_messages'].get(selected_channel, [])
+                for msg in messages:
+                    timestamp = datetime.fromtimestamp(msg['timestamp']).strftime('%Y-%m-%d %H:%M:%S')
+                    #st.markdown(f"**{msg['user']}**: {msg['message']} _({timestamp})_")
+                    st.markdown(f"""
+                       <div style="border-left: 2px solid #dedede; margin-left: 10px; padding-left: 10px;">
+                            <p style="font-size: 0.9em; color: #888;">{msg['user']} às {timestamp}</p>
+                           <p>{msg['message']}</p>
+                        </div>
+                    """, unsafe_allow_html=True) 
+                    
 
-                st.session_state.chat_messages[selected_project].append({
-                    "user": st.session_state.username,  # Supondo que você armazene o nome de usuário em st.session_state.username
-                    "name": st.session_state.name,  # Supondo que você armazene o nome do usuário em st.session_state.name
-                    "message": new_message,
-                    "timestamp": time.time()  # Adiciona um timestamp para cada mensagem
-                })
-                
-                # Salva as mensagens após adicionar a nova
-                save_messages(st.session_state.chat_messages)
-                
-                # Limpa o campo de input após o envio da mensagem
-                st.experimental_rerun()
+            # Message input for the selected channel
+            with st.form(key='new_message_form'):
+                new_message = st.text_area("Message", key=f"new_message_{selected_channel}")
+                submit_message = st.form_submit_button("Send")
+                if submit_message and new_message:
+                     # Append the new message to the appropriate channel of the current project
+                    st.session_state['projects'][selected_project]['chat_messages'][selected_channel].append({
+                        'user': st.session_state["name"],  # Use the logged-in user or a default
+                        'message': new_message,
+                        'timestamp': time.time()  # Using time.time() for simplicity
+                    })
+                    save_messages(st.session_state['projects'])  # Save the updated messages
+                    st.experimental_rerun()
             
 
                             
             # Exibe o chat (mensagens anteriores + nova mensagem)
-            st.write("Conversa:")
+            #st.write("Conversa:")
             # Inicie um container para o chat
             
-            chat_container = st.container()
-            with chat_container:
-                for msg in st.session_state.chat_messages[selected_project]:
-                    # Converta o timestamp para datetime e ajuste o fuso horário conforme necessário
-                    timestamp = datetime.fromtimestamp(msg["timestamp"], tz=pytz.timezone("America/Sao_Paulo"))
-                    # Formate a hora para exibir
-                    time_str = timestamp.strftime('%H:%M:%S')
-                    # Use st.markdown para exibir as mensagens de uma forma estilizada
-                    st.markdown(f"""
-                        <div style="border-left: 2px solid #dedede; margin-left: 10px; padding-left: 10px;">
-                            <p style="font-size: 0.9em; color: #888;">{msg['name']} às {time_str}</p>
-                            <p>{msg['message']}</p>
-                        </div>
-                    """, unsafe_allow_html=True) 
+            #chat_container = st.container()
+            #with chat_container:
+                #for msg in st.session_state.chat_messages[selected_project]:
+                 #   # Converta o timestamp para datetime e ajuste o fuso horário conforme necessário
+                  #  timestamp = datetime.fromtimestamp(msg["timestamp"], tz=pytz.timezone("America/Sao_Paulo"))
+                   # # Formate a hora para exibir
+                    #time_str = timestamp.strftime('%H:%M:%S')
+                    ## Use st.markdown para exibir as mensagens de uma forma estilizada
+                    #st.markdown(f"""
+                       # <div style="border-left: 2px solid #dedede; margin-left: 10px; padding-left: 10px;">
+                       #     <p style="font-size: 0.9em; color: #888;">{msg['name']} às {time_str}</p>
+                      #      <p>{msg['message']}</p>
+                     #   </div>
+                    #""", unsafe_allow_html=True) 
 
     with tab4: #Editar Projetos
             col5, col6 = st.columns([6, 3])

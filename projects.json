@@ -30,7 +30,10 @@
     },
     "SALVE UM NEG\u00d3CIO": {
         "channels": [
-            "Geral"
+            "Geral",
+            "teste",
+            "teste2",
+            "teste=4"
         ],
         "chat_messages": {
             "Geral": [
@@ -39,7 +42,10 @@
                     "message": "oi",
                     "timestamp": 1706627292.2162478
                 }
-            ]
+            ],
+            "teste": [],
+            "teste2": [],
+            "teste=4": []
         }
     },
     "OBSERVAT\u00d3RIO DE DEFESA DO PAGADOR DE IMPOSTOS": {
@@ -57,6 +63,14 @@
         }
     },
     "AVANT CERRADO": {
+        "channels": [
+            "Geral"
+        ],
+        "chat_messages": {
+            "Geral": []
+        }
+    },
+    "Geral": {
         "channels": [
             "Geral"
         ],
