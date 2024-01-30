@@ -493,7 +493,7 @@ if st.session_state["authentication_status"]:
             st.markdown(f"<h6 style='text-align: left; color: #0097a7;'>{project_details['Objeto/Finalidade'].values[0]}</h6>", unsafe_allow_html=True)
                 
     with tab2: #Chat
-        st.markdown("<h6 style='text-align: center;'>{}</h6>".format(selected_project), unsafe_allow_html=True)
+        st.markdown("<h4 style='text-align: center;'>{}</h4>".format(selected_project), unsafe_allow_html=True)
 
         col1, col2, col3 = st.columns([1, 4, 1])
         with col3:
