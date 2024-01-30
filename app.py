@@ -405,7 +405,7 @@ if st.session_state["authentication_status"]:
                     with mui.Card(key="card1",style={"borderRadius": "10px","border": "1px solid #0e1117", "boxShadow": "none", "backgroundColor": "transparent"}):
                         mui.CardContent([
                         mui.Typography("Observações", style={"textAlign": "center","fontFamily": "'Roboto', sans-serif", "fontWeight": "bold", "color": "white", "marginBottom": "20px"}),
-                        mui.Typography(project_details['Observações'].values[0], style={"marginTop": "16px", "color": "gray", "fontFamily": "'IRoboto', sans-serif", "fontSize": "14px"}),
+                        mui.Typography(project_details['Observações'].values[0], style={"marginTop": "16px", "color": "gray", "fontFamily": "'sans serif', sans-serif", "fontSize": "14px"}),
                         ])
                     
             with col6:
@@ -421,7 +421,7 @@ if st.session_state["authentication_status"]:
                         # Conteúdo do cartão
                         with mui.CardContent():
                             # Cabeçalho do cartão
-                            mui.Typography("Comissão Gestora da Parceria", style={"textAlign": "center", "fontSize": "17px", "fontFamily": "'Roboto', sans-serif" , "fontWeight": "bold", "color": "white", "marginBottom": "20px"})
+                            mui.Typography("Comissão Gestora da Parceria", style={"textAlign": "center", "fontSize": "17px", "fontFamily": "'sans serif', sans-serif" , "fontWeight": "bold", "color": "white", "marginBottom": "20px"})
 
                             # Lista de nomes
                             for nome in nomes:
