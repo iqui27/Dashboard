@@ -132,7 +132,7 @@ if st.session_state["authentication_status"]:
     numero_de_projetos_eventos = df[df['classificacao'] == 'Eventos']['Projeto'].count()
     numero_de_projetos_novos = df[df['classificacao'] == 'Novos Projetos']['Projeto'].count()
     numero_de_projetos_concluidos = df[df['Situação atual'] == 'Concluído']['Projeto'].count()
-# Calculate the total value of projects in progress
+    # Calculate the total value of projects in progress
     valor_total_projetos_andamento = df[df['classificacao'] == 'Em Andamento']['Valor'].sum()
     valor_total_projetos_andamento_emendas = df[df['classificacao'] == 'Emendas Parlamentares']['Valor'].sum()
     valor_total_projetos_andamento_eventos = df[df['classificacao'] == 'Eventos']['Valor'].sum()
@@ -1038,15 +1038,3 @@ if st.session_state["authentication_status"]:
 
             # Exibindo o gráfico no Streamlit
             st.plotly_chart(fig3,use_container_width=True)
-            
-
-
-
-
-# Display project details based on selection in the sidebar
-# ... (You'll need to implement the logic to display the details)
-# You can create placeholder widgets and update them later with the project details
-# when a user clicks on a project name in the sidebar
-
-# Run the Streamlit app using the command in the terminal:
-# streamlit run your_app.py
