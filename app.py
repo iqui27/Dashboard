@@ -342,6 +342,9 @@ if st.session_state["authentication_status"]:
                 st.markdown("<h1 style='text-align: center;'>{}</h1>".format(selected_project), unsafe_allow_html=True)
                 st.markdown("<h3 style='text-align: center;'>{}</h3>".format(project_details['Fomento'].values[0]), unsafe_allow_html=True)
                 st.write("\n")
+                if valor_formatado == "R$ 0,00":
+                    valor_formatado = "Nenhum Valor Informado"
+
                 st.markdown(f"""
                 <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 1rem 0;">
                     <span style="font-size: 2.25rem; font-weight: bold; color: white; margin-bottom: 0.5rem;"></span>
@@ -362,39 +365,53 @@ if st.session_state["authentication_status"]:
                 st.write("\n")
                 st.write("\n")
                 st.markdown("<h5 style='text-align: center;'>Primeiro Intituicao Parceira</h5>", unsafe_allow_html=True)
-                st.markdown(f"<h6 style='text-align: center; color: #0097a7;'>{project_details['Instituição Parceira'].values[0]}</h6>", unsafe_allow_html=True)
+                st.markdown(f"<h6 style='text-align: center; color: #0097a7;'>{project_details['Instituição Parceira'].values[0] if project_details['Instituição Parceira'].values[0] != '0' else 'Não informado'}</h6>", unsafe_allow_html=True)
                 st.write("\n")
                 st.write("\n")
                 st.write("\n")
                 st.markdown("<h5 style='text-align: center;'>Primeiro Execução do Projeto</h5>", unsafe_allow_html=True)
-                st.markdown(f"<h6 style='text-align: center; color: #0097a7;'>{project_details['Execução do Projeto'].values[0]}</h6>", unsafe_allow_html=True)
+                st.markdown(f"<h6 style='text-align: center; color: #0097a7;'>{project_details['Execução do Projeto'].values[0] if project_details['Execução do Projeto'].values[0] != '0' else 'Não informado'}</h6>", unsafe_allow_html=True)
                 st.write("\n")
                 st.write("\n")
                 st.write("\n")
                 st.markdown("<h5 style='text-align: center;'>Unidade SECTI</h5>", unsafe_allow_html=True)
-                st.markdown(f"<h6 style='text-align: center; color: #0097a7;'>{project_details['Unidade SECTI Responsável'].values[0]}</h6>", unsafe_allow_html=True)
+                st.markdown(f"<h6 style='text-align: center; color: #0097a7;'>{project_details['Unidade SECTI Responsável'].values[0] if project_details['Unidade SECTI Responsável'].values[0] != '0' else 'Não informado'}</h6>", unsafe_allow_html=True)
                 
                 st.write("\n")
                 st.write("\n")
     
             with col3:
+                valor_encerramento = project_details['Encerramento da parceria'].values[0]
+                if valor_encerramento == "0":
+                    valor_encerramento = "Não informado"
+
+                valor_ponto_focal = project_details['Ponto Focal na Instituição Parceira'].values[0]
+                if valor_ponto_focal == "0":
+                    valor_ponto_focal = "Não informado"
+
+                valor_mais_informacoes = project_details['Mais informações do fomento'].values[0]
+                if valor_mais_informacoes == "0":
+                    valor_mais_informacoes = "Não informado"
+
                 st.write("\n")
                 st.write("\n")
                 st.markdown("<h5 style='text-align: center;'>Encerramento de Parceria</h5>", unsafe_allow_html=True)
-                st.markdown(f"<h6 style='text-align: center; color: #ffb74d;'>{project_details['Encerramento da parceria'].values[0]}</h6>", unsafe_allow_html=True)
+                st.markdown(f"<h6 style='text-align: center; color: #ffb74d;'>{valor_encerramento}</h6>", unsafe_allow_html=True)
                 st.write("\n")
                 st.write("\n")
                 st.write("\n")
                 st.markdown("<h5 style='text-align: center;'>Ponto Focal na Instituição Parceira</h5>", unsafe_allow_html=True)
-                st.markdown(f"<h6 style='text-align: center; color: #ffb74d;'>{project_details['Ponto Focal na Instituição Parceira'].values[0]}</h6>", unsafe_allow_html=True)
+                st.markdown(f"<h6 style='text-align: center; color: #ffb74d;'>{valor_ponto_focal}</h6>", unsafe_allow_html=True)
                 st.write("\n")
                 st.write("\n")
                 st.write("\n")
                 st.markdown("<h5 style='text-align: center;'>Mais Informações sobre o fomento</h5>", unsafe_allow_html=True)
-                st.markdown(f"<h6 style='text-align: center; color: #ffb74d;'>{project_details['Mais informações do fomento'].values[0]}</h6>", unsafe_allow_html=True)
+                st.markdown(f"<h6 style='text-align: center; color: #ffb74d;'>{valor_mais_informacoes}</h6>", unsafe_allow_html=True)
       
                 # Para centralizar os nomes e adicionar espaço
                 nomes = project_details['Comissão Gestora da Parceria'].values[0].split(',')
+                if nomes == ['0']:
+                    nomes = ['Não informado']
 
                
             
@@ -404,8 +421,8 @@ if st.session_state["authentication_status"]:
                 with elements("card_container"):
                     with mui.Card(key="card1",style={"borderRadius": "10px","border": "1px solid #0e1117", "boxShadow": "none", "backgroundColor": "transparent"}):
                         mui.CardContent([
-                        mui.Typography("Observações", style={"textAlign": "center","fontFamily": "'Roboto', sans-serif", "fontWeight": "bold", "color": "white", "marginBottom": "20px"}),
-                        mui.Typography(project_details['Observações'].values[0], style={"marginTop": "16px", "color": "gray", "fontFamily": "'sans serif', sans-serif", "fontSize": "14px"}),
+                            mui.Typography("Observações", style={"textAlign": "center","fontFamily": "'Roboto', sans-serif", "fontWeight": "bold", "color": "white", "marginBottom": "20px"}),
+                            mui.Typography(project_details['Observações'].values[0] if project_details['Observações'].values[0] != "0" else "Não informado", style={"marginTop": "16px", "color": "gray", "fontFamily": "'sans serif', sans-serif", "fontSize": "14px"}),
                         ])
                     
             with col6:
@@ -443,20 +460,30 @@ if st.session_state["authentication_status"]:
                         st.markdown("</ul>", unsafe_allow_html=True)
             
             
+            valor_fonte_custeio = project_details['Fonte de Custeio'].values[0]
+            if valor_fonte_custeio == "0":
+                valor_fonte_custeio = "Não informado"
+
+            valor_situacao_atual = project_details['Situação atual'].values[0]
+            if valor_situacao_atual == "0":
+                valor_situacao_atual = "Não informado"
+
             with col4:
-                    st.markdown(f"""
-                    <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 1rem 0;">
-                        <span style="font-size: 1.35rem; font-weight: bold; color: white; margin-bottom: 0.5rem;">Fonte de Custeio</span>
-                        <span style="background-color: #1B1F23 ; padding: 0.25rem 0.75rem; border-radius: 10px; color: gray; font-weight: bold; font-size: 1.25rem;">{project_details['Fonte de Custeio'].values[0]}</span>
-                    </div>
-                    """, unsafe_allow_html=True)
-            with col3:
-                    st.markdown(f"""
+                st.markdown(f"""
                 <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 1rem 0;">
-                    <span style="font-size: 1.35rem; font-weight: bold; color: white; margin-bottom: 0.5rem;">Situação Atual</span>
-                    <span style="background-color: #1B1F23 ; padding: 0.25rem 0.75rem; border-radius: 10px; color: #388e3c; font-weight: bold; font-size: 1.25rem;">{project_details['Situação atual'].values[0]}</span>
+                    <span style="font-size: 1.35rem; font-weight: bold; color: white; margin-bottom: 0.5rem;">Fonte de Custeio</span>
+                    <span style="background-color: #1B1F23 ; padding: 0.25rem 0.75rem; border-radius: 10px; color: gray; font-weight: bold; font-size: 1.25rem;">{valor_fonte_custeio}</span>
                 </div>
                 """, unsafe_allow_html=True)
+
+            with col3:
+                st.markdown(f"""
+                <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 1rem 0;">
+                    <span style="font-size: 1.35rem; font-weight: bold; color: white; margin-bottom: 0.5rem;">Situação Atual</span>
+                    <span style="background-color: #1B1F23 ; padding: 0.25rem 0.75rem; border-radius: 10px; color: #388e3c; font-weight: bold; font-size: 1.25rem;">{valor_situacao_atual}</span>
+                </div>
+                """, unsafe_allow_html=True)
+
             st.divider()
             col10, col11, col12 = st.columns([3, 3, 3])
             with col10:
@@ -480,14 +507,18 @@ if st.session_state["authentication_status"]:
                         """, unsafe_allow_html=True)
                 
             with col12:
+                valor_execucao_projeto = project_details['Execução do Projeto'].values[0]
+                if valor_execucao_projeto == "0":
+                    valor_execucao_projeto = "Não informado"
+
                 st.markdown(f"""
-                            <div style="display: block; align-items: center; gap: 10px;">
-                                <span>Execução do Projeto:</span>
-                                <div style="background-color: #1B1F23; border-radius: 10px; padding: 2px 10px;">
-                                    <span style="color: #03a9f4;">{project_details['Execução do Projeto'].values[0]}</span>
-                                </div>
-                            </div>
-                        """, unsafe_allow_html=True)
+                    <div style="display: block; align-items: center; gap: 10px;">
+                        <span>Execução do Projeto:</span>
+                        <div style="background-color: #1B1F23; border-radius: 10px; padding: 2px 10px;">
+                            <span style="color: #03a9f4;">{valor_execucao_projeto}</span>
+                        </div>
+                    </div>
+                """, unsafe_allow_html=True)
             st.divider()           
             st.markdown("<h5 style='text-align: left;'>Finalidade do Projeto</h5>", unsafe_allow_html=True)
             st.markdown(f"<h6 style='text-align: left; color: #0097a7;'>{project_details['Objeto/Finalidade'].values[0]}</h6>", unsafe_allow_html=True)
