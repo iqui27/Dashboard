@@ -78,8 +78,16 @@ if st.session_state["authentication_status"]:
     st.sidebar.title("Projetos")
 
     # Cria uma barra de navegação com abas
-    tab1, tab2, tab3, tab6, tab4, tab5 = st.tabs(["Home", "Chat", "Projetos","Planetário", "Editar", "Sair"])
+    tab1, tab2, tab3, tab6, tab4, tab5 = st.tabs(["Home", "👥 Chat", "📓 Projetos","🪐 Planetário", "✏️ Editar", "❌ Sair"])
+    css = '''
+    <style>
+        .stTabs [data-baseweb="tab-list"] button [data-testid="stMarkdownContainer"] p {
+        font-size:1rem;
+        }
+    </style>
+    '''
 
+    st.markdown(css, unsafe_allow_html=True)
     
     # Setup a search box
     search_query = st.sidebar.text_input("Busca", "")
@@ -136,6 +144,7 @@ if st.session_state["authentication_status"]:
     valor_total_projetos_andamento_novos_formatado = locale.currency(valor_total_projetos_andamento_novos, grouping=True)
     valor_total_projetos_andamento_concluidos_formatado = locale.currency(valor_total_projetos_andamento_concluidos, grouping=True)
     with tab1:
+        
             col1, col2= st.columns([3, 3])
             with col1:
                 style_container = """
@@ -319,11 +328,16 @@ if st.session_state["authentication_status"]:
             st.bar_chart(situacao_df,height=400, color='#fd0')
 
     with tab3:
+            st.write("\n")
+            st.write("\n")
+            st.write("\n")
+            st.write("\n")
             col1, col2, col3 = st.columns([3, 6, 3])
+           
 
             # Main Area
             mais_info = project_details['Mais informações do fomento'].values[0]
-                
+            
             with col2:
                 st.markdown("<h1 style='text-align: center;'>{}</h1>".format(selected_project), unsafe_allow_html=True)
                 st.markdown("<h3 style='text-align: center;'>{}</h3>".format(project_details['Fomento'].values[0]), unsafe_allow_html=True)
@@ -334,13 +348,13 @@ if st.session_state["authentication_status"]:
                     <span style="background-color: #1B1F23 ; padding: 0.25rem 0.75rem; border-radius: 10px; color: #388e3c; font-weight: bold; font-size: 3.00rem;">{valor_formatado}</span>
                 </div>
                 """, unsafe_allow_html=True)
-                st.divider()
-                st.markdown(f"""
-                <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 0rem 0;">
-                    <span style="font-size: 1.10rem; font-weight: light; color: white; margin-bottom: 0rem;">Processo SEI</span>
-                    <span style="background-color: #1B1F23 ; padding: 0.25rem 3.75rem; border-radius: 10px; color: yellow; font-weight: light; font-size: 1.15rem;">{project_details['Processo SEI'].values[0]}</span>
-                </div>
-                """, unsafe_allow_html=True)
+                
+                #st.markdown(f"""
+                #<div style="display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 0rem 0;">
+                #    <span style="font-size: 1.10rem; font-weight: light; color: white; margin-bottom: 0rem;">Processo SEI</span>
+                #    <span style="background-color: #1B1F23 ; padding: 0.25rem 3.75rem; border-radius: 10px; color: yellow; font-weight: light; font-size: 1.15rem;">{project_details['Processo SEI'].values[0]}</span>
+                #</div>
+                #""", unsafe_allow_html=True)
                 st.write("\n")
                 
                 
@@ -384,7 +398,7 @@ if st.session_state["authentication_status"]:
 
                
             
-            
+            st.divider()   
             col1, col2, col3, col4, col5, col6 = st.columns([4, 1, 4, 4, 1, 4])
             with col1:
                 with elements("card_container"):
@@ -443,7 +457,38 @@ if st.session_state["authentication_status"]:
                     <span style="background-color: #1B1F23 ; padding: 0.25rem 0.75rem; border-radius: 10px; color: #388e3c; font-weight: bold; font-size: 1.25rem;">{project_details['Situação atual'].values[0]}</span>
                 </div>
                 """, unsafe_allow_html=True)
-            st.divider() 
+            st.divider()
+            col10, col11, col12 = st.columns([3, 3, 3])
+            with col10:
+                st.markdown(f"""
+                            <div style="display: block; align-items: center; gap: 10px;">
+                                <span>Processo SEI:</span>
+                                <div style="background-color: #1B1F23; border-radius: 10px; padding: 2px 10px;">
+                                    <span style="color: #03a9f4;">{project_details['Processo SEI'].values[0]}</span>
+                                </div>
+                            </div>
+                        """, unsafe_allow_html=True)
+              
+            with col11:
+                st.markdown(f"""
+                            <div style="display: block; align-items: center; gap: 10px;">
+                                <span>Classificação:</span>
+                                <div style="background-color: #1B1F23; border-radius: 10px; padding: 2px 10px;">
+                                    <span style="color: #03a9f4;">{project_details['classificacao'].values[0]}</span>
+                                </div>
+                            </div>
+                        """, unsafe_allow_html=True)
+                
+            with col12:
+                st.markdown(f"""
+                            <div style="display: block; align-items: center; gap: 10px;">
+                                <span>Execução do Projeto:</span>
+                                <div style="background-color: #1B1F23; border-radius: 10px; padding: 2px 10px;">
+                                    <span style="color: #03a9f4;">{project_details['Execução do Projeto'].values[0]}</span>
+                                </div>
+                            </div>
+                        """, unsafe_allow_html=True)
+            st.divider()           
             st.markdown("<h5 style='text-align: left;'>Finalidade do Projeto</h5>", unsafe_allow_html=True)
             st.markdown(f"<h6 style='text-align: left; color: #0097a7;'>{project_details['Objeto/Finalidade'].values[0]}</h6>", unsafe_allow_html=True)
                 
@@ -830,7 +875,6 @@ if st.session_state["authentication_status"]:
                         </div>
                     """, unsafe_allow_html=True)
             st.write("\n")
-            
         st.write("\n")
         st.write("\n")
         st.write("\n")    
