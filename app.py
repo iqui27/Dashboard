@@ -344,7 +344,7 @@ if st.session_state["authentication_status"]:
                 st.write("\n")
                 st.markdown(f"""
                 <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 1rem 0;">
-                    <span style="font-size: 2.25rem; font-weight: bold; color: white; margin-bottom: 0.5rem;">Valor</span>
+                    <span style="font-size: 2.25rem; font-weight: bold; color: white; margin-bottom: 0.5rem;"></span>
                     <span style="background-color: #1B1F23 ; padding: 0.25rem 0.75rem; border-radius: 10px; color: #388e3c; font-weight: bold; font-size: 3.00rem;">{valor_formatado}</span>
                 </div>
                 """, unsafe_allow_html=True)
@@ -971,6 +971,7 @@ if st.session_state["authentication_status"]:
                     y=1.02,
                     xanchor="right",
                     x=1
+
                 ),
                 # Personalização do papel e da cor de fundo do gráfico
                 paper_bgcolor='rgba(0,0,0,0)',
