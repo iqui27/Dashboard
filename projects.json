@@ -1,9 +1,7 @@
 {
     "INOVA DF": {
         "channels": [
-            "Geral",
-            "teste",
-            "teste 2"
+            "Geral"
         ],
         "chat_messages": {
             "Geral": [
@@ -17,15 +15,7 @@
                     "message": "oi\n",
                     "timestamp": 1706627325.2507699
                 }
-            ],
-            "teste": [
-                {
-                    "user": "Henrique Rocha",
-                    "message": "oi\n",
-                    "timestamp": 1706627033.8808618
-                }
-            ],
-            "teste 2": []
+            ]
         }
     },
     "SALVE UM NEG\u00d3CIO": {

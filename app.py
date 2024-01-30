@@ -53,6 +53,16 @@ def get_or_create_project_channels(project_name):
         save_projects()  # Save the new project state
     return st.session_state['projects'][project_name]
 
+# Function to remove a channel from the selected project
+def remove_channel(project_name, channel_name):
+    # Remove the channel from the project's channels list
+    if channel_name in st.session_state['projects'][project_name]['channels']:
+        st.session_state['projects'][project_name]['channels'].remove(channel_name)
+        # Also remove the associated messages
+        del st.session_state['projects'][project_name]['chat_messages'][channel_name]
+        save_projects()  # Save the updated project state
+
+
 # Definir configurações da página
 st.set_page_config(
    page_title='Dashboard SECTI',
@@ -576,9 +586,10 @@ if st.session_state["authentication_status"]:
 
             #Remove channel button
             if st.button("Remover"):
-                if selected_channel in current_project_channels:
-                    current_project_channels.remove(selected_channel)
-                    st.experimental_rerun()
+                remove_channel(selected_project, selected_channel)
+                # Optionally, reset the selected channel to 'general' or another default
+                st.session_state['selected_channel'] = 'Geral'
+                st.experimental_rerun()
         with col3:
             st.write("\n")
             st.write("\n")
