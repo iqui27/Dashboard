@@ -1016,7 +1016,7 @@ if st.session_state["authentication_status"]:
             # Agora, converter o índice de período para datetime para gráficos
             relatorio_agrupado['Mês'] = relatorio_agrupado['Mês'].dt.to_timestamp()
             # Criação do gráfico de linha
-            fig3 = px.line(relatorio_agrupado, x='Mês', y='Total de Atendimentos', title='Soma de Visitas por Mês')
+            fig3 = px.line(relatorio_agrupado, x='Mês', y='Total de Atendimentos', title='Visitas por Mês')
 
             # Personalização do gráfico
             fig3.update_layout(
