@@ -579,6 +579,7 @@ if st.session_state["authentication_status"]:
                     current_project_channels.append(new_channel)
                     st.session_state['projects'][selected_project]['chat_messages'][new_channel] = []
                     get_or_create_project_channels(selected_channel)
+                    save_projects()
                     st.experimental_rerun()
                         
             # List channels for selection
