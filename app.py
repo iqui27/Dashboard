@@ -573,7 +573,7 @@ if st.session_state["authentication_status"]:
             st.write("\n") 
             st.write("\n")   
            # Create new channel
-            new_channel = st.text_input("Novo Canal", key=f"new_channel_{selected_project}").lower()
+            new_channel = st.text_input("Novo Canal", key=f"new_channel_{selected_project}").capitalize()
             if st.button("Adicionar"):
                 if new_channel and new_channel not in current_project_channels:
                     current_project_channels.append(new_channel)
