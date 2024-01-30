@@ -608,6 +608,7 @@ if st.session_state["authentication_status"]:
                 if st.button('Sim, limpar mensagens'):
                         st.session_state['projects'][selected_project]['chat_messages'][selected_channel] = []
                         st.session_state.confirm_clear = False
+                        save_messages()  # Save the updated messages
                         st.experimental_rerun()
 
                 if st.button('Não, manter mensagens'):
