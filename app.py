@@ -63,7 +63,7 @@ def get_or_create_project_channels(project_name):
 def remove_channel(project_name, channel_name):
     if channel_name == 'Geral':
         # Retorna uma mensagem de erro ou aviso, não permite a exclusão do canal "Geral"
-        print("O canal 'Geral' não pode ser removido.")
+        st.warning("Aviso: O canal 'Geral' é essencial e não pode ser removido.")
         return
     if channel_name in st.session_state['projects'][project_name]['channels']:
         st.session_state['projects'][project_name]['channels'].remove(channel_name)
