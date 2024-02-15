@@ -153,15 +153,15 @@ if st.session_state["authentication_status"]:
 
     # Inicializa uma lista vazia para o projeto atual se ainda não existir
     numero_de_projetos = df['Projeto'].count()
-    numero_de_projetos_em_andamento = df[df['classificacao'] == 'Em Andamento']['Projeto'].count()
-    numero_de_projetos_emendas = df[df['classificacao'] == 'Emendas Parlamentares']['Projeto'].count()
-    numero_de_projetos_eventos = df[df['classificacao'] == 'Eventos']['Projeto'].count()
+    numero_de_projetos_em_andamento = df[df['classificacao'] == 'Termo de Fomento']['Projeto'].count()
+    numero_de_projetos_emendas = df[df['classificacao'] == 'Termo de Colaboração']['Projeto'].count()
+    numero_de_projetos_eventos = df[df['classificacao'] == 'Convênio']['Projeto'].count()
     numero_de_projetos_novos = df[df['classificacao'] == 'Novos Projetos']['Projeto'].count()
     numero_de_projetos_concluidos = df[df['Situação atual'] == 'Concluído']['Projeto'].count()
     # Calculate the total value of projects in progress
-    valor_total_projetos_andamento = df[df['classificacao'] == 'Em Andamento']['Valor'].sum()
-    valor_total_projetos_andamento_emendas = df[df['classificacao'] == 'Emendas Parlamentares']['Valor'].sum()
-    valor_total_projetos_andamento_eventos = df[df['classificacao'] == 'Eventos']['Valor'].sum()
+    valor_total_projetos_andamento = df[df['classificacao'] == 'Termo de Fomento']['Valor'].sum()
+    valor_total_projetos_andamento_emendas = df[df['classificacao'] == 'Termo de Colaboração']['Valor'].sum()
+    valor_total_projetos_andamento_eventos = df[df['classificacao'] == 'Convênio']['Valor'].sum()
     valor_total_projetos_andamento_novos = df[df['classificacao'] == 'Novos Projetos']['Valor'].sum()
     valor_total_projetos_andamento_concluidos = df[df['Situação atual'] == 'Concluído']['Valor'].sum()
     valor_total_projetos_andamento_formatado = locale.currency(valor_total_projetos_andamento, grouping=True)
@@ -712,7 +712,7 @@ if st.session_state["authentication_status"]:
                                 new_project_data[column] = sei_formatted
                             elif column == 'classificacao':
                                 # Campo de seleção para classificação com opções pré-definidas
-                                classificacao_options = ['Em Andamento', 'Eventos', 'Emendas Parlamentares', 'Novos Projetos']
+                                classificacao_options = ['Termo de Fomento', 'Convênio', 'Termo de Colaboração', 'Novos Projetos']
                                 new_project_data[column] = st.selectbox(f"{column} (novo projeto)", classificacao_options)
                             else:
                                 # Campo de texto padrão para as outras colunas
@@ -762,8 +762,8 @@ if st.session_state["authentication_status"]:
                         # Adicione um selectbox para 'classificação' com as opções desejadas
                         new_values['classificacao'] = st.selectbox(
                             'Classificação',
-                            ['Em Andamento', 'Eventos', 'Emendas Parlamentares', 'Novos Projetos'],
-                            index=['Em Andamento', 'Eventos', 'Emendas Parlamentares', 'Novos Projetos'].index(project_details['classificacao']) if project_details['classificacao'] in ['Em Andamento', 'Eventos', 'Emendas Parlamentares', 'Novos Projetos'] else 0
+                            ['Termo de Fomento', 'Convênio', 'Termo de Colaboração', 'Novos Projetos'],
+                            index=['Termo de Fomento', 'Convênio', 'Termo de Colaboração', 'Novos Projetos'].index(project_details['classificacao']) if project_details['classificacao'] in ['Termo de Fomento', 'Convênio', 'Termo de Colaboração', 'Novos Projetos'] else 0
                         )
     
                         submit_button = st.form_submit_button('Salvar Alterações')
