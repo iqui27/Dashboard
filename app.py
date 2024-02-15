@@ -11,6 +11,7 @@ import yaml
 from streamlit_elements import elements, mui
 import plotly.express as px
 import plotly.graph_objs as go
+import agdi 
 
 
 timezone = pytz.timezone("America/Sao_Paulo")
