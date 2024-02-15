@@ -47,20 +47,28 @@ if 'chat_messages' not in st.session_state:
 
 # Function to get or create channels for the selected project
 def get_or_create_project_channels(project_name):
-    if project_name not in st.session_state['projects']:
-        # If the project doesn't exist, initialize it with a general channel
+    project_exists = project_name in st.session_state['projects']
+    if not project_exists:
+        # Inicializa o projeto com um canal "Geral"
         st.session_state['projects'][project_name] = {'channels': ['Geral'], 'chat_messages': {'Geral': []}}
-        save_projects()  # Save the new project state
+    elif 'Geral' not in st.session_state['projects'][project_name]['channels']:
+        # Adiciona o canal "Geral" se não existir
+        st.session_state['projects'][project_name]['channels'].append('Geral')
+        if 'Geral' not in st.session_state['projects'][project_name]['chat_messages']:
+            st.session_state['projects'][project_name]['chat_messages']['Geral'] = []
+    save_projects()  # Salva o estado do projeto
     return st.session_state['projects'][project_name]
 
 # Function to remove a channel from the selected project
 def remove_channel(project_name, channel_name):
-    # Remove the channel from the project's channels list
+    if channel_name == 'Geral':
+        # Retorna uma mensagem de erro ou aviso, não permite a exclusão do canal "Geral"
+        print("O canal 'Geral' não pode ser removido.")
+        return
     if channel_name in st.session_state['projects'][project_name]['channels']:
         st.session_state['projects'][project_name]['channels'].remove(channel_name)
-        # Also remove the associated messages
         del st.session_state['projects'][project_name]['chat_messages'][channel_name]
-        save_projects()  # Save the updated project state
+        save_projects()  # Salva o estado atualizado do projeto
 
 
 # Definir configurações da página
