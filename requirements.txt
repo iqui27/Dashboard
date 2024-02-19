@@ -2,3 +2,5 @@
 streamlit-elements
 streamlit-authenticator
 plotly
+SQLAlchemy
+numpy

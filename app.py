@@ -11,7 +11,22 @@ import yaml
 from streamlit_elements import elements, mui
 import plotly.express as px
 import plotly.graph_objs as go
+from sqlalchemy import create_engine
+import numpy as np
 
+# Define your MySQL connection details
+mysql_user = 'usr_sectidf'
+mysql_password = 'DHS-14z4'
+mysql_host = '10.233.209.2'  # Or your database server IP or hostname
+mysql_database = 'db_sectidf'
+mysql_port = '3306'  # Default MySQL port
+table_name = 'Projetos' 
+
+# Create the SQLAlchemy engine
+engine = create_engine(f'mysql+mysqlconnector://{mysql_user}:{mysql_password}@{mysql_host}:{mysql_port}/{mysql_database}')
+
+# Replace 'your_sql_query' with your actual SQL query
+load_sql_query = f'SELECT * FROM {table_name}'
 
 timezone = pytz.timezone("America/Sao_Paulo")
 # Function to load projects from persistent storage
@@ -95,7 +110,7 @@ authenticator = Authenticate(
 authenticator.login()
 
 # Dataframe com os dados dos projetos
-df = pd.read_csv("Dashboard.csv")
+df = pd.read_sql_query(load_sql_query, engine)
 ra = pd.read_csv("RA.csv")
 relatorio2023 = pd.read_csv("Relatorio2023.csv")
 mes = pd.read_csv("mes.csv")
@@ -105,7 +120,7 @@ estado = pd.read_csv("outroestado.csv")
 csv_file_path = "Dashboard.csv"
 
 if 'df' not in st.session_state:
-    st.session_state.df = pd.read_csv("Dashboard.csv")
+    st.session_state.df = pd.read_sql_query(load_sql_query, engine)
 
 # Verificação de status de login
 if st.session_state["authentication_status"]:
@@ -146,7 +161,8 @@ if st.session_state["authentication_status"]:
         selected_project = st.sidebar.radio("Selecione um Projeto", projects['Projeto'], index=0)
         if selected_project:
             project_details = projects[projects['Projeto'] == selected_project]
-            valor_formatado = locale.currency(project_details['Valor'].values[0], grouping=True)
+            valor = float(project_details['Valor'].values[0])
+            valor_formatado = f"R$ {valor:,.2f}".replace(',', 'X').replace('.', ',').replace('X', '.')
 
         else:
             project_details = None
@@ -168,6 +184,8 @@ if st.session_state["authentication_status"]:
     numero_de_projetos_novos = df[df['classificacao'] == 'Novos Projetos']['Projeto'].count()
     numero_de_projetos_concluidos = df[df['Situação atual'] == 'Concluído']['Projeto'].count()
     # Calculate the total value of projects in progress
+    # Ensure the 'Valor' column is treated as float
+    df['Valor'] = df['Valor'].astype(float)
     valor_total_projetos_andamento = df[df['classificacao'] == 'Termo de Fomento']['Valor'].sum()
     valor_total_projetos_andamento_emendas = df[df['classificacao'] == 'Termo de Colaboração']['Valor'].sum()
     valor_total_projetos_andamento_eventos = df[df['classificacao'] == 'Convênio']['Valor'].sum()
@@ -712,8 +730,10 @@ if st.session_state["authentication_status"]:
                         # Loop pelos nomes das colunas para criar os widgets de entrada apropriados
                         for column in df.columns:
                             if column == 'Valor':
-                                # Campo para valor com entrada numérica
-                                new_project_data[column] = st.number_input(f"{column} (novo projeto)", step=1.0, format="%.2f")
+                                # Numeric input field for 'Valor'
+                                input_value = st.number_input(f"{column} (novo projeto)", step=1.0, format="%.2f")
+                                # Explicitly cast the input to float64 to ensure compatibility
+                                new_project_data[column] = np.float64(input_value)
                             elif column == 'Processo SEI':
                                 # Campo para processo SEI com preenchimento automático do padrão
                                 sei_input = st.text_input(f"{column} (Adicione Apenas Números)", max_chars=17)
@@ -742,7 +762,7 @@ if st.session_state["authentication_status"]:
                             df = pd.concat([df, new_row], ignore_index=True)
                             
                             # Salva o dataframe atualizado no arquivo CSV
-                            df.to_csv(csv_file_path, index=False)
+                            df.to_sql(name=table_name, con=engine, if_exists='replace', index=False)
                             
                             # Informa sucesso e reinicia a aplicação
                             st.success("Novo projeto adicionado com sucesso!")
@@ -782,7 +802,7 @@ if st.session_state["authentication_status"]:
                             for column in df.columns:
                                 df.at[project_details.name, column] = new_values[column]
                             st.session_state.show_form = False
-                            df.to_csv(csv_file_path, index=False)
+                            df.to_sql(name=table_name, con=engine, if_exists='replace', index=False)
                             st.success("Projeto atualizado com sucesso!")
                             time.sleep(2)  # Sleep for 1 second to show the success message
                             st.experimental_rerun()
@@ -801,7 +821,7 @@ if st.session_state["authentication_status"]:
                     if st.button('Sim, deletar'):
                         df.drop(project_details.name, inplace=True)
                         st.session_state.show_delete_confirmation = True
-                        df.to_csv(csv_file_path, index=False)
+                        df.to_sql(name=table_name, con=engine, if_exists='replace', index=False)
                         st.session_state.show_delete_confirmation = False  # Esconder a confirmação
                         st.session_state.show_success_message = True  # Mostrar mensagem de sucesso temporariamente
 
@@ -865,7 +885,7 @@ if st.session_state["authentication_status"]:
         # Usuário seleciona o mês-ano do dropdown
         selected_month_year = st.selectbox('Selecione o Mês', sorted_month_year)
         # Adicionar uma nova coluna que representa o dia da semana
-        locale.setlocale(locale.LC_TIME, 'pt_BR.utf8')
+        locale.setlocale(locale.LC_TIME, 'pt_BR')
         
         
 
