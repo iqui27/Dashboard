@@ -885,7 +885,7 @@ if st.session_state["authentication_status"]:
         # Usuário seleciona o mês-ano do dropdown
         selected_month_year = st.selectbox('Selecione o Mês', sorted_month_year)
         # Adicionar uma nova coluna que representa o dia da semana
-        locale.setlocale(locale.LC_TIME, 'Portuguese_Brazil')
+        locale.setlocale(locale.LC_TIME, 'pt_BR')
         
         
 
@@ -1003,11 +1003,16 @@ if st.session_state["authentication_status"]:
                         </div>
                     """, unsafe_allow_html=True)
             st.write("\n")
+            def sanitize_string(s):
+                return s.encode('utf-16', 'surrogatepass').decode('utf-16')
+
+            # Use the sanitize function before inserting it into the HTML
+            safe_name = sanitize_string(dia_com_mais_visitas.name)
             st.markdown(f"""
                         <div style="display: flex; align-items: right; gap: 10px;">
                             <span>Dia Mais Visitado:</span>
                             <div style="background-color: #1B1F23; border-radius: 10px; padding: 4px 12px;">
-                                <span style="color: Yellow;">{dia_com_mais_visitas.name}</span>
+                                <span style="color: Yellow;">{safe_name}</span>
                             </div>
                         </div>
                     """, unsafe_allow_html=True)
