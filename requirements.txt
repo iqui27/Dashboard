@@ -4,3 +4,4 @@ streamlit-authenticator
 plotly
 SQLAlchemy
 numpy
+mysql-connector-python
