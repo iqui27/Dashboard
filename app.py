@@ -15,6 +15,7 @@ import os
 
 DATA_FILE_PATH = 'planetario2024.csv'
 
+
 timezone = pytz.timezone("America/Sao_Paulo")
 # Definir configurações da página
 st.set_page_config(
@@ -150,6 +151,7 @@ csv_file_path = "Dashboard.csv"
 
 if 'df' not in st.session_state:
     st.session_state.df = pd.read_csv("Dashboard.csv")
+    
 
 # Verificação de status de login
 if st.session_state["authentication_status"]:
@@ -202,6 +204,15 @@ if st.session_state["authentication_status"]:
 
     # Group projects by classification
     grouped_projects = df_sorted.groupby('classificacao')
+
+    # Lista de estados brasileiros
+    estados_brasil = [
+        'Acre', 'Alagoas', 'Amapá', 'Amazonas', 'Bahia', 'Ceará', 'Distrito Federal', 
+        'Espírito Santo', 'Goiás', 'Maranhão', 'Mato Grosso', 'Mato Grosso do Sul', 
+        'Minas Gerais', 'Pará', 'Paraíba', 'Paraná', 'Pernambuco', 'Piauí', 
+        'Rio de Janeiro', 'Rio Grande do Norte', 'Rio Grande do Sul', 'Rondônia', 
+        'Roraima', 'Santa Catarina', 'São Paulo', 'Sergipe', 'Tocantins'
+        ]
 
 
     # Inicializa uma lista vazia para o projeto atual se ainda não existir
@@ -877,7 +888,7 @@ if st.session_state["authentication_status"]:
         authenticator.logout()
     with tab6: #Planetário
                 # Botão para adicionar visita
-        col1, col2 = st.columns([1, 1])
+        col1, col2 = st.columns([1, 4])
         with col1:
             if st.button('Adicionar Visita'):
                 # Se o botão for clicado, mude o estado para mostrar o formulário
@@ -895,58 +906,91 @@ if st.session_state["authentication_status"]:
                 
                 
          # Escolha para adicionar uma única entrada ou várias entradas
-                entry_choice = st.radio('Deseja adicionar quantas entradas?', ('Única', 'Múltiplas'))
+                tipo_visita = st.radio('Tipo de Visita', ['Escola', 'Normal'])
 
-                # Se a escolha for única, mostrar formulário para entrada única
-                if entry_choice == 'Única':
-                    with st.form('single_entry_form'):
-                        school_name = st.text_input('Nome da Escola')
-                        school_series = st.text_input('Série Escolar')
-                        education_type = st.selectbox('Ensino', ['Maternal', 'Fundamental', 'Médio', 'Superior', 'Outros'])
-                        institution_type = st.selectbox('Tipo', ['Privada', 'Pública'])
+                if tipo_visita == 'Escola':
+                    entry_choice = st.radio('Deseja adicionar quantas entradas?', ('Única', 'Múltiplas'))
+
+                    # Se a escolha for única, mostrar formulário para entrada única
+                    if entry_choice == 'Única':
+                        with st.form('single_entry_form'):
+                            school_name = st.text_input('Nome da Escola')
+                            school_series = st.text_input('Série Escolar')
+                            education_type = st.selectbox('Ensino', ['Maternal', 'Fundamental', 'Médio', 'Superior', 'Outros'])
+                            institution_type = st.selectbox('Tipo', ['Privada', 'Pública'])
+                            visit_month = st.date_input('Mês da Visita')
+                            session_qty = st.number_input('Quantidade de Sessões', min_value=0)
+                            visit_qty = st.number_input('Quantidade de Visitas', min_value=0)
+                            ra2 = st.selectbox('Região Administrativa', ra['Localização'].unique())
+                            submit_button = st.form_submit_button('Enviar')
+
+                            if submit_button:
+                                # Processar os dados da entrada única
+                                data = {
+                                    'Nome da Escola': school_name,
+                                    'Série Escolar': school_series,
+                                    'Ensino': education_type,
+                                    'Tipo': institution_type,
+                                    'Mês da Visita': visit_month,
+                                    'Quantidade de Sessões': session_qty,
+                                    'Quantidade de Visitas': visit_qty,
+                                    'Ra': ra2
+                                }
+                                process_data(data)
+
+                    # Se a escolha for múltiplas, mostrar opções para entradas múltiplas
+                    elif entry_choice == 'Múltiplas':
+                        with st.form('multiple_entry_form'):
+                            # Opção para upload de arquivo CSV
+                            uploaded_file = st.file_uploader('Escolha um arquivo CSV', type=['csv'])
+                            # Área de texto para inserir dados em formato tabular
+                            tabular_data = st.text_area('Ou cole os dados aqui (separados por tabulação):')
+                            submit_button = st.form_submit_button('Enviar Dados em Lote')
+
+                            if submit_button:
+                                # Se um arquivo foi carregado, processar o arquivo CSV
+                                if uploaded_file is not None:
+                                    df = pd.read_csv(uploaded_file)
+                                    process_multiple_entries(df)
+                                # Se dados tabulares foram inseridos, processá-los
+                                elif tabular_data:
+                                    try:
+                                        data = pd.read_csv(io.StringIO(tabular_data), sep='\t')
+                                        process_multiple_entries(data)
+                                    except Exception as e:
+                                        st.error(f'Erro ao processar os dados tabulares: {e}')
+                    if st.button('Fechar'):
+                        st.session_state['show_form'] = False
+
+                elif tipo_visita == 'Normal':
+                   with st.form(key='normal_visit_form'):
+                        visitor_name = st.text_input('Nome')
+                        city = st.text_input('Cidade')
+                        state = st.text_input('Estado')
                         visit_month = st.date_input('Mês da Visita')
-                        session_qty = st.number_input('Quantidade de Sessões', min_value=0)
-                        visit_qty = st.number_input('Quantidade de Visitas', min_value=0)
+                        country = st.text_input('Qual país?')                        
+                        state = st.selectbox('Estado', estados_brasil)
+                        dome_visit = st.checkbox('Visita na cúpula?')
                         submit_button = st.form_submit_button('Enviar')
-
-                        if submit_button:
-                            # Processar os dados da entrada única
+                     
+                        if submit_button: 
                             data = {
-                                'Nome da Escola': school_name,
-                                'Série Escolar': school_series,
-                                'Ensino': education_type,
-                                'Tipo': institution_type,
-                                'Mês da Visita': visit_month,
-                                'Quantidade de Sessões': session_qty,
-                                'Quantidade de Visitas': visit_qty
+                                    'Nome da Escola': None,
+                                    'Série Escolar': None,
+                                    'Ensino': None,
+                                    'Tipo': None,
+                                    'Mês da Visita': visit_month,
+                                    'Quantidade de Sessões': None,
+                                    'Quantidade de Visitas': None,
+                                    'Ra': None,
+                                    'Nome': visitor_name,
+                                    'Cidade': city,
+                                    'Estado': state,
+                                    'País': country,
+                                    'Cúpula': dome_visit,
                             }
                             process_data(data)
-
-                # Se a escolha for múltiplas, mostrar opções para entradas múltiplas
-                elif entry_choice == 'Múltiplas':
-                    with st.form('multiple_entry_form'):
-                        # Opção para upload de arquivo CSV
-                        uploaded_file = st.file_uploader('Escolha um arquivo CSV', type=['csv'])
-                        # Área de texto para inserir dados em formato tabular
-                        tabular_data = st.text_area('Ou cole os dados aqui (separados por tabulação):')
-                        submit_button = st.form_submit_button('Enviar Dados em Lote')
-
-                        if submit_button:
-                            # Se um arquivo foi carregado, processar o arquivo CSV
-                            if uploaded_file is not None:
-                                df = pd.read_csv(uploaded_file)
-                                process_multiple_entries(df)
-                            # Se dados tabulares foram inseridos, processá-los
-                            elif tabular_data:
-                                try:
-                                    data = pd.read_csv(io.StringIO(tabular_data), sep='\t')
-                                    process_multiple_entries(data)
-                                except Exception as e:
-                                    st.error(f'Erro ao processar os dados tabulares: {e}')
-                if st.button('Fechar'):
-                    st.session_state['show_form'] = False
-            
-        
+                            
 
         
         # Feedback do usuário após o envio do formulário
