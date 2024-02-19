@@ -1004,7 +1004,7 @@ if st.session_state["authentication_status"]:
                     """, unsafe_allow_html=True)
             st.write("\n")
             def sanitize_string(s):
-                return s.encode('utf-16', 'surrogatepass').decode('utf-16')
+                return ''.join(c for c in s if c.isprintable() and not 0xD800 <= ord(c) <= 0xDFFF)
 
             # Use the sanitize function before inserting it into the HTML
             safe_name = sanitize_string(dia_com_mais_visitas.name)
