@@ -179,26 +179,32 @@ if st.session_state["authentication_status"]:
     # Setup a search box
     search_query = st.sidebar.text_input("Busca", "", autocomplete="on")
 
-    # Filter projects based on search query
-    filtered_projects = df[df['Projeto'].str.contains(search_query, case=False)]
+    # Filtrar projetos baseados na busca em todas as colunas se a busca não estiver vazia
+    if search_query:  # Verifica se search_query não está vazio
+        filtered_projects = df[df.apply(lambda row: row.astype(str).str.contains(search_query, case=False).any(), axis=1)]
+    else:
+        filtered_projects = df
 
     # Group filtered projects by classification
     grouped_filtered_projects = filtered_projects.groupby('classificacao')
 
     # Display filtered projects in the sidebar grouped by classification
     st.sidebar.subheader("Classificação")
-    selected_classification = st.sidebar.selectbox("Selecione uma Classificação", grouped_filtered_projects.groups.keys())
-    if selected_classification:
-        projects = grouped_filtered_projects.get_group(selected_classification)
-        selected_project = st.sidebar.radio("Selecione um Projeto", projects['Projeto'], index=0)
-        if selected_project:
-            project_details = projects[projects['Projeto'] == selected_project]
-            valor_formatado = locale.currency(project_details['Valor'].values[0], grouping=True)
-
-        else:
-            project_details = None
-            valor_formatado = None
-            elected_project = "Nenhum projeto selecionado"
+    if not grouped_filtered_projects.groups.keys():
+        st.sidebar.write("Nenhum projeto encontrado.")
+    else:
+        selected_classification = st.sidebar.selectbox("Selecione uma Classificação", grouped_filtered_projects.groups.keys())
+        if selected_classification:
+            projects = grouped_filtered_projects.get_group(selected_classification)
+            selected_project = st.sidebar.radio("Selecione um Projeto", projects['Projeto'], index=0)
+            if selected_project:
+                project_details = projects[projects['Projeto'] == selected_project]
+                valor_formatado = locale.currency(project_details['Valor'].values[0], grouping=True)
+                # Aqui você pode exibir os detalhes do projeto selecionado, incluindo valor_formatado
+            else:
+                project_details = None
+                valor_formatado = None
+                selected_project = "Nenhum projeto selecionado"
 
     # Ordenar o DataFrame pela coluna "classificacao"
     df_sorted = df.sort_values('classificacao')
