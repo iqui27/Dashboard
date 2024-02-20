@@ -3,3 +3,8 @@
 
 # Ignore dashboard directory
 dashboard/
+
+dashboard.csv
+messages.json
+project.json
+
