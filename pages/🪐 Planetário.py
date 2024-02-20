@@ -14,6 +14,13 @@ import plotly.graph_objs as go
 import os
 from Projetos import ra, relatorio2023, mes, estados_brasil, process_data, process_multiple_entries  
 
+
+st.set_page_config(
+   page_title='Dashboard SECTI',
+   layout='wide',  # Ativa o layout wide
+   initial_sidebar_state='auto'  # Define o estado inicial da sidebar (pode ser 'auto', 'expanded', 'collapsed')
+)
+
 # Botão para adicionar visita
 st.image('ID_SECTI.png', width=200)
 if st.sidebar.button('Adicionar Visita'):
