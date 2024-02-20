@@ -16,7 +16,7 @@ from Projetos import ra, relatorio2023, mes, estados_brasil, process_data, proce
 
 
 st.set_page_config(
-   page_title='Dashboard SECTI',
+   page_title='Planetário',
    layout='wide',  # Ativa o layout wide
    initial_sidebar_state='auto'  # Define o estado inicial da sidebar (pode ser 'auto', 'expanded', 'collapsed')
 )
