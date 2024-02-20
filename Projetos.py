@@ -21,7 +21,7 @@ timezone = pytz.timezone("America/Sao_Paulo")
 st.set_page_config(
    page_title='Dashboard SECTI',
    layout='wide',  # Ativa o layout wide
-   initial_sidebar_state='auto'  # Define o estado inicial da sidebar (pode ser 'auto', 'expanded', 'collapsed')
+   initial_sidebar_state='auto',  # Define o estado inicial da sidebar (pode ser 'auto', 'expanded', 'collapsed')
    sidebar_icon='📓 '  # Ícone da barra lateral
 )
 
