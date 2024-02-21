@@ -49,7 +49,7 @@ if st.sidebar.button('2024'):
                 st.session_state['show_form'] = False
         
 
-if st.session_state.get('show_form', True):            
+if st.session_state.get('show_form', False):            
                 
          # Escolha para adicionar uma única entrada ou várias entradas
                 tipo_visita = st.radio('Tipo de Visita', ['Escola', 'Normal'])
