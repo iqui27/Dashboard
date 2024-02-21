@@ -18,8 +18,6 @@ from Projetos import ra, relatorio2023, mes, process_data, process_multiple_entr
 st.set_page_config(
    page_title='Planetário',
    layout='wide',  # Ativa o layout wide
-   initial_sidebar_state='auto',  # Define o estado inicial da sidebar (pode ser 'auto', 'expanded', 'collapsed')
-   page_icon="📓"
 )
  # Lista de estados brasileiros
 estados_brasil = [
