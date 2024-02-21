@@ -14,6 +14,8 @@ import plotly.graph_objs as go
 from sqlalchemy import create_engine
 import numpy as np
 
+DATA_FILE_PATH = 'planetario2024.csv'
+
 # Define your MySQL connection details
 mysql_user = 'usr_sectidf'
 mysql_password = 'DHS-14z4'
@@ -27,6 +29,26 @@ engine = create_engine(f'mysql+mysqlconnector://{mysql_user}:{mysql_password}@{m
 
 # Replace 'your_sql_query' with your actual SQL query
 load_sql_query = f'SELECT * FROM {table_name}'
+
+# Função para validar e armazenar os dados de entrada única
+def process_data(data):
+    try:
+        # Aqui você poderia adicionar validações adicionais se necessário
+        df = pd.DataFrame([data])
+        df.to_csv(DATA_FILE_PATH, mode='a', header=not os.path.exists(DATA_FILE_PATH), index=False)
+        st.session_state['data_processed'] = True
+    except Exception as e:
+        st.error(f'Erro ao salvar os dados: {e}')
+
+# Função para processar dados de múltiplas entradas
+def process_multiple_entries(df):
+    try:
+        # Aqui você poderia adicionar validações adicionais se necessário
+        # Concatenar o novo DataFrame com o existente, ignorando o índice para evitar duplicatas
+        df.to_csv(DATA_FILE_PATH, mode='a', header=not os.path.exists(DATA_FILE_PATH), index=False)
+        st.session_state['data_processed'] = True
+    except Exception as e:
+        st.error(f'Erro ao processar entradas múltiplas: {e}')
 
 timezone = pytz.timezone("America/Sao_Paulo")
 # Function to load projects from persistent storage
