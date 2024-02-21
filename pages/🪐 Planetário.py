@@ -239,7 +239,7 @@ if st.session_state.get('show_2023', True):
                 private_sum = selected_month_data[selected_month_data['tipo'] == 'Privada']['Quantidade Visitas'].sum() 
                 public_sum = selected_month_data[selected_month_data['tipo'] == 'Pública']['Quantidade Visitas'].sum()
                 selected_month_data['Dia da Semana'] = selected_month_data['Mês'].dt.strftime('%A')
-                visitas_por_dia_da_semana = selected_month_data.groupby('Dia da Semana')['Quantidade Visitas'].sum().reset_index()
+                visitas_por_dia_da_semana = selected_month_data.groupby('Dia da Semana')['Quantidade Visitas'].sum().reset_index().copy()
                 visitas_por_dia_da_semana.sort_values(by='Quantidade Visitas', ascending=False, inplace=True)
                 visitas_por_dia_da_semana = visitas_por_dia_da_semana.set_index('Dia da Semana')
                 # Obter o dia da semana com mais visitas
