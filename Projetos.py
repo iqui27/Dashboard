@@ -13,6 +13,7 @@ import plotly.express as px
 import plotly.graph_objs as go
 from sqlalchemy import create_engine
 import numpy as np
+import os
 
 
 # Definir configurações da página
