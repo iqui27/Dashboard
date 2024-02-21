@@ -1,5 +1,4 @@
 # Ignore .venv folder
 .venv/
 
-# Ignore dashboard directory
-dashboard/
+
