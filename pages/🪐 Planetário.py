@@ -49,8 +49,7 @@ if st.sidebar.button('2024'):
                 st.session_state['show_form'] = False
         
 
-if st.session_state.get('show_form', False):
-                
+if st.session_state.get('show_form', True):            
                 
          # Escolha para adicionar uma única entrada ou várias entradas
                 tipo_visita = st.radio('Tipo de Visita', ['Escola', 'Normal'])
@@ -470,5 +469,6 @@ if st.session_state.get('show_2023', True):
 
                 # Exibindo o gráfico no Streamlit
                 st.plotly_chart(fig3,use_container_width=True)
+
 if st.session_state.get('show_2024', True):
     st.header(f"Relatório do Planetario - 2024")
