@@ -181,8 +181,7 @@ if st.session_state.get('show_2023', True):
 
             # Usuário seleciona o mês-ano do dropdown
             selected_month_year = st.selectbox('Selecione o Mês', sorted_month_year)
-            # Adicionar uma nova coluna que representa o dia da semana
-            locale.setlocale(locale.LC_TIME, 'pt_BR.utf8')
+
             
             
 
