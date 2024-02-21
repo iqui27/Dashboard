@@ -12,7 +12,7 @@ from streamlit_elements import elements, mui
 import plotly.express as px
 import plotly.graph_objs as go
 import os
-from Projetos import ra, relatorio2023, mes, estados_brasil, process_data, process_multiple_entries  
+from Projetos import ra, relatorio2023, mes, process_data, process_multiple_entries  
 
 
 st.set_page_config(
