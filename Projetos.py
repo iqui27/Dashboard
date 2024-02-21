@@ -14,6 +14,14 @@ import plotly.graph_objs as go
 from sqlalchemy import create_engine
 import numpy as np
 
+
+# Definir configurações da página
+st.set_page_config(
+   page_title='Dashboard SECTI',
+   layout='wide',  # Ativa o layout wide
+   initial_sidebar_state='auto'  # Define o estado inicial da sidebar (pode ser 'auto', 'expanded', 'collapsed')
+)
+
 DATA_FILE_PATH = 'planetario2024.csv'
 
 # Define your MySQL connection details
@@ -109,12 +117,7 @@ def remove_channel(project_name, channel_name):
         save_projects()  # Salva o estado atualizado do projeto
 
 
-# Definir configurações da página
-st.set_page_config(
-   page_title='Dashboard SECTI',
-   layout='wide',  # Ativa o layout wide
-   initial_sidebar_state='auto'  # Define o estado inicial da sidebar (pode ser 'auto', 'expanded', 'collapsed')
-)
+
 
 
 with open('config.yaml') as file:
