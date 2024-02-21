@@ -468,5 +468,5 @@ if st.session_state.get('show_2023', True):
                 # Exibindo o gráfico no Streamlit
                 st.plotly_chart(fig3,use_container_width=True)
 
-if st.session_state.get('show_2024', True):
-    st.header(f"Relatório do Planetario - 2024")
+    if st.session_state.get('show_2024', True):
+        st.header(f"Relatório do Planetario - 2024")
