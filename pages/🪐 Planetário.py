@@ -209,7 +209,7 @@ if st.session_state.get('show_2023', True):
                 mes['Cúpula'] = mes['Cúpula'].replace(0, 'Em Manutenção')
                 # Filter the DataFrame based on the selected month-year
                 selected_month_data = relatorio2023[relatorio2023['MonthYear'] == selected_month_year]
-                selected_month_data2 = mes[mes['MonthYear'] == selected_month_year]
+                selected_month_data2 = mes[mes['MonthYear'] == selected_month_year].copy()
 
                 # Aplicar capitalize na coluna 'MonthYear'
                 selected_month_data2['MonthYear'] = selected_month_data2['MonthYear'].apply(lambda x: x.capitalize())
