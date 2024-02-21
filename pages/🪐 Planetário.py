@@ -205,7 +205,7 @@ if st.session_state.get('show_2023', True):
             else:
                 mes['Cúpula'] = mes['Cúpula'].replace(0, 'Em Manutenção')
                 # Filter the DataFrame based on the selected month-year
-                selected_month_data = relatorio2023[relatorio2023['MonthYear'] == selected_month_year]
+                selected_month_data = relatorio2023[relatorio2023['MonthYear'] == selected_month_year].copy()
                 selected_month_data2 = mes[mes['MonthYear'] == selected_month_year].copy()
 
                 # Aplicar capitalize na coluna 'MonthYear'
@@ -236,7 +236,7 @@ if st.session_state.get('show_2023', True):
                 numero_sessoes = selected_month_data2['Número de sessões'].sum()
                 private_sum = selected_month_data[selected_month_data['tipo'] == 'Privada']['Quantidade Visitas'].sum() 
                 public_sum = selected_month_data[selected_month_data['tipo'] == 'Pública']['Quantidade Visitas'].sum()
-                selected_month_data['Dia da Semana'] = selected_month_data['Mês'].dt.strftime('%A').copy()
+                selected_month_data.loc[:, 'Dia da Semana'] = selected_month_data['Mês'].dt.strftime('%A')
                 visitas_por_dia_da_semana = selected_month_data.groupby('Dia da Semana')['Quantidade Visitas'].sum().reset_index().copy()
                 visitas_por_dia_da_semana.sort_values(by='Quantidade Visitas', ascending=False, inplace=True)
                 visitas_por_dia_da_semana = visitas_por_dia_da_semana.set_index('Dia da Semana')
