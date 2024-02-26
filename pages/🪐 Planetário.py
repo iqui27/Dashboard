@@ -43,7 +43,7 @@ def read_and_process_file(uploaded_file, month):
         tabela.replace('######', 0, inplace=True)
         tabela.replace('#####', 0, inplace=True)
         tabela.fillna(0, inplace=True)
-        tabela['DIA'] = pd.to_datetime(tabela['DIA'].astype(str) + ' ' + month + ' 2024', format='%d %B %Y')
+        tabela['DIA'] = pd.to_datetime(tabela['DIA']..astype(int).astype(str) + ' ' + month + ' 2024', format='%d %B %Y')
 
     # Excluir as linhas de totais se estiverem incluídas
     if 'Total' in tabela.index or 'TOTAL' in tabela.columns:
@@ -60,7 +60,7 @@ mysql_engine = create_mysql_engine(mysql_user, mysql_password, mysql_host, mysql
 # Função para inserir dados no banco de dados
 def insert_data_to_db(engine, data, table_name):
     # Usar o engine para inserir dados no banco de dados
-    data = clean_column_names(data)
+    data = clean_column_names()
     with engine.connect() as conn:
         data.to_sql(table_name, conn, if_exists='append', index=False)
 
