@@ -43,7 +43,7 @@ def read_and_process_file(uploaded_file, month):
         tabela.replace('######', 0, inplace=True)
         tabela.replace('#####', 0, inplace=True)
         tabela.fillna(0, inplace=True)
-        tabela['DIA'] = pd.to_datetime(tabela['DIA']..astype(int).astype(str) + ' ' + month + ' 2024', format='%d %B %Y')
+        tabela['DIA'] = pd.to_datetime(tabela['DIA'].astype(int).astype(str) + ' ' + month + ' 2024', format='%d %B %Y')
 
     # Excluir as linhas de totais se estiverem incluídas
     if 'Total' in tabela.index or 'TOTAL' in tabela.columns:
