@@ -14,6 +14,7 @@ import plotly.graph_objs as go
 from sqlalchemy import create_engine
 import numpy as np
 import os
+import sys
 
 
 # Definir configurações da página
@@ -152,8 +153,22 @@ if 'df' not in st.session_state:
 if st.session_state["authentication_status"]:
     st.image('ID_SECTI.png', width=200)
     st.write(f'Bem-vindo *{st.session_state["name"]}*')   
-    # Configurar o locale para usar o formato de moeda brasileiro
-    locale.setlocale(locale.LC_ALL, 'Portuguese_Brazil')
+    # Verificar o sistema operacional
+    if sys.platform.startswith('win'):
+        # Para Windows
+        locale_str = 'Portuguese_Brazil'
+    elif sys.platform.startswith('darwin'):
+        # Para macOS
+        locale_str = 'pt_BR.UTF-8'
+    else:
+        # Para outros sistemas operacionais, ajuste conforme necessário
+        locale_str = 'pt_BR.UTF-8'
+
+    # Tentar definir o locale
+    try:
+        locale.setlocale(locale.LC_ALL, locale_str)
+    except locale.Error as e:
+        print(f"Erro ao definir o locale: {e}")
 
     # Initialize the Streamlit interface
     st.sidebar.title("Projetos")
@@ -765,6 +780,9 @@ if st.session_state["authentication_status"]:
                                 input_value = st.number_input(f"{column} (novo projeto)", step=1.0, format="%.2f")
                                 # Explicitly cast the input to float64 to ensure compatibility
                                 new_project_data[column] = np.float64(input_value)
+                            elif column == 'Situação atual':
+                                situacao_options = ['Pre Produção', 'Produção', 'Pós Produção', 'Relatório da Comissão Gestora', 'Prestação de Contas']
+                                new_project_data[column] = st.selectbox(f"{column} (novo projeto)", situacao_options)
                             elif column == 'Processo SEI':
                                 # Campo para processo SEI com preenchimento automático do padrão
                                 sei_input = st.text_input(f"{column} (Adicione Apenas Números)", max_chars=17)
@@ -816,8 +834,10 @@ if st.session_state["authentication_status"]:
                     
                 if st.session_state.show_form:
                     with st.form(key='edit_form'):
-                        # Use um dicionário de compreensão para criar os campos de entrada, exceto para 'classificação'
-                        new_values = {column: st.text_input(column, project_details[column]) for column in df.columns if column != 'classificacao'}
+                        # Use um dicionário de compreensão para criar os campos de entrada, exceto para 'classificação' e 'Situação atual
+                        new_values = {column: st.text_input(column, project_details[column]) 
+                                    for column in df.columns 
+                                    if column not in ['classificacao', 'Situação atual']}
                         
                         # Adicione um selectbox para 'classificação' com as opções desejadas
                         new_values['classificacao'] = st.selectbox(
@@ -825,7 +845,9 @@ if st.session_state["authentication_status"]:
                             ['Termo de Fomento', 'Convênio', 'Termo de Colaboração', 'Novos Projetos'],
                             index=['Termo de Fomento', 'Convênio', 'Termo de Colaboração', 'Novos Projetos'].index(project_details['classificacao']) if project_details['classificacao'] in ['Termo de Fomento', 'Convênio', 'Termo de Colaboração', 'Novos Projetos'] else 0
                         )
-    
+                        new_values['Situação atual'] = st.selectbox('Situação atual', ['Pre Produção', 'Produção', 'Pós Produção', 'Relatório da Comissão Gestora', 'Prestação de Contas'],
+                             index=['Pré Produção', 'Produção', 'Pós Produção', 'Relatório da Comissão Gestora', 'Prestação de Contas'].index(project_details['Situação atual']) if project_details['Situação atual'] in ['Pre Produção', 'Produção', 'Pós Produção', 'Relatório da Comissão Gestora', 'Prestação de Contas'] else 0
+                        )
                         submit_button = st.form_submit_button('Salvar Alterações')
                         close_form_button = st.form_submit_button('Fechar Formulário')
 

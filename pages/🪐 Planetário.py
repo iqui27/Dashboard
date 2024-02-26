@@ -12,13 +12,58 @@ from streamlit_elements import elements, mui
 import plotly.express as px
 import plotly.graph_objs as go
 import os
+import io
+from sqlalchemy import create_engine
 from Projetos import ra, relatorio2023, mes, process_data, process_multiple_entries  
 
 
-st.set_page_config(
-   page_title='Planetário',
-   layout='wide',  # Ativa o layout wide
-)
+# Define your MySQL connection details
+mysql_user = 'usr_sectidf'
+mysql_password = 'DHS-14z4'
+mysql_host = '10.233.209.2'  # Or your database server IP or hostname
+mysql_database = 'db_sectidf'
+mysql_port = '3306'  # Default MySQL port
+table_name = 'Projetos' 
+
+def clean_column_names(dataframe):
+    # Strip trailing spaces from column names
+    dataframe.columns = dataframe.columns.str.strip()
+    # Replace spaces in column names with underscores and make them lowercase to ensure SQL compatibility
+    dataframe.columns = dataframe.columns.str.replace(' ', '_').str.lower()
+    return dataframe
+
+# Função para ler e tratar o arquivo Excel
+def read_and_process_file(uploaded_file, month):
+    tabela_visitas = pd.read_excel(uploaded_file, sheet_name= month, skiprows=2, usecols="A:E", nrows=31)
+    tabela_cupula = pd.read_excel(uploaded_file, sheet_name= month, skiprows=2, usecols="I:L", nrows=31)
+    tabela_alunos = pd.read_excel(uploaded_file, sheet_name= month, skiprows=2, usecols="O:R", nrows=31)
+    
+    for tabela in [tabela_visitas, tabela_cupula, tabela_alunos]:
+        tabela.rename(columns={tabela.columns[0]: 'DIA'}, inplace=True)
+        tabela.replace('######', 0, inplace=True)
+        tabela.replace('#####', 0, inplace=True)
+        tabela.fillna(0, inplace=True)
+        tabela['DIA'] = pd.to_datetime(tabela['DIA'].astype(str) + ' ' + month + ' 2024', format='%d %B %Y')
+
+    # Excluir as linhas de totais se estiverem incluídas
+    if 'Total' in tabela.index or 'TOTAL' in tabela.columns:
+        tabela.drop('Total', axis=0, inplace=True, errors='ignore')
+        tabela.drop('TOTAL', axis=1, inplace=True, errors='ignore')
+    return tabela_visitas, tabela_cupula, tabela_alunos
+
+def create_mysql_engine(user, password, host, port, db):
+    return create_engine(f'mysql+mysqlconnector://{user}:{password}@{host}:{port}/{db}')
+# Cria o engine do SQLAlchemy para a conexão com o MySQL
+mysql_engine = create_mysql_engine(mysql_user, mysql_password, mysql_host, mysql_port, mysql_database)
+
+
+# Função para inserir dados no banco de dados
+def insert_data_to_db(engine, data, table_name):
+    # Usar o engine para inserir dados no banco de dados
+    data = clean_column_names(data)
+    with engine.connect() as conn:
+        data.to_sql(table_name, conn, if_exists='append', index=False)
+
  # Lista de estados brasileiros
 estados_brasil = [
         'Acre', 'Alagoas', 'Amapá', 'Amazonas', 'Bahia', 'Ceará', 'Distrito Federal', 
@@ -34,6 +79,12 @@ if st.sidebar.button('Adicionar Visita'):
                 st.session_state['show_form'] = True
                 st.session_state['show_2023'] = False
                 st.session_state['show_2024'] = False
+                st.session_state['show_files'] = False
+if st.sidebar.button('Adicionar Arquivos'):
+                st.session_state['show_form'] = False
+                st.session_state['show_2023'] = False
+                st.session_state['show_2024'] = False
+                st.session_state['show_files'] = True
 st.sidebar.divider()
 st.sidebar.title('Relatórios')
 st.sidebar.write('Selecione o ano para visualizar o relatório')
@@ -41,10 +92,12 @@ if st.sidebar.button('2023'):
             st.session_state['show_2023'] = True
             st.session_state['show_2024'] = False
             st.session_state['show_form'] = False
+            st.session_state['show_files'] = False
 if st.sidebar.button('2024'):
                 st.session_state['show_2024'] = True
                 st.session_state['show_2023'] = False
                 st.session_state['show_form'] = False
+                st.session_state['show_files'] = False
         
 
 if st.session_state.get('show_form', False):            
@@ -468,5 +521,35 @@ if st.session_state.get('show_2023', True):
                 # Exibindo o gráfico no Streamlit
                 st.plotly_chart(fig3,use_container_width=True)
 
-    if st.session_state.get('show_2024', True):
-        st.header(f"Relatório do Planetario - 2024")
+if st.session_state.get('show_2024', True):
+    st.header(f"Relatório do Planetario - 2024")
+if st.session_state.get('show_files', True):
+    st.title('Upload e Processamento de Dados')
+
+
+# Seleção do mês pelo usuário
+month = st.selectbox("Escolha o Mês:", ["JANEIRO", "FEVEREIRO", "MARÇO", "ABRIL", "MAIO", "JUNHO", "JULHO", "AGOSTO", "SETEMBRO", "OUTUBRO", "NOVEMBRO", "DEZEMBRO"])
+
+
+
+
+# Upload do arquivo Excel
+uploaded_file = st.file_uploader("Escolha o arquivo Excel", type=['xlsx'])
+data = pd.DataFrame()
+# Verifica se um arquivo foi carregado e um mês foi selecionado
+if uploaded_file is not None and month is not None:
+    # Processamento do arquivo
+    tabela_visitas, tabela_cupula, tabela_alunos = read_and_process_file(uploaded_file, month)
+    # Mostrar o DataFrame
+    st.write(tabela_visitas)
+    st.write(tabela_cupula)
+    st.write(tabela_alunos)
+    
+    # Inserir dados no banco de dados
+    insert_data_to_db(mysql_engine, tabela_visitas, 'Visitas')
+    insert_data_to_db(mysql_engine, tabela_cupula, 'Cupula')
+    insert_data_to_db(mysql_engine, tabela_alunos, 'Alunos')
+        
+    st.success('Dados adicionados com sucesso ao banco de dados!')
+        
+
