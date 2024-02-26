@@ -48,6 +48,11 @@
                     "user": "Henrique Rocha",
                     "message": "oi",
                     "timestamp": 1706627296.5680547
+                },
+                {
+                    "user": "Davi",
+                    "message": "Ajustar andamento\n",
+                    "timestamp": 1708693176.3785598
                 }
             ]
         }
@@ -61,6 +66,65 @@
         }
     },
     "Geral": {
+        "channels": [
+            "Geral"
+        ],
+        "chat_messages": {
+            "Geral": []
+        }
+    },
+    "HACKACITY GUAR\u00c1: MUTIR\u00c3O CIDADE INTELIGENTE": {
+        "channels": [
+            "Geral"
+        ],
+        "chat_messages": {
+            "Geral": []
+        }
+    },
+    " XII Circuito de Ci\u00eancias das Escolas P\u00fablicas DF": {
+        "channels": [
+            "Geral"
+        ],
+        "chat_messages": {
+            "Geral": []
+        }
+    },
+    "INOVATECH": {
+        "channels": [
+            "Geral"
+        ],
+        "chat_messages": {
+            "Geral": []
+        }
+    },
+    "0": {
+        "channels": [
+            "Geral"
+        ],
+        "chat_messages": {
+            "Geral": []
+        }
+    },
+    "NOVA RECICLOTECH": {
+        "channels": [
+            "Geral"
+        ],
+        "chat_messages": {
+            "Geral": [
+                {
+                    "user": "Davi",
+                    "message": "Nova comiss\u00e3o de execu\u00e7\u00e3o publicada no DODF no dia 22/02",
+                    "timestamp": 1708694389.7672534
+                },
+                {
+                    "user": "Davi",
+                    "message": "Nova logo para o Programa",
+                    "timestamp": 1708694448.6620977
+                }
+            ]
+        }
+    },
+    "RECICLOTECH": {
         "channels": [
             "Geral"
         ],
