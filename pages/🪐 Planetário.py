@@ -17,7 +17,9 @@ from sqlalchemy import create_engine
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from Projetos import ra, relatorio2023, mes, process_data, process_multiple_entries  
 import datetime
-
+from dateutil import parser
+import numpy as np
+from plotly.subplots import make_subplots
 
 # Define your MySQL connection details
 mysql_user = 'usr_sectidf'
@@ -548,18 +550,193 @@ if st.session_state.get('show_2024', True):
     cupula = pd.read_sql_query(load_sql_query_Cupula, mysql_engine)
     visitas = pd.read_sql_query(load_sql_query_Visitas, mysql_engine)
     # Opção para selecionar os meses
-    sorted_month_year = cupula['dia'].dt.strftime('%B %Y').unique()
-    st.write(cupula) 
+    sorted_month_year = np.insert(cupula['dia'].dt.strftime('%B %Y').unique(), 0, "Todos os meses")
     selected_month = st.selectbox("Escolha o Mês:", sorted_month_year)
-    filtered_cupula = cupula[cupula['dia'].dt.month.isin([month.month for month in selected_month])]
-    Total_visitante_culupa = filtered_cupula['total_visitantes'].sum()
-    st.write(Total_visitante_culupa)
+    # Supondo que selected_month seja uma string no formato "Mês Ano", por exemplo, "Janeiro 2024"
+    meses = {
+        "Todos os meses": 0,  # Adicionado como uma opção especial
+        "Janeiro": 1, "Fevereiro": 2, "Março": 3, "Abril": 4,
+        "Maio": 5, "Junho": 6, "Julho": 7, "Agosto": 8,
+        "Setembro": 9, "Outubro": 10, "Novembro": 11, "Dezembro": 12
+    }
 
+    # Dividindo a string para obter o mês e o ano separadamente, se aplicável
+    if selected_month != "Todos os meses":
+        mes_nome, ano = selected_month.split()
+        mes_numero = meses[mes_nome]
+        selected_month_datetime = datetime.datetime(year=int(ano), month=mes_numero, day=1)
+    else:
+        # Tratamento especial para "Todos os meses"
+        selected_month_datetime = None  # Ou qualquer outra lógica que você deseja aplicar para este caso
+
+    # Filtrando 'cupula' para o mês selecionado
+    if selected_month_datetime:
+        filtered_cupula = cupula[cupula['dia'].dt.month == selected_month_datetime.month]
+    else:
+        filtered_cupula = cupula
+
+    #Processamenteo Cupula
+    Total_visitante_cupula = filtered_cupula['total_visitantes'].sum()
+    sessoes_publico = filtered_cupula['sessões_público'].sum()
+    sessoes_escolas = filtered_cupula['sessões_escolas'].sum()
+    total_sessoes = sessoes_publico + sessoes_escolas
     
 
+    if selected_month_datetime:
+        filtered_alunos = alunos[alunos['dia'].dt.month == selected_month_datetime.month]
+    else:
+        filtered_alunos = alunos
+
+    if selected_month_datetime:
+        filtered_visitas = visitas[visitas['dia'].dt.month == selected_month_datetime.month]
+    else:
+        filtered_visitas = visitas
+
+    #Processamento Alunos
+    total_alunos = filtered_alunos['total'].sum()
+    escolas_publicas = filtered_alunos['pública'].sum()
+    escolas_privadas = filtered_alunos['privada'].sum()
+    total_escolas = escolas_publicas + escolas_privadas
 
 
+    # Calculando a proporção de alunos por tipo de escola
+    proporcao_publicas = escolas_publicas / total_escolas
+    proporcao_privadas = escolas_privadas / total_escolas
 
+    # Distribuindo os alunos conforme a proporção calculada
+    alunos_publicas = round(total_alunos * proporcao_publicas)
+    alunos_privadas = total_alunos - alunos_publicas
+
+    #Processamento Visitantes
+    visitantes_df = filtered_visitas['df'].sum()
+    visitantes_oe = filtered_visitas['oe'].sum()
+    visitantes_op = filtered_visitas['op'].sum()
+    visitantes_total = visitantes_df + visitantes_oe + visitantes_op
+    # Calculando o dia com mais visitas
+    dia_com_mais_visitas = filtered_visitas.groupby('dia')['total_dia'].sum().idxmax()
+    nome_dia_com_mais_visitas = dia_com_mais_visitas.strftime('%A')
+    
+    
+    col1, col2, col3 = st.columns([3, 3,3])
+
+
+            
+    with col1:
+
+                
+                st.markdown(f"""
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <span>Total de Visitantes na Cúpula:</span>
+                                <div style="background-color: #1B1F23; border-radius: 10px; padding: 4px 12px;">
+                                    <span style="color: #26D367;">{Total_visitante_cupula}</span>
+                                </div>
+                            </div>
+                        """, unsafe_allow_html=True)
+                st.write("\n")
+                st.markdown(f"""
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <span>Total de Visitantes de Outro Países:</span>
+                                <div style="background-color: #1B1F23; border-radius: 10px; padding: 4px 12px;">
+                                    <span style="color: #26D367;">{visitantes_op}</span>
+                                </div>
+                            </div>
+                        """, unsafe_allow_html=True)
+                st.write("\n") 
+                st.markdown(f"""
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <span>Total de Visitantes de Outros Estado:</span>
+                                <div style="background-color: #1B1F23; border-radius: 10px; padding: 4px 12px;">
+                                    <span style="color: #26D367;">{visitantes_oe}</span>
+                                </div>
+                            </div>
+                        """, unsafe_allow_html=True)
+                st.write("\n")
+                st.write("\n")   
+                # Exibindo o card com a variação percentual
+                
+    with col3:
+                st.markdown(f"""
+                            <div style="display: flex; align-items: right; gap: 10px;">
+                                <span>Número de Sessões:</span>
+                                <div style="background-color: #1B1F23; border-radius: 10px; padding: 4px 12px;">
+                                    <span style="color: #db3e00;">{total_sessoes}</span>
+                                </div>
+                            </div>
+                        """, unsafe_allow_html=True)
+                st.write("\n")
+                st.markdown(f"""
+                            <div style="display: flex; align-items: right; gap: 10px;">
+                                <span>Dia Mais Visitado:</span>
+                                <div style="background-color: #1B1F23; border-radius: 10px; padding: 4px 12px;">
+                                    <span style="color: Yellow;">{nome_dia_com_mais_visitas}</span>
+                                </div>
+                            </div>
+                        """, unsafe_allow_html=True)
+                st.write("\n")
+                st.write("\n")
+                st.write("\n")
+                st.write("\n")    
+
+    
+    # Gerando o gráfico de pizza para a comparação entre alunos de escolas públicas e privadas
+    labels = ['Escolas Públicas', 'Escolas Privadas']
+    values = [escolas_publicas, escolas_privadas]
+
+    # Configuração do gráfico
+    fig_pizza = go.Figure(data=[go.Pie(labels=labels, values=values, hole=.3)])
+    fig_pizza.update_layout(title_text='Proporção de Alunos: Escolas Públicas x Privadas')
+
+    # Exibindo o gráfico no Streamlit
+    st.plotly_chart(fig_pizza, use_container_width=True)           
+
+
+    # Opção para alternar entre visualização diária e mensal
+    visualizacao = st.radio("Escolha o tipo de visualização:", ('Diária', 'Mensal'))
+
+    if visualizacao == 'Diária':
+        # Agrupando os dados por dia para visitas e alunos separadamente
+        dados_por_dia_visitas = filtered_visitas.groupby(filtered_visitas['dia'].dt.date).agg({'total_dia': 'sum'}).reset_index().fillna(0)
+        dados_por_dia_alunos = filtered_alunos.groupby(filtered_alunos['dia'].dt.date).agg({'total': 'sum'}).reset_index().fillna(0)
+        
+        # Renomeando colunas para melhor entendimento
+        dados_por_dia_visitas.columns = ['Dia', 'Total de Visitas']
+        dados_por_dia_alunos.columns = ['Dia', 'Total de Alunos']
+
+        #Combinando os dataframes
+        dados_por_dia_visitas['Categoria'] = 'Visitas'
+        dados_por_dia_alunos['Categoria'] = 'Alunos'
+        dados_combinados = pd.concat([dados_por_dia_visitas[['Dia', 'Total de Visitas', 'Categoria']],
+                                    dados_por_dia_alunos.rename(columns={'Total de Alunos': 'Total de Visitas'})[['Dia', 'Total de Visitas', 'Categoria']]])
+        
+        #Criando o gráfico de barras empilhadas
+        fig_dados_diarios = go.Figure()
+        for categoria in dados_combinados['Categoria'].unique():
+            df_filtrado = dados_combinados[dados_combinados['Categoria'] == categoria]
+            fig_dados_diarios.add_trace(go.Bar(x=df_filtrado['Dia'], y=df_filtrado['Total de Visitas'], name=categoria))
+
+        # Atualizando layout do gráfico para modo empilhado
+        fig_dados_diarios.update_layout(
+            title_text='Total de Visitas e Alunos por Dia',
+            xaxis_tickangle=-45,
+            yaxis=dict(title='Total'),
+            barmode='stack'  # Modo empilhado
+        )
+
+        # Exibindo o gráfico
+        # Aqui você usaria st.plotly_chart(fig_dados_diarios, use_container_width=True) se estiver usando Streamlit
+        st.plotly_chart(fig_dados_diarios, use_container_width=True)
+    else:
+        # Agrupando os dados por mês
+        visitas_por_mes = visitas.groupby(visitas['dia'].dt.to_period('M'))['total_dia'].sum().reset_index()
+        # Convertendo o índice de período para datetime para facilitar a visualização
+        visitas_por_mes['dia'] = visitas_por_mes['dia'].dt.to_timestamp()
+        # Renomeando colunas para melhor entendimento
+        visitas_por_mes.columns = ['Mês', 'Total de Visitas']
+        # Criando o gráfico de linha para visualização mensal com suavização e normalização
+        fig_visitas_mensais = px.line(visitas_por_mes, x='Mês', y='Total de Visitas', title='Total de Visitas por Mês')
+        fig_visitas_mensais.update_traces(line_shape='spline', line_smoothing=1.3)
+        fig_visitas_mensais.update_yaxes(rangemode="tozero")
+        st.plotly_chart(fig_visitas_mensais, use_container_width=True)
 
 
 
