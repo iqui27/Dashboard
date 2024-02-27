@@ -174,7 +174,7 @@ if st.session_state["authentication_status"]:
     st.sidebar.title("Projetos")
 
     # Cria uma barra de navegação com abas
-    tab1, tab2, tab3, tab4, tab5 = st.tabs(["Home", "👥 Chat", "📓 Projetos", "✏️ Editar", "❌ Sair"])
+    tab1, tab2, tab3, tab4, tab5 = st.tabs(["🏠 Home", "👥 Chat", "📓 Projetos", "✏️ Editar", "❌ Sair"])
     css = '''
     <style>
         .stTabs [data-baseweb="tab-list"] button [data-testid="stMarkdownContainer"] p {
