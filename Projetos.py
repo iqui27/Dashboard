@@ -174,7 +174,7 @@ if st.session_state["authentication_status"]:
     st.sidebar.title("Projetos")
 
     # Cria uma barra de navegação com abas
-    tab1, tab2, tab3, tab4, tab5 = st.tabs(["🏠 Home", "👥 Chat", "📓 Projetos", "✏️ Editar", "❌ Sair"])
+    tab1, tab2, tab3, tab4, tab5 = st.tabs(["🏠Home", "👥 Chat", "📓 Projetos", "✏️ Editar", "❌ Sair"])
     css = '''
     <style>
         .stTabs [data-baseweb="tab-list"] button [data-testid="stMarkdownContainer"] p {
@@ -737,7 +737,10 @@ if st.session_state["authentication_status"]:
             
 
             with col5:
-                st.markdown("<h3 style='text-align: left; color: yellow;'>{}</h3>".format(selected_project), unsafe_allow_html=True)
+                st.write("\n")
+                st.markdown("<u>Projeto Selecionado__________________________</u>", unsafe_allow_html=True)
+                st.markdown("<h4 style='text-align: left; color: #2596be;'>{}</h4>".format(selected_project), unsafe_allow_html=True)
+                st.divider()
                 if 'show_table' not in st.session_state:
                     st.session_state.show_table = False
                     # Botão que alterna a visibilidade das observações
