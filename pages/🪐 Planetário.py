@@ -14,7 +14,9 @@ import plotly.graph_objs as go
 import os
 import io
 from sqlalchemy import create_engine
+from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from Projetos import ra, relatorio2023, mes, process_data, process_multiple_entries  
+import datetime
 
 
 # Define your MySQL connection details
@@ -34,35 +36,51 @@ def clean_column_names(dataframe):
 
 # Função para ler e tratar o arquivo Excel
 def read_and_process_file(uploaded_file, month):
-    tabela_visitas = pd.read_excel(uploaded_file, sheet_name= month, skiprows=2, usecols="A:E", nrows=31)
-    tabela_cupula = pd.read_excel(uploaded_file, sheet_name= month, skiprows=2, usecols="I:L", nrows=31)
-    tabela_alunos = pd.read_excel(uploaded_file, sheet_name= month, skiprows=2, usecols="O:R", nrows=31)
-    
-    for tabela in [tabela_visitas, tabela_cupula, tabela_alunos]:
+    tabela_visitas = pd.read_excel(uploaded_file, sheet_name=month, skiprows=2, usecols="A:E", nrows=31)
+    tabela_cupula = pd.read_excel(uploaded_file, sheet_name=month, skiprows=2, usecols="I:L", nrows=31)
+    tabela_alunos = pd.read_excel(uploaded_file, sheet_name=month, skiprows=2, usecols="O:R", nrows=31)
+
+
+    tabelas = {'visitas': tabela_visitas, 'cupula': tabela_cupula, 'alunos': tabela_alunos}
+
+    for key, tabela in tabelas.items():
         tabela.rename(columns={tabela.columns[0]: 'DIA'}, inplace=True)
         tabela.replace('######', 0, inplace=True)
         tabela.replace('#####', 0, inplace=True)
         tabela.fillna(0, inplace=True)
-        tabela['DIA'] = pd.to_datetime(tabela['DIA'].astype(int).astype(str) + ' ' + month + ' 2024', format='%d %B %Y')
+        tabela['DIA'] = tabela['DIA'].astype(str).str.extract('(\d+)').astype(int)  # Extrai números e converte para int
+        tabela = tabela[tabela['DIA'] != 0]
+        tabela['DIA'] = pd.to_datetime(tabela['DIA'].astype(str) + ' ' + month + ' 2024', format='%d %B %Y')
+        tabelas[key] = tabela  # Atualiza a tabela modificada no dicionário
 
-    # Excluir as linhas de totais se estiverem incluídas
-    if 'Total' in tabela.index or 'TOTAL' in tabela.columns:
-        tabela.drop('Total', axis=0, inplace=True, errors='ignore')
-        tabela.drop('TOTAL', axis=1, inplace=True, errors='ignore')
-    return tabela_visitas, tabela_cupula, tabela_alunos
+    # Retorna as tabelas processadas
+    return tabelas['visitas'], tabelas['cupula'], tabelas['alunos']
 
 def create_mysql_engine(user, password, host, port, db):
     return create_engine(f'mysql+mysqlconnector://{user}:{password}@{host}:{port}/{db}')
 # Cria o engine do SQLAlchemy para a conexão com o MySQL
 mysql_engine = create_mysql_engine(mysql_user, mysql_password, mysql_host, mysql_port, mysql_database)
+st.session_state['sql'] = False
+st.session_state['Erro1'] = False
+st.session_state['erro2'] = False
 
 
 # Função para inserir dados no banco de dados
 def insert_data_to_db(engine, data, table_name):
-    # Usar o engine para inserir dados no banco de dados
-    data = clean_column_names()
-    with engine.connect() as conn:
-        data.to_sql(table_name, conn, if_exists='append', index=False)
+    data = clean_column_names(data)
+    try:
+        with engine.connect() as conn:
+            data.to_sql(table_name, conn, if_exists='append', index=False)
+            st.session_state['sql'] = True
+
+    except IntegrityError as e:
+        st.session_state['erro2'] = True
+
+        # Aqui você pode decidir o que fazer em caso de erro de integridade, como ignorar ou registrar
+    except SQLAlchemyError as e:
+        st.session_state['Erro1'] = True
+
+        # Tratamento de outros erros do SQLAlchemy
 
  # Lista de estados brasileiros
 estados_brasil = [
@@ -523,33 +541,79 @@ if st.session_state.get('show_2023', True):
 
 if st.session_state.get('show_2024', True):
     st.header(f"Relatório do Planetario - 2024")
+    load_sql_query_alunos = f'SELECT * FROM {'Alunos'}'
+    load_sql_query_Cupula = f'SELECT * FROM {'Cupula'}'
+    load_sql_query_Visitas = f'SELECT * FROM {'Visitas'}'
+    alunos = pd.read_sql_query(load_sql_query_alunos, mysql_engine)
+    cupula = pd.read_sql_query(load_sql_query_Cupula, mysql_engine)
+    visitas = pd.read_sql_query(load_sql_query_Visitas, mysql_engine)
+    # Opção para selecionar os meses
+    sorted_month_year = cupula['dia'].dt.strftime('%B %Y').unique()
+    st.write(cupula) 
+    selected_month = st.selectbox("Escolha o Mês:", sorted_month_year)
+    filtered_cupula = cupula[cupula['dia'].dt.month.isin([month.month for month in selected_month])]
+    Total_visitante_culupa = filtered_cupula['total_visitantes'].sum()
+    st.write(Total_visitante_culupa)
+
+    
+
+
+
+
+
+
+
+
+
+
 if st.session_state.get('show_files', True):
     st.title('Upload e Processamento de Dados')
 
 
-# Seleção do mês pelo usuário
-month = st.selectbox("Escolha o Mês:", ["JANEIRO", "FEVEREIRO", "MARÇO", "ABRIL", "MAIO", "JUNHO", "JULHO", "AGOSTO", "SETEMBRO", "OUTUBRO", "NOVEMBRO", "DEZEMBRO"])
+    # Seleção do mês pelo usuário
+    month = st.selectbox("Escolha o Mês:", ["JANEIRO", "FEVEREIRO", "MARÇO", "ABRIL", "MAIO", "JUNHO", "JULHO", "AGOSTO", "SETEMBRO", "OUTUBRO", "NOVEMBRO", "DEZEMBRO"])
 
 
+    if 'processing_done' not in st.session_state:
+        st.session_state['processing_done'] = False
 
+    # Upload do arquivo Excel
+    uploaded_file = st.file_uploader("Escolha o arquivo Excel", type=['xlsx'])
+    data = pd.DataFrame()
+    if uploaded_file is not None:
+        # Salva o arquivo carregado em um estado de sessão para reuso após rerun
+        st.session_state['uploaded_file'] = uploaded_file
 
-# Upload do arquivo Excel
-uploaded_file = st.file_uploader("Escolha o arquivo Excel", type=['xlsx'])
-data = pd.DataFrame()
-# Verifica se um arquivo foi carregado e um mês foi selecionado
-if uploaded_file is not None and month is not None:
-    # Processamento do arquivo
-    tabela_visitas, tabela_cupula, tabela_alunos = read_and_process_file(uploaded_file, month)
-    # Mostrar o DataFrame
-    st.write(tabela_visitas)
-    st.write(tabela_cupula)
-    st.write(tabela_alunos)
+        process_button = st.button('Processar arquivo')
+    # Verifica se um arquivo foi carregado e um mês foi selecionado
+        if process_button:  
+            # Processamento do arquivo
+            tabela_visitas, tabela_cupula, tabela_alunos = read_and_process_file(uploaded_file, month)
+            # Mostrar o DataFrame
+            st.write(tabela_visitas)
+            st.write(tabela_cupula)
+            st.write(tabela_alunos)
+            
+            # Inserir dados no banco de dados
+            insert_data_to_db(mysql_engine, tabela_visitas, 'Visitas')
+            insert_data_to_db(mysql_engine, tabela_cupula, 'Cupula')
+            insert_data_to_db(mysql_engine, tabela_alunos, 'Alunos')
+            if st.session_state['sql']:
+                st.success('Dados adicionados com sucesso ao banco de dados!')
+                time.sleep(2)
+            elif st.session_state['erro2']:
+                st.warning('Erro de integridade ao tentar inserir dados na tabela')
+                time.sleep(2)
+            elif st.session_state['Erro1']:
+                st.error('Erro ao tentar inserir dados na tabela')
+                time.sleep(2)
+        # Considere adicionar um botão para "limpar" ou reiniciar o estado após a inserção de dados
+    if st.button('Reiniciar'):
+        st.session_state['sql'] = False
+        st.session_state['Erro1'] = False
+        st.session_state['erro2'] = False
     
-    # Inserir dados no banco de dados
-    insert_data_to_db(mysql_engine, tabela_visitas, 'Visitas')
-    insert_data_to_db(mysql_engine, tabela_cupula, 'Cupula')
-    insert_data_to_db(mysql_engine, tabela_alunos, 'Alunos')
         
-    st.success('Dados adicionados com sucesso ao banco de dados!')
+
         
 
