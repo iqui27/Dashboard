@@ -785,7 +785,7 @@ if st.session_state["authentication_status"]:
                                 new_project_data[column] = st.selectbox(f"{column} (novo projeto)", unidade_options)
                             elif column == 'Processo SEI':
                                 # Campo para processo SEI com preenchimento automático do padrão
-                                sei_input = st.text_input(f"{column} (Adicione Apenas Números)", max_chars=17)
+                                sei_input = st.text_input(f"{column} (Adicione Apenas Números)", max_chars=19)
                                 sei_formatted = f"{sei_input[:5]}-{sei_input[5:13]}/{sei_input[13:17]}-{sei_input[17:]}"
                                 new_project_data[column] = sei_formatted
                             elif column == 'classificacao':
@@ -831,14 +831,20 @@ if st.session_state["authentication_status"]:
                 project_details = df[df['Projeto'] == selected_project].iloc[0]
 
             # Botão para mostrar o formulário
-                    
+                 
                 if st.session_state.show_form:
                     with st.form(key='edit_form'):
                         # Use um dicionário de compreensão para criar os campos de entrada, exceto para 'classificação' e 'Situação atual
                         new_values = {column: st.text_input(column, project_details[column]) 
                                     for column in df.columns 
-                                    if column not in ['classificacao', 'Situação atual', 'Unidade SECTI Responsável', 'Unidade SECTI adicional']}
+                                    if column not in ['classificacao', 'Situação atual', 'Unidade SECTI Responsável', 'Unidade SECTI adicional','Processo SEI']}
                         
+                        # Campo de entrada para o Processo SEI com formatação
+                        sei_input = st.text_input("Processo SEI (Adicione Apenas Números)", value=project_details['Processo SEI'].replace("-", "").replace("/", ""), max_chars=19)
+                        sei_formatted = f"{sei_input[:5]}-{sei_input[5:13]}/{sei_input[13:17]}-{sei_input[17:]}"
+                        new_values['Processo SEI'] = sei_formatted
+
+
                         # Adicione um selectbox para 'classificação' com as opções desejadas
                         new_values['classificacao'] = st.selectbox(
                             'Classificação',
