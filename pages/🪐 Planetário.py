@@ -50,7 +50,7 @@ def read_and_process_file(uploaded_file, month):
         tabela.replace('######', 0, inplace=True)
         tabela.replace('#####', 0, inplace=True)
         tabela.fillna(0, inplace=True)
-        tabela['DIA'] = tabela['DIA'].astype(str).str.extract('(\d+)').astype(int)  # Extrai números e converte para int
+        tabela['DIA'] = tabela['DIA'].astype(str).str.extract(r'(\d+)').astype(int)  # Extrai números e converte para int
         tabela = tabela[tabela['DIA'] != 0]
         tabela['DIA'] = pd.to_datetime(tabela['DIA'].astype(str) + ' ' + month + ' 2024', format='%d %B %Y')
         tabelas[key] = tabela  # Atualiza a tabela modificada no dicionário
