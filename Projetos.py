@@ -243,7 +243,7 @@ if st.session_state["authentication_status"]:
     valor_total_projetos_andamento_novos_formatado = locale.currency(valor_total_projetos_andamento_novos, grouping=True)
     valor_total_projetos_andamento_concluidos_formatado = locale.currency(valor_total_projetos_andamento_concluidos, grouping=True)
     with tab1:
-        
+
             col1, col2= st.columns([3, 3])
             with col1:
                 style_container = """
@@ -280,7 +280,7 @@ if st.session_state["authentication_status"]:
 
                 st.markdown(f"""
                 <div class="stats">
-                    <span>Projetos em andamento:</span>
+                    <span>Projetos Termo de Fomento:</span>
                     <div>{numero_de_projetos_em_andamento}</div>
                 </div>
                 """, unsafe_allow_html=True)
@@ -288,24 +288,18 @@ if st.session_state["authentication_status"]:
                 # Repita para as demais categorias
                 st.markdown(f"""
                 <div class="stats">
-                    <span>Projetos de emendas parlamentares:</span>
+                    <span>Projetos de Termos de Colaboração:</span>
                     <div>{numero_de_projetos_emendas}</div>
                 </div>
                 """, unsafe_allow_html=True)
 
                 st.markdown(f"""
                 <div class="stats">
-                    <span>Projetos de eventos:</span>
+                    <span>Projetos de Convênio:</span>
                     <div>{numero_de_projetos_eventos}</div>
                 </div>
                 """, unsafe_allow_html=True)
 
-                st.markdown(f"""
-                <div class="stats">
-                    <span>Projetos novos:</span>
-                    <div>{numero_de_projetos_novos}</div>
-                </div>
-                """, unsafe_allow_html=True)
             with col2:
                 st.write("\n")
                 st.write("\n")
@@ -323,7 +317,7 @@ if st.session_state["authentication_status"]:
 
                 st.markdown(f"""
                     <div style="display: flex; align-items: center; gap: 10px;">
-                        <span>Valor total dos projetos em andamento:</span>
+                        <span>Valor total dos projetos Termo de Fomento:</span>
                         <div style="background-color: #1B1F23; border-radius: 10px; padding: 4px 12px;">
                             <span style="color: #26D367;">{valor_total_projetos_andamento_formatado}</span>
                         </div>
@@ -332,7 +326,7 @@ if st.session_state["authentication_status"]:
                 st.write("\n")
                 st.markdown(f"""
                     <div style="display: flex; align-items: center; gap: 10px;">
-                        <span>Valor total dos projetos de emendas parlamentares:</span>
+                        <span>Valor total dos projetos de Termo de Colaboração:</span>
                         <div style="background-color: #1B1F23; border-radius: 10px; padding: 4px 12px;">
                             <span style="color: #26D367;">{valor_total_projetos_andamento_emendas_formatado}</span>
                         </div>
@@ -341,7 +335,7 @@ if st.session_state["authentication_status"]:
                 st.write("\n")
                 st.markdown(f"""
                     <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
-                        <span>Valor total dos projetos de eventos:</span>
+                        <span>Valor total dos projetos de Convênio:</span>
                         <div style="background-color: #1B1F23; border-radius: 10px; padding: 4px 12px;">
                             <span style="color: #26D367;">{valor_total_projetos_andamento_eventos_formatado}</span>
                         </div>
@@ -783,6 +777,12 @@ if st.session_state["authentication_status"]:
                             elif column == 'Situação atual':
                                 situacao_options = ['Pre Produção', 'Produção', 'Pós Produção', 'Relatório da Comissão Gestora', 'Prestação de Contas']
                                 new_project_data[column] = st.selectbox(f"{column} (novo projeto)", situacao_options)
+                            elif column == 'Unidade SECTI Responsável':
+                                unidade_options = ['DIDCI', 'DIJE', 'SUPCDT', 'DIEC','DICID', 'SICID', 'SUPCDT']
+                                new_project_data[column] = st.selectbox(f"{column} (novo projeto)", unidade_options)
+                            elif column == 'Unidade SECTI adicional':
+                                unidade_options = ['Sem Colaboração','DIDCI', 'DIJE', 'SUPCDT', 'DIEC','DICID', 'SICID', 'SUPCDT']
+                                new_project_data[column] = st.selectbox(f"{column} (novo projeto)", unidade_options)
                             elif column == 'Processo SEI':
                                 # Campo para processo SEI com preenchimento automático do padrão
                                 sei_input = st.text_input(f"{column} (Adicione Apenas Números)", max_chars=17)
@@ -837,7 +837,7 @@ if st.session_state["authentication_status"]:
                         # Use um dicionário de compreensão para criar os campos de entrada, exceto para 'classificação' e 'Situação atual
                         new_values = {column: st.text_input(column, project_details[column]) 
                                     for column in df.columns 
-                                    if column not in ['classificacao', 'Situação atual']}
+                                    if column not in ['classificacao', 'Situação atual', 'Unidade SECTI Responsável', 'Unidade SECTI adicional']}
                         
                         # Adicione um selectbox para 'classificação' com as opções desejadas
                         new_values['classificacao'] = st.selectbox(
@@ -847,6 +847,12 @@ if st.session_state["authentication_status"]:
                         )
                         new_values['Situação atual'] = st.selectbox('Situação atual', ['Pre Produção', 'Produção', 'Pós Produção', 'Relatório da Comissão Gestora', 'Prestação de Contas'],
                              index=['Pré Produção', 'Produção', 'Pós Produção', 'Relatório da Comissão Gestora', 'Prestação de Contas'].index(project_details['Situação atual']) if project_details['Situação atual'] in ['Pre Produção', 'Produção', 'Pós Produção', 'Relatório da Comissão Gestora', 'Prestação de Contas'] else 0
+                        )
+                        new_values['Unidade SECTI Responsável'] = st.selectbox('Unidade SECTI Responsável', ['DIDCI', 'DIJE', 'SUPCDT', 'DIEC','DICID', 'SICID', 'SUPCDT'],
+                            index=['DIDCI', 'DIJE', 'SUPCDT', 'DIEC','DICID', 'SICID', 'SUPCDT'].index(project_details['Unidade SECTI Responsável']) if project_details['Unidade SECTI Responsável'] in ['DIDCI', 'DIJE', 'SUPCDT', 'DIEC','DICID', 'SICID', 'SUPCDT'] else 0
+                        )
+                        new_values['Unidade SECTI adicional'] = st.selectbox('Unidade SECTI adicional', ['Sem Colaboração','DIDCI', 'DIJE', 'SUPCDT', 'DIEC','DICID', 'SICID', 'SUPCDT'],
+                            index=['Sem Colaboração','DIDCI', 'DIJE', 'SUPCDT', 'DIEC','DICID', 'SICID', 'SUPCDT'].index(project_details['Unidade SECTI adicional']) if project_details['Unidade SECTI adicional'] in ['Sem Colaboração','DIDCI', 'DIJE', 'SUPCDT', 'DIEC','DICID', 'SICID', 'SUPCDT'] else 0
                         )
                         submit_button = st.form_submit_button('Salvar Alterações')
                         close_form_button = st.form_submit_button('Fechar Formulário')
