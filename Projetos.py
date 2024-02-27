@@ -208,7 +208,10 @@ if st.session_state["authentication_status"]:
             selected_project = st.sidebar.radio("Selecione um Projeto", projects['Projeto'], index=0)
             if selected_project:
                 project_details = projects[projects['Projeto'] == selected_project]
-                valor_formatado = locale.currency(project_details['Valor'].values[0], grouping=True)
+                valor = project_details['Valor'].values[0]
+                # Convert the value to float
+                valor = float(valor) if isinstance(valor, str) and valor.replace('.', '', 1).isdigit() else valor
+                valor_formatado = locale.currency(valor, grouping=True)
                 # Aqui você pode exibir os detalhes do projeto selecionado, incluindo valor_formatado
             else:
                 project_details = None
