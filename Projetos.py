@@ -88,7 +88,6 @@ def load_messages():
         return {}
     
 def exportar_PDF(figs):
-    def exportar_PDF(figs):
     # Salve cada figura como uma imagem PNG
     for i, fig in enumerate(figs):
         pio.write_image(fig, f'fig{i}.png')
