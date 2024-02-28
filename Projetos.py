@@ -18,15 +18,13 @@ import sys
 import sqlalchemy
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter, landscape
-
-
-
+from streamlit_card import card
 
 # Definir configurações da página
 st.set_page_config(
-   page_title='Dashboard SECTI',
-   layout='wide',  # Ativa o layout wide
-   initial_sidebar_state='auto'  # Define o estado inicial da sidebar (pode ser 'auto', 'expanded', 'collapsed')
+    page_title='Dashboard SECTI',
+    layout='wide',  # Ativa o layout wide
+    initial_sidebar_state='auto'  # Define o estado inicial da sidebar (pode ser 'auto', 'expanded', 'collapsed')
 )
 
 DATA_FILE_PATH = 'planetario2024.csv'
