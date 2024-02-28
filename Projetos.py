@@ -753,25 +753,41 @@ if st.session_state["authentication_status"]:
                 """, unsafe_allow_html=True)
             st.divider()           
             st.markdown("<h5 style='text-align: left;'>Finalidade do Projeto</h5>", unsafe_allow_html=True)
-            st.markdown(f"<h6 style='text-align: left; color: #0097a7;'>{project_details['Objeto_Finalidade'].values[0]}</h6>", unsafe_allow_html=True)
-
+            st.markdown(f"<h6 style='text-align: left; color: #0097a7;'>{project_details['Objeto/Finalidade'].values[0]}</h6>", unsafe_allow_html=True)
             st.divider()
-            # Exemplo de dados
-            data = {'Categoria': ['Categoria A', 'Categoria B', 'Categoria C'],
-                    'Valor': [10, 20, 30]}
-            df = pd.DataFrame(data)
+            # Configuração inicial
+            st.subheader('Cronograma de Pagamentos')
 
-            # Criar o gráfico de barras
-            fig = px.bar(df, x='Categoria', y='Valor')
+            # Geração de dados fictícios
+            np.random.seed(42)  # Para consistência nos dados gerados
+            data_inicio = pd.to_datetime('2023-01-01')
+            meses = pd.date_range(data_inicio, periods=12, freq='M')
+            valores = np.random.uniform(100, 1000, size=len(meses))
+            df_pagamentos = pd.DataFrame({'Data': meses, 'Valor': valores})
 
-            # Configurar o layout para não mostrar as legendas do eixo X
-            fig.update_layout(
-                xaxis=dict(showticklabels=False),
-                # Outras configurações do layout podem ser adicionadas aqui
-            )
+            # Função para plotar o gráfico de barras
+            def plot_pagamentos(df):
+                fig = px.bar(df, x='Data', y='Valor', title="Pagamentos por Mês",
+                            labels={'Valor': 'Valor Pago ($)', 'Data': 'Data'},
+                            color='Valor', color_continuous_scale='Viridis')
+                fig.update_xaxes(dtick="M1", tickformat="%b\n%Y")
+                fig.update_layout(xaxis_title='Mês', yaxis_title='Valor Pago ($)')
+                return fig
 
-            # Mostrar o gráfico
-            st.pyplot(fig)
+            # Widgets para seleção de intervalo de datas
+            st.sidebar.header('Filtrar por Data')
+            data_inicio_selecionada = st.sidebar.date_input("Data de início", data_inicio)
+            data_fim_selecionada = st.sidebar.date_input("Data de fim", meses[-1])
+
+            # Filtragem dos dados com base na seleção do usuário
+            # Convertendo data_inicio_selecionada e data_fim_selecionada para datetime64[ns]
+            data_inicio_selecionada_datetime = pd.to_datetime(data_inicio_selecionada)
+            data_fim_selecionada_datetime = pd.to_datetime(data_fim_selecionada)
+
+            df_filtrado = df_pagamentos[(df_pagamentos['Data'] >= data_inicio_selecionada_datetime) & 
+                                        (df_pagamentos['Data'] <= data_fim_selecionada_datetime)]
+            # Exibição do gráfico
+            st.plotly_chart(plot_pagamentos(df_filtrado))
                 
     with tab2: #Chat
         st.markdown("<h4 style='text-align: center;'>{}</h4>".format(selected_project), unsafe_allow_html=True)
