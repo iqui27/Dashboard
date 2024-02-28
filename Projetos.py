@@ -475,11 +475,11 @@ if st.session_state["authentication_status"]:
                 unidade_secti_responsavel = project_details['Unidade SECTI Responsável'].values[0]
                 unidade_secti_adicional = project_details['Unidade SECTI adicional'].values[0]
 
-                if unidade_secti_responsavel == 'None':
+                if unidade_secti_responsavel == 0 or unidade_secti_responsavel == '0':
                     unidade_secti_responsavel = 'Não informado'
 
-                if unidade_secti_adicional == 'Sem Colaboração' or unidade_secti_adicional == 'None':
-                    unidade_secti_adicional = ''
+                if unidade_secti_adicional == 'Sem Colaboração' or unidade_secti_adicional == 'None' or unidade_secti_adicional == None:
+                    unidade_secti_adicional = ' '
 
                 st.markdown(f"<h6 style='text-align: center; color: #0097a7;'>{unidade_secti_responsavel} | {unidade_secti_adicional}</h6>", unsafe_allow_html=True)
                 
