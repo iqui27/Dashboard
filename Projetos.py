@@ -754,6 +754,24 @@ if st.session_state["authentication_status"]:
             st.divider()           
             st.markdown("<h5 style='text-align: left;'>Finalidade do Projeto</h5>", unsafe_allow_html=True)
             st.markdown(f"<h6 style='text-align: left; color: #0097a7;'>{project_details['Objeto_Finalidade'].values[0]}</h6>", unsafe_allow_html=True)
+
+            st.divider()
+            # Exemplo de dados
+            data = {'Categoria': ['Categoria A', 'Categoria B', 'Categoria C'],
+                    'Valor': [10, 20, 30]}
+            df = pd.DataFrame(data)
+
+            # Criar o gráfico de barras
+            fig = px.bar(df, x='Categoria', y='Valor')
+
+            # Configurar o layout para não mostrar as legendas do eixo X
+            fig.update_layout(
+                xaxis=dict(showticklabels=False),
+                # Outras configurações do layout podem ser adicionadas aqui
+            )
+
+            # Mostrar o gráfico
+            st.pyplot(fig)
                 
     with tab2: #Chat
         st.markdown("<h4 style='text-align: center;'>{}</h4>".format(selected_project), unsafe_allow_html=True)
