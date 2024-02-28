@@ -12,6 +12,7 @@ from streamlit_elements import elements, mui
 import plotly.express as px
 import plotly.graph_objs as go
 import os
+import numpy as np
 
 DATA_FILE_PATH = 'planetario2024.csv'
 
@@ -267,7 +268,30 @@ if st.session_state["authentication_status"]:
                 st.write("Para começar, selecione um projeto na barra lateral")
                 # Utilize o estilo definido acima antes dos seus elementos
                 st.markdown(style_container, unsafe_allow_html=True)
+                nomes_separados = df['Comissão Gestora da Parceria'].str.split(',')
+                df_pessoas = pd.read_csv("pessoas.csv")
 
+                # Inicializa um dicionário para contar as ocorrências
+                contagem_nomes = {}
+
+                # Conta as ocorrências de cada nome
+                for lista_nomes in nomes_separados:
+                    for nome in lista_nomes:
+                        # Remove espaços extras e ajusta para um formato consistente
+                        nome = nome.strip()
+                        if nome in contagem_nomes:
+                            contagem_nomes[nome] += 1
+                        else:
+                            contagem_nomes[nome] = 1
+
+                # Converte o dicionário para uma Series do pandas para facilitar a visualização e manipulação
+                contagem_series = pd.Series(contagem_nomes)
+
+                # Obter nomes não repetidos
+                nomes_unicos = contagem_series.index.dropna().unique()
+
+               
+            
                 # Cada linha de estatística é formatada com o estilo definido
                 st.markdown(f"""
                 <div class="stats">
@@ -372,6 +396,83 @@ if st.session_state["authentication_status"]:
             # Suponha que 'df' seja o seu DataFrame e que ele tem colunas 'Projeto', 'Valor', 'Classificação' e 'Unidade SECTI Responsável'
             # Certifique-se de que os valores estão em formato numérico e não há valores NaN
             st.divider()
+            st.write("Projetos por Pessoas")
+             # Dropdown para escolher os nomes não repetidos
+            selected_nome = st.selectbox("Escolha um nome", nomes_unicos)
+
+            # Conta as ocorrências de cada nome
+            for lista_nomes in nomes_separados:
+                for nome in lista_nomes:
+                    # Remove espaços extras e ajusta para um formato consistente
+                    nome = nome.strip()
+                    if nome in contagem_nomes:
+                        contagem_nomes[nome] += 1
+                    else:
+                        contagem_nomes[nome] = 1
+
+            # Converte o dicionário para uma Series do pandas para facilitar a visualização e manipulação
+            contagem_series = pd.Series(contagem_nomes)
+
+            # Agora você pode acessar a contagem para uma pessoa específica, por exemplo:
+            contagem_especifica = contagem_series.get(selected_nome, 0)
+
+            
+            projetos_com_pessoa = df[df['Comissão Gestora da Parceria'].str.contains(selected_nome, na=False)]
+
+            # Agora, extraia a coluna de projetos
+            lista_projetos = projetos_com_pessoa['Projeto'].tolist()
+
+            # Filtrar o DataFrame para obter as informações da pessoa selecionada
+            pessoa_selecionada = df_pessoas[df_pessoas['Nome'] == selected_nome]
+            col1, col3, col2 = st.columns([3,3, 3])
+            with col2:
+                # Usando st.container para simular um card
+                # HTML e CSS para criar o card com borda
+                card_html = f"""
+                    <div style='border: 1px solid white; border-radius: 10px; padding: 30px; text-align: center; margin: 5px 0 10px 0;'>
+                        <h4 style='color: white; font-weight: bold;'>Informações:</h4>
+                        <p style='color: white; font-weight: bold; margin-top: 0;'>Nome: <span style='color: red; border-radius: 10px; color: #79a78c;font-weight: bold; font-style: italic;'>{pessoa_selecionada['Nome'].values[0]}</span></p>
+                        <p style='color: white; font-weight: bold; margin-top: 0;'>Matricula: <span style='color: #79a78c; font-style: italic;'>{pessoa_selecionada['Matricula'].values[0]}</span></p>
+                        <p style='color: white; font-weight: bold; margin-top: 0;'>Telefone: <span style='color: #79a78c; font-style: italic;'>{pessoa_selecionada['Telefone'].values[0]}</span></p>
+                        <p style='color: white; font-weight: bold; margin-top: 0;'>Unidade SECTI: <span style='color: #79a78c; font-style: italic;'>{pessoa_selecionada['Unidade Secti Responsavel'].values[0]}</span></p>
+                    </div>
+                """
+
+                # Usar st.markdown para exibir o card com HTML e CSS
+                st.markdown(card_html, unsafe_allow_html=True)
+                # Imprime a lista de projetos
+            with col1:
+                st.subheader(f"Possui  `{int(contagem_especifica/2)}` Projetos") 
+                st.write("\n") 
+                
+                for projeto in lista_projetos:
+                    if st.button(projeto):
+                        selected_project = projeto
+
+            df_expandido = df.assign(participantes=df['Comissão Gestora da Parceria'].str.split(',')).explode('participantes')
+
+            # Contar a quantidade de participantes únicos por projeto
+            pessoas_por_projeto = df_expandido.groupby('Projeto')['participantes'].nunique().reset_index(name='Quantidade de Pessoas')
+
+            # Ordenar os resultados para uma melhor visualização
+            pessoas_por_projeto_sorted = pessoas_por_projeto.sort_values('Quantidade de Pessoas', ascending=True)
+
+            # Criar o gráfico de barras horizontal
+            fig = px.bar(pessoas_por_projeto_sorted, x='Quantidade de Pessoas', y='Projeto', orientation='h',
+                        title='Quantidade de Pessoas na Comissão do Projeto',
+                        labels={'Quantidade de Pessoas': 'Quantidade de Pessoas', 'Projeto': 'Projeto'})
+
+            # Ajustar o layout para melhor visualização
+            fig.update_layout(xaxis_title='Quantidade de Pessoas',
+                            yaxis_title='',
+                            yaxis={'categoryorder': 'total ascending'},
+                            height=800)  # Ajuste a altura conforme necessário
+            st.divider()
+            st.plotly_chart(fig)
+
+           
+            st.divider()
+            
             df.dropna(subset=['Valor'], inplace=True)
             df['Valor'] = df['Valor'].astype(float)
 
@@ -407,7 +508,7 @@ if st.session_state["authentication_status"]:
             st.bar_chart(filtered_df.set_index('Projeto')['Valor'], height=500)
 
 
-    
+
 
             st.write("\n")
             st.write("\n")
@@ -619,7 +720,41 @@ if st.session_state["authentication_status"]:
             st.divider()           
             st.markdown("<h5 style='text-align: left;'>Finalidade do Projeto</h5>", unsafe_allow_html=True)
             st.markdown(f"<h6 style='text-align: left; color: #0097a7;'>{project_details['Objeto/Finalidade'].values[0]}</h6>", unsafe_allow_html=True)
-                
+            st.divider()
+            # Configuração inicial
+            st.subheader('Cronograma de Pagamentos')
+
+            # Geração de dados fictícios
+            np.random.seed(42)  # Para consistência nos dados gerados
+            data_inicio = pd.to_datetime('2023-01-01')
+            meses = pd.date_range(data_inicio, periods=12, freq='M')
+            valores = np.random.uniform(100, 1000, size=len(meses))
+            df_pagamentos = pd.DataFrame({'Data': meses, 'Valor': valores})
+
+            # Função para plotar o gráfico de barras
+            def plot_pagamentos(df):
+                fig = px.bar(df, x='Data', y='Valor', title="Pagamentos por Mês",
+                            labels={'Valor': 'Valor Pago ($)', 'Data': 'Data'},
+                            color='Valor', color_continuous_scale='Viridis')
+                fig.update_xaxes(dtick="M1", tickformat="%b\n%Y")
+                fig.update_layout(xaxis_title='Mês', yaxis_title='Valor Pago ($)')
+                return fig
+
+            # Widgets para seleção de intervalo de datas
+            st.sidebar.header('Filtrar por Data')
+            data_inicio_selecionada = st.sidebar.date_input("Data de início", data_inicio)
+            data_fim_selecionada = st.sidebar.date_input("Data de fim", meses[-1])
+
+            # Filtragem dos dados com base na seleção do usuário
+            # Convertendo data_inicio_selecionada e data_fim_selecionada para datetime64[ns]
+            data_inicio_selecionada_datetime = pd.to_datetime(data_inicio_selecionada)
+            data_fim_selecionada_datetime = pd.to_datetime(data_fim_selecionada)
+
+            df_filtrado = df_pagamentos[(df_pagamentos['Data'] >= data_inicio_selecionada_datetime) & 
+                                        (df_pagamentos['Data'] <= data_fim_selecionada_datetime)]
+            # Exibição do gráfico
+            st.plotly_chart(plot_pagamentos(df_filtrado))
+
     with tab2: #Chat
         st.markdown("<h4 style='text-align: center;'>{}</h4>".format(selected_project), unsafe_allow_html=True)
         # Initialize session states if they are not already set
