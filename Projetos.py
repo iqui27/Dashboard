@@ -868,7 +868,7 @@ if st.session_state["authentication_status"]:
                             index=['Termo de Fomento', 'Convênio', 'Termo de Colaboração', 'Novos Projetos'].index(project_details['classificacao']) if project_details['classificacao'] in ['Termo de Fomento', 'Convênio', 'Termo de Colaboração', 'Novos Projetos'] else 0
                         )
                         new_values['Situação atual'] = st.selectbox('Situação atual', ['Pre Produção', 'Produção', 'Pós Produção', 'Relatório da Comissão Gestora', 'Prestação de Contas'],
-                             index=['Pré Produção', 'Produção', 'Pós Produção', 'Relatório da Comissão Gestora', 'Prestação de Contas'].index(project_details['Situação atual']) if project_details['Situação atual'] in ['Pre Produção', 'Produção', 'Pós Produção', 'Relatório da Comissão Gestora', 'Prestação de Contas'] else 0
+                             index=['Pre Produção', 'Produção', 'Pós Produção', 'Relatório da Comissão Gestora', 'Prestação de Contas'].index(project_details['Situação atual']) if project_details['Situação atual'] in ['Pre Produção', 'Produção', 'Pós Produção', 'Relatório da Comissão Gestora', 'Prestação de Contas'] else 0
                         )
                         new_values['Unidade SECTI Responsável'] = st.selectbox('Unidade SECTI Responsável', ['DIDCI', 'DIJE', 'SUPCDT', 'DIEC', 'SICID'],
                             index=['DIDCI', 'DIJE', 'SUPCDT', 'DIEC', 'SICID'].index(project_details['Unidade SECTI Responsável']) if project_details['Unidade SECTI Responsável'] in ['DIDCI', 'DIJE', 'SUPCDT', 'DIEC', 'SICID'] else 0
