@@ -15,8 +15,9 @@ from sqlalchemy import create_engine, text
 import numpy as np
 import os
 import sys
-from streamlit_card import card
 import sqlalchemy
+from reportlab.pdfgen import canvas
+from reportlab.lib.pagesizes import letter, landscape
 
 
 
@@ -86,7 +87,23 @@ def load_messages():
             return json.load(f)
     except (FileNotFoundError, json.JSONDecodeError):
         return {}
+    
+def exportar_PDF(figs):
+    # Salve cada figura como uma imagem PNG
+    for i, fig in enumerate(figs):
+        fig.savefig(f'fig{i}.png')
 
+    # Crie um novo PDF
+    c = canvas.Canvas("report.pdf", pagesize=landscape(letter))
+
+    # Adicione cada imagem ao PDF
+    for i, fig in enumerate(figs):
+        c.drawImage(f'fig{i}.png', 50, 50, width=500, height=300)
+        c.showPage()  # Inicie uma nova página para a próxima imagem
+
+    # Salve o PDF
+    c.save()
+figs = []
 # Função para salvar mensagens
 def save_messages(messages):
     with open('messages.json', 'w') as f:
@@ -449,20 +466,21 @@ if st.session_state["authentication_status"]:
             # Convert the result to a DataFrame, which is required for st.bar_chart()
             people_df = pd.DataFrame({'Número de Pessoas': people_counts}).reset_index()
             # Criar o gráfico de barras horizontal
-            fig = px.bar(people_df, x='Número de Pessoas', y='Projeto', orientation='h',
+            fig_pessoas = px.bar(people_df, x='Número de Pessoas', y='Projeto', orientation='h',
                         title='Quantidade de Pessoas por Projeto',
                         color='Número de Pessoas',
                         labels={'Quantidade de Pessoas': 'Quantidade de Pessoas', 'Projeto': 'Projeto'})
 
             # Ajustar o layout para melhor visualização
-            fig.update_layout(xaxis_title='Quantidade de Pessoas',
+            fig_pessoas.update_layout(xaxis_title='Quantidade de Pessoas',
                             yaxis_title='Projeto',
                             yaxis={'categoryorder': 'total ascending'},
                             height=800)  # Ajuste a altura conforme necessário
 
             # Mostrar o gráfico
             st.divider()
-            st.plotly_chart(fig)
+            st.plotly_chart(fig_pessoas)
+            figs.append(fig_pessoas) 
 
             st.divider()    
             df.dropna(subset=['Valor'], inplace=True)
@@ -505,16 +523,17 @@ if st.session_state["authentication_status"]:
             # Create a new column with truncated project names
             filtered_df['Projeto_truncated'] = filtered_df['Projeto'].apply(lambda x: x[:15])
 
-            fig = px.bar(filtered_df, x='Projeto_truncated', y='Valor', title='Valores por Projeto', color='Valor', hover_name='Projeto_truncated', color_continuous_scale='oryel')
+            fig_projetos = px.bar(filtered_df, x='Projeto_truncated', y='Valor', title='Valores por Projeto', color='Valor', hover_name='Projeto_truncated', color_continuous_scale='oryel')
 
-            fig.update_layout(
+            fig_projetos.update_layout(
                 xaxis=dict(showticklabels=True),
                 title='')
-            fig.update_traces( textposition='outside')
-            fig.update_layout(uniformtext_minsize=8, uniformtext_mode='hide')
+            fig_projetos.update_traces( textposition='outside')
+            fig_projetos.update_layout(uniformtext_minsize=8, uniformtext_mode='hide')
 
             # Show the chart
-            st.plotly_chart(fig, use_container_width=True)
+            st.plotly_chart(fig_projetos, use_container_width=True)
+            figs.append(fig_projetos) 
 
 
     
@@ -537,17 +556,18 @@ if st.session_state["authentication_status"]:
                 st.write(situacao_df)
 
             # Exibir o gráfico de barras no Streamlit
-            fig2 = px.bar(situacao_df, x='Número de Projetos', color='Número de Projetos', hover_name='Número de Projetos', color_continuous_scale='geyser', orientation='h')
+            fig_situacao = px.bar(situacao_df, x='Número de Projetos', color='Número de Projetos', hover_name='Número de Projetos', color_continuous_scale='geyser', orientation='h')
 
-            fig2.update_layout(
+            fig_situacao.update_layout(
                 xaxis=dict(showticklabels=True),
                 title='')
-            fig2.update_traces( textposition='outside')
-            fig2.update_layout(uniformtext_minsize=8, uniformtext_mode='hide')
+            fig_situacao.update_traces( textposition='outside')
+            fig_situacao.update_layout(uniformtext_minsize=8, uniformtext_mode='hide')
 
             # Show the chart
             with col2:
-                st.plotly_chart(fig2, use_container_width=True)
+                st.plotly_chart(fig_situacao, use_container_width=True)
+                figs.append(fig_situacao) 
 
     with tab3:
             st.write("\n")
@@ -555,7 +575,9 @@ if st.session_state["authentication_status"]:
             st.write("\n")
             st.write("\n")
             col1, col2, col3 = st.columns([3, 6, 3])
-           
+            if st.button('Exportar PDF'):
+                # Chame a função quando o botão for pressionado
+                exportar_PDF(figs)
 
             # Main Area
             mais_info = project_details['Mais_informações_do_fomento'].values[0]
@@ -767,12 +789,12 @@ if st.session_state["authentication_status"]:
 
             # Função para plotar o gráfico de barras
             def plot_pagamentos(df):
-                fig = px.bar(df, x='Data', y='Valor', title="Pagamentos por Mês",
+                fig_pagamento = px.bar(df, x='Data', y='Valor', title="Pagamentos por Mês",
                             labels={'Valor': 'Valor Pago ($)', 'Data': 'Data'},
                             color='Valor', color_continuous_scale='Viridis')
-                fig.update_xaxes(dtick="M1", tickformat="%b\n%Y")
-                fig.update_layout(xaxis_title='Mês', yaxis_title='Valor Pago ($)')
-                return fig
+                fig_pagamento.update_xaxes(dtick="M1", tickformat="%b\n%Y")
+                fig_pagamento.update_layout(xaxis_title='Mês', yaxis_title='Valor Pago ($)')
+                return fig_pagamento
 
             # Widgets para seleção de intervalo de datas
             st.sidebar.header('Filtrar por Data')
@@ -788,7 +810,8 @@ if st.session_state["authentication_status"]:
                                         (df_pagamentos['Data'] <= data_fim_selecionada_datetime)]
             # Exibição do gráfico
             st.plotly_chart(plot_pagamentos(df_filtrado), use_container_width=True)
-                
+            fig_pagamento = plot_pagamentos(df_filtrado)
+            figs.append(fig_pagamento)     
     with tab2: #Chat
         st.markdown("<h4 style='text-align: center;'>{}</h4>".format(selected_project), unsafe_allow_html=True)
         # Initialize session states if they are not already set
@@ -904,7 +927,8 @@ if st.session_state["authentication_status"]:
                       #      <p>{msg['message']}</p>
                      #   </div>
                     #""", unsafe_allow_html=True) 
-
+            figs = [fig_pagamento, fig_situacao, fig_projetos, fig_pessoas]
+            
     with tab4: #Editar Projetos
             col5, col6 = st.columns([6, 3])
             
