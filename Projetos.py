@@ -499,18 +499,18 @@ if st.session_state["authentication_status"]:
             import plotly.express as px
 
             # Normalize values above 6M to 6M
-            filtered_df.loc[filtered_df['Valor'] > 6000000, 'Valor'] = 6000000
+            filtred_df_max = filtered_df.loc[filtered_df['Valor'] > 6000000, 'Valor'] = 6000000
 
             # Create a bar chart using Plotly
             # Create a new column with truncated project names
-            filtered_df['Projeto_truncated'] = filtered_df['Projeto'].apply(lambda x: x[:15])
+            filtred_df_max['Projeto_truncated'] = filtred_df_max['Projeto'].apply(lambda x: x[:15])
 
-            fig = px.bar(filtered_df, x='Projeto_truncated', y='Valor', title='Valores por Projeto', color='Valor', hover_name='Projeto_truncated', color_continuous_scale='oryel')
+            fig = px.bar(filtred_df_max, x='Projeto_truncated', y='Valor', title='Valores por Projeto', color='Valor', hover_name='Projeto_truncated', color_continuous_scale='oryel')
 
             fig.update_layout(
                 xaxis=dict(showticklabels=True),
                 title='')
-            fig.update_traces(texttemplate='%{text:.2s}', textposition='outside')
+            fig.update_traces( textposition='outside')
             fig.update_layout(uniformtext_minsize=8, uniformtext_mode='hide')
 
             # Show the chart
