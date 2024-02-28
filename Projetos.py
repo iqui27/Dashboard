@@ -787,7 +787,7 @@ if st.session_state["authentication_status"]:
             df_filtrado = df_pagamentos[(df_pagamentos['Data'] >= data_inicio_selecionada_datetime) & 
                                         (df_pagamentos['Data'] <= data_fim_selecionada_datetime)]
             # Exibição do gráfico
-            st.plotly_chart(plot_pagamentos(df_filtrado))
+            st.plotly_chart(plot_pagamentos(df_filtrado), use_container_width=True)
                 
     with tab2: #Chat
         st.markdown("<h4 style='text-align: center;'>{}</h4>".format(selected_project), unsafe_allow_html=True)
