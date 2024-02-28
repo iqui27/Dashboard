@@ -794,10 +794,10 @@ if st.session_state["authentication_status"]:
                                 situacao_options = ['Pre Produção', 'Produção', 'Pós Produção', 'Relatório da Comissão Gestora', 'Prestação de Contas']
                                 new_project_data[column] = st.selectbox(f"{column} (novo projeto)", situacao_options)
                             elif column == 'Unidade SECTI Responsável':
-                                unidade_options = ['DIDCI', 'DIJE', 'SUPCDT', 'DIEC','DICID', 'SICID']
+                                unidade_options = ['DIDCI', 'DIJE', 'SUPCDT', 'DIEC', 'SICID']
                                 new_project_data[column] = st.selectbox(f"{column} (novo projeto)", unidade_options)
                             elif column == 'Unidade SECTI adicional':
-                                unidade_options = ['Sem Colaboração','DIDCI', 'DIJE', 'SUPCDT', 'DIEC','DICID', 'SICID']
+                                unidade_options = ['Sem Colaboração','DIDCI', 'DIJE', 'SUPCDT', 'DIEC', 'SICID']
                                 new_project_data[column] = st.selectbox(f"{column} (novo projeto)", unidade_options)
                             elif column == 'Processo SEI':
                                 # Campo para processo SEI com preenchimento automático do padrão
@@ -870,11 +870,11 @@ if st.session_state["authentication_status"]:
                         new_values['Situação atual'] = st.selectbox('Situação atual', ['Pre Produção', 'Produção', 'Pós Produção', 'Relatório da Comissão Gestora', 'Prestação de Contas'],
                              index=['Pré Produção', 'Produção', 'Pós Produção', 'Relatório da Comissão Gestora', 'Prestação de Contas'].index(project_details['Situação atual']) if project_details['Situação atual'] in ['Pre Produção', 'Produção', 'Pós Produção', 'Relatório da Comissão Gestora', 'Prestação de Contas'] else 0
                         )
-                        new_values['Unidade SECTI Responsável'] = st.selectbox('Unidade SECTI Responsável', ['DIDCI', 'DIJE', 'SUPCDT', 'DIEC','DICID', 'SICID'],
-                            index=['DIDCI', 'DIJE', 'SUPCDT', 'DIEC','DICID', 'SICID'].index(project_details['Unidade SECTI Responsável']) if project_details['Unidade SECTI Responsável'] in ['DIDCI', 'DIJE', 'SUPCDT', 'DIEC','DICID', 'SICID'] else 0
+                        new_values['Unidade SECTI Responsável'] = st.selectbox('Unidade SECTI Responsável', ['DIDCI', 'DIJE', 'SUPCDT', 'DIEC', 'SICID'],
+                            index=['DIDCI', 'DIJE', 'SUPCDT', 'DIEC', 'SICID'].index(project_details['Unidade SECTI Responsável']) if project_details['Unidade SECTI Responsável'] in ['DIDCI', 'DIJE', 'SUPCDT', 'DIEC', 'SICID'] else 0
                         )
-                        new_values['Unidade SECTI adicional'] = st.selectbox('Unidade SECTI adicional', ['Sem Colaboração','DIDCI', 'DIJE', 'SUPCDT', 'DIEC','DICID', 'SICID'],
-                            index=['Sem Colaboração','DIDCI', 'DIJE', 'SUPCDT', 'DIEC','DICID', 'SICID'].index(project_details['Unidade SECTI adicional']) if project_details['Unidade SECTI adicional'] in ['Sem Colaboração','DIDCI', 'DIJE', 'SUPCDT', 'DIEC','DICID', 'SICID'] else 0
+                        new_values['Unidade SECTI adicional'] = st.selectbox('Unidade SECTI adicional', ['Sem Colaboração','DIDCI', 'DIJE', 'SUPCDT', 'DIEC', 'SICID'],
+                            index=['Sem Colaboração','DIDCI', 'DIJE', 'SUPCDT', 'DIEC', 'SICID'].index(project_details['Unidade SECTI adicional']) if project_details['Unidade SECTI adicional'] in ['Sem Colaboração','DIDCI', 'DIJE', 'SUPCDT', 'DIEC', 'SICID'] else 0
                         )
                         submit_button = st.form_submit_button('Salvar Alterações')
                         close_form_button = st.form_submit_button('Fechar Formulário')
