@@ -753,7 +753,7 @@ if st.session_state["authentication_status"]:
                 """, unsafe_allow_html=True)
             st.divider()           
             st.markdown("<h5 style='text-align: left;'>Finalidade do Projeto</h5>", unsafe_allow_html=True)
-            st.markdown(f"<h6 style='text-align: left; color: #0097a7;'>{project_details['Objeto/Finalidade'].values[0]}</h6>", unsafe_allow_html=True)
+            st.markdown(f"<h6 style='text-align: left; color: #0097a7;'>{project_details['Objeto_Finalidade'].values[0]}</h6>", unsafe_allow_html=True)
             st.divider()
             # Configuração inicial
             st.subheader('Cronograma de Pagamentos')
