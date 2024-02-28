@@ -472,7 +472,16 @@ if st.session_state["authentication_status"]:
                 st.write("\n")
                 st.markdown("<h5 style='text-align: center;'>Unidade SECTI</h5>", unsafe_allow_html=True)
                 #t.markdown(f"<h6 style='text-align: center; color: #0097a7;'>{project_details['Unidade SECTI Responsável'].values[0] if project_details['Unidade SECTI Responsável'].values[0] != '0' else 'Não informado'}</h6>", unsafe_allow_html=True)
-                st.markdown(f"<h6 style='text-align: center; color: #0097a7;'>{project_details['Unidade SECTI Responsável'].values[0] if project_details['Unidade SECTI Responsável'].values[0] != 'None' else 'Não informado'} | {project_details['Unidade SECTI adicional'].values[0] if project_details['Unidade SECTI adicional'].values[0] != '0' else ''}</h6>", unsafe_allow_html=True)
+                unidade_secti_responsavel = project_details['Unidade SECTI Responsável'].values[0]
+                unidade_secti_adicional = project_details['Unidade SECTI adicional'].values[0]
+
+                if unidade_secti_responsavel == 'None':
+                    unidade_secti_responsavel = 'Não informado'
+
+                if unidade_secti_adicional == 'Sem Colaboração' or unidade_secti_adicional == 'None':
+                    unidade_secti_adicional = ''
+
+                st.markdown(f"<h6 style='text-align: center; color: #0097a7;'>{unidade_secti_responsavel} | {unidade_secti_adicional}</h6>", unsafe_allow_html=True)
                 
                 st.write("\n")
                 st.write("\n")
