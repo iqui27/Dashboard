@@ -11,10 +11,14 @@ import yaml
 from streamlit_elements import elements, mui
 import plotly.express as px
 import plotly.graph_objs as go
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, text
 import numpy as np
 import os
 import sys
+from streamlit_card import card
+import sqlalchemy
+
+
 
 
 # Definir configurações da página
@@ -138,6 +142,8 @@ authenticator.login()
 
 # Dataframe com os dados dos projetos
 df = pd.read_sql_query(load_sql_query, engine)
+servidores = pd.read_sql_table('servidores', engine)
+projetos_servidores = pd.read_sql_table('ProjetoParceiros', engine)
 ra = pd.read_csv("RA.csv")
 relatorio2023 = pd.read_csv("Relatorio2023.csv")
 mes = pd.read_csv("mes.csv")
@@ -231,7 +237,7 @@ if st.session_state["authentication_status"]:
     numero_de_projetos_emendas = df[df['classificacao'] == 'Termo de Colaboração']['Projeto'].count()
     numero_de_projetos_eventos = df[df['classificacao'] == 'Convênio']['Projeto'].count()
     numero_de_projetos_novos = df[df['classificacao'] == 'Novos Projetos']['Projeto'].count()
-    numero_de_projetos_concluidos = df[df['Situação atual'] == 'Concluído']['Projeto'].count()
+    numero_de_projetos_concluidos = df[df['Situação_atual'] == 'Concluído']['Projeto'].count()
     # Calculate the total value of projects in progress
     # Ensure the 'Valor' column is treated as float
     df['Valor'] = df['Valor'].astype(float)
@@ -239,7 +245,7 @@ if st.session_state["authentication_status"]:
     valor_total_projetos_andamento_emendas = df[df['classificacao'] == 'Termo de Colaboração']['Valor'].sum()
     valor_total_projetos_andamento_eventos = df[df['classificacao'] == 'Convênio']['Valor'].sum()
     valor_total_projetos_andamento_novos = df[df['classificacao'] == 'Novos Projetos']['Valor'].sum()
-    valor_total_projetos_andamento_concluidos = df[df['Situação atual'] == 'Concluído']['Valor'].sum()
+    valor_total_projetos_andamento_concluidos = df[df['Situação_atual'] == 'Concluído']['Valor'].sum()
     valor_total_projetos_andamento_formatado = locale.currency(valor_total_projetos_andamento, grouping=True)
     valor_total_projetos_andamento_emendas_formatado = locale.currency(valor_total_projetos_andamento_emendas, grouping=True)
     valor_total_projetos_andamento_eventos_formatado = locale.currency(valor_total_projetos_andamento_eventos, grouping=True)
@@ -364,19 +370,107 @@ if st.session_state["authentication_status"]:
                 """, unsafe_allow_html=True)
 
 
-               
+            
             
 
 
-            # Suponha que 'df' seja o seu DataFrame e que ele tem colunas 'Projeto', 'Valor', 'Classificação' e 'Unidade SECTI Responsável'
+            # Suponha que 'df' seja o seu DataFrame e que ele tem colunas 'Projeto', 'Valor', 'Classificação' e 'Unidade_SECTI_Responsavel'
             # Certifique-se de que os valores estão em formato numérico e não há valores NaN
             st.divider()
+            st.write("Pessoas envolvidas nos projetos")
+            # Realizar a junção das tabelas
+            lista_projetos = pd.merge(projetos_servidores, servidores, left_on='parceiro_id', right_on='id', how='inner')
+            lista_projetos = pd.merge(lista_projetos, df, left_on='projeto_id', right_on='id', how='inner')
+            # Criar um menu dropdown com os nomes das pessoas
+            selected_name = st.selectbox('Escolha uma pessoa', lista_projetos['Nome'].unique())
+            col1, col2, col3 = st.columns([3, 2, 1])
+            with col2:
+                st.write("\n")
+                st.write("\n")
+                st.write("\n")
+                st.write("\n")
+                st.write("\n")
+                st.write("\n")
+                st.write("\n")
+                st.write("\n")
+                
+                # Filtrar os projetos da pessoa selecionada
+                filtered_projects = lista_projetos[lista_projetos['Nome'] == selected_name]
+                ## Supondo que 'nome' é a coluna que você deseja converter para uma lista
+                list_of_names = filtered_projects['Projeto'].tolist()
+                numero_projetos = filtered_projects['Projeto'].count()
+                st.write(f'Projetos `{numero_projetos}` ')
+                # Agora você pode usar list_of_names em seu código
+                for name in list_of_names:
+                    st.write(name)
+                st.divider()
+            # Supondo que filtered_projects seja o seu DataFrame e você tenha selecionado um projeto específico
+            nome = filtered_projects['Nome'].iloc[0]
+            matricula = filtered_projects['Matricula'].iloc[0]
+            telefone = filtered_projects['Telefone'].iloc[0]
+            unidade_secti = filtered_projects['Unidade_SECTI_Responsavel'].iloc[0]
+            
+
+            with col1:
+            # Criando um cartão para exibir as informações
+                res = card(
+                    title="Servidor",
+                    text=[
+                        f"{filtered_projects['Nome'].iloc[0]}",
+                        f"Matrícula: {filtered_projects['Matricula'].iloc[0]}",
+                        f"Telefone: {filtered_projects['Telefone'].iloc[0]}",
+                        f"Unidade SECTI: {filtered_projects['Unidade_SECTI_Responsavel'].iloc[0]}"
+                    ],
+                    image=None,
+                    styles={
+                        "card": {
+                            "borderRadius": "10px",
+                            "box-shadow": "0 4px 8px 0 rgba(0,0,0,0.2)",
+                            "backgroundColor": "#2d3839",
+                            "transparency": "0.2"
+
+                        },
+                        "text":{
+                            "color": "#eaebeb"
+                        },
+                        "title": {
+                            "color": "#eaebeb"
+                        }
+
+                    }  # Você pode adicionar um link de imagem aqui, se desejar
+                )
+            
+            
+            
+            # Count the number of people in each project
+            people_counts = lista_projetos['Projeto'].value_counts()
+            
+
+            # Convert the result to a DataFrame, which is required for st.bar_chart()
+            people_df = pd.DataFrame({'Número de Pessoas': people_counts}).reset_index()
+            # Criar o gráfico de barras horizontal
+            fig = px.bar(people_df, x='Número de Pessoas', y='Projeto', orientation='h',
+                        title='Quantidade de Pessoas por Projeto',
+                        color='Número de Pessoas',
+                        labels={'Quantidade de Pessoas': 'Quantidade de Pessoas', 'Projeto': 'Projeto'})
+
+            # Ajustar o layout para melhor visualização
+            fig.update_layout(xaxis_title='Quantidade de Pessoas',
+                            yaxis_title='Projeto',
+                            yaxis={'categoryorder': 'total ascending'},
+                            height=800)  # Ajuste a altura conforme necessário
+
+            # Mostrar o gráfico
+            st.divider()
+            st.plotly_chart(fig)
+
+            st.divider()    
             df.dropna(subset=['Valor'], inplace=True)
             df['Valor'] = df['Valor'].astype(float)
 
             # Toggle para habilitar ou desabilitar os filtros
             enable_classificacao_filter = st.checkbox("Filtrar por Classificação")
-            enable_unidade_filter = st.checkbox("Filtrar por Unidade SECTI Responsável")
+            enable_unidade_filter = st.checkbox("Filtrar por Unidade_SECTI_Responsavel")
 
             if enable_classificacao_filter:
                 # Opções de classificação
@@ -386,24 +480,41 @@ if st.session_state["authentication_status"]:
                 selected_classificacao = st.selectbox('Selecione a Classificação', classificacoes)
 
             if enable_unidade_filter:
-                # Opções de Unidade SECTI Responsável
-                unidades = df['Unidade SECTI Responsável'].unique()
+                # Opções de Unidade_SECTI_Responsavel
+                unidades = df['Unidade_SECTI_Responsavel'].unique()
 
-                # Widget de seleção de Unidade SECTI Responsável
-                selected_unidade = st.selectbox('Selecione a Unidade SECTI Responsável', unidades)
+                # Widget de seleção de Unidade_SECTI_Responsavel
+                selected_unidade = st.selectbox('Selecione a Unidade_SECTI_Responsavel', unidades)
 
             # Filtrar o DataFrame com base nos filtros selecionados
             if enable_classificacao_filter and enable_unidade_filter:
-                filtered_df = df[(df['classificacao'] == selected_classificacao) & (df['Unidade SECTI Responsável'] == selected_unidade)]
+                filtered_df = df[(df['classificacao'] == selected_classificacao) & (df['Unidade_SECTI_Responsavel'] == selected_unidade)]
             elif enable_classificacao_filter:
                 filtered_df = df[df['classificacao'] == selected_classificacao]
             elif enable_unidade_filter:
-                filtered_df = df[df['Unidade SECTI Responsável'] == selected_unidade]
+                filtered_df = df[df['Unidade_SECTI_Responsavel'] == selected_unidade]
             else:
                 filtered_df = df
 
-            # Crie um gráfico de barras usando st.bar_chart
-            st.bar_chart(filtered_df.set_index('Projeto')['Valor'], height=500)
+            import plotly.express as px
+
+            # Normalize values above 6M to 6M
+            filtered_df.loc[filtered_df['Valor'] > 6000000, 'Valor'] = 6000000
+
+            # Create a bar chart using Plotly
+            # Create a new column with truncated project names
+            filtered_df['Projeto_truncated'] = filtered_df['Projeto'].apply(lambda x: x[:15])
+
+            fig = px.bar(filtered_df, x='Projeto_truncated', y='Valor', title='Valores por Projeto', color='Valor', hover_name='Projeto_truncated', color_continuous_scale='oryel')
+
+            fig.update_layout(
+                xaxis=dict(showticklabels=True),
+                title='')
+            fig.update_traces(texttemplate='%{text:.2s}', textposition='outside')
+            fig.update_layout(uniformtext_minsize=8, uniformtext_mode='hide')
+
+            # Show the chart
+            st.plotly_chart(fig, use_container_width=True)
 
 
     
@@ -414,14 +525,29 @@ if st.session_state["authentication_status"]:
             st.write("\n")
             st.write("\n")
 
-            # Agrupar projetos por situação atual e contar quantos projetos estão em cada categoria
-            situacao_counts = df['Situação atual'].value_counts()
+            # Agrupar projetos por Situação_atual e contar quantos projetos estão em cada categoria
+            situacao_counts = df['Situação_atual'].value_counts()
 
             # Convertendo o resultado para um DataFrame, que é necessário para o st.bar_chart()
             situacao_df = pd.DataFrame({'Número de Projetos': situacao_counts})
+            st.divider()
+            col1, col2 = st.columns([1,2])
+            with col1:
+                
+                st.write(situacao_df)
 
             # Exibir o gráfico de barras no Streamlit
-            st.bar_chart(situacao_df,height=400, color='#fd0')
+            fig2 = px.bar(situacao_df, x='Número de Projetos', color='Número de Projetos', hover_name='Número de Projetos', color_continuous_scale='geyser', orientation='h')
+
+            fig2.update_layout(
+                xaxis=dict(showticklabels=True),
+                title='')
+            fig2.update_traces( textposition='outside')
+            fig2.update_layout(uniformtext_minsize=8, uniformtext_mode='hide')
+
+            # Show the chart
+            with col2:
+                st.plotly_chart(fig2, use_container_width=True)
 
     with tab3:
             st.write("\n")
@@ -432,7 +558,7 @@ if st.session_state["authentication_status"]:
            
 
             # Main Area
-            mais_info = project_details['Mais informações do fomento'].values[0]
+            mais_info = project_details['Mais_informações_do_fomento'].values[0]
             
             with col2:
                 st.markdown("<h1 style='text-align: center;'>{}</h1>".format(selected_project), unsafe_allow_html=True)
@@ -450,8 +576,8 @@ if st.session_state["authentication_status"]:
                 
                 #st.markdown(f"""
                 #<div style="display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 0rem 0;">
-                #    <span style="font-size: 1.10rem; font-weight: light; color: white; margin-bottom: 0rem;">Processo SEI</span>
-                #    <span style="background-color: #1B1F23 ; padding: 0.25rem 3.75rem; border-radius: 10px; color: yellow; font-weight: light; font-size: 1.15rem;">{project_details['Processo SEI'].values[0]}</span>
+                #    <span style="font-size: 1.10rem; font-weight: light; color: white; margin-bottom: 0rem;">Processo_SEI</span>
+                #    <span style="background-color: #1B1F23 ; padding: 0.25rem 3.75rem; border-radius: 10px; color: yellow; font-weight: light; font-size: 1.15rem;">{project_details['Processo_SEI'].values[0]}</span>
                 #</div>
                 #""", unsafe_allow_html=True)
                 st.write("\n")
@@ -460,20 +586,20 @@ if st.session_state["authentication_status"]:
             with col1:
                 st.write("\n")
                 st.write("\n")
-                st.markdown("<h5 style='text-align: center;'>Instituição Parceira</h5>", unsafe_allow_html=True)
-                st.markdown(f"<h6 style='text-align: center; color: #0097a7;'>{project_details['Instituição Parceira'].values[0] if project_details['Instituição Parceira'].values[0] != '0' else 'Não informado'}</h6>", unsafe_allow_html=True)
+                st.markdown("<h5 style='text-align: center;'>Instituição_Parceira</h5>", unsafe_allow_html=True)
+                st.markdown(f"<h6 style='text-align: center; color: #0097a7;'>{project_details['Instituição_Parceira'].values[0] if project_details['Instituição_Parceira'].values[0] != '0' else 'Não informado'}</h6>", unsafe_allow_html=True)
                 st.write("\n")
                 st.write("\n")
                 st.write("\n")
-                st.markdown("<h5 style='text-align: center;'>Execução do Projeto</h5>", unsafe_allow_html=True)
-                st.markdown(f"<h6 style='text-align: center; color: #0097a7;'>{project_details['Execução do Projeto'].values[0] if project_details['Execução do Projeto'].values[0] != '0' else 'Não informado'}</h6>", unsafe_allow_html=True)
+                st.markdown("<h5 style='text-align: center;'>Execução_do_Projeto</h5>", unsafe_allow_html=True)
+                st.markdown(f"<h6 style='text-align: center; color: #0097a7;'>{project_details['Execução_do_Projeto'].values[0] if project_details['Execução_do_Projeto'].values[0] != '0' else 'Não informado'}</h6>", unsafe_allow_html=True)
                 st.write("\n")
                 st.write("\n")
                 st.write("\n")
                 st.markdown("<h5 style='text-align: center;'>Unidade SECTI</h5>", unsafe_allow_html=True)
-                #t.markdown(f"<h6 style='text-align: center; color: #0097a7;'>{project_details['Unidade SECTI Responsável'].values[0] if project_details['Unidade SECTI Responsável'].values[0] != '0' else 'Não informado'}</h6>", unsafe_allow_html=True)
-                unidade_secti_responsavel = project_details['Unidade SECTI Responsável'].values[0]
-                unidade_secti_adicional = project_details['Unidade SECTI adicional'].values[0]
+                #t.markdown(f"<h6 style='text-align: center; color: #0097a7;'>{project_details['Unidade_SECTI_Responsavel'].values[0] if project_details['Unidade_SECTI_Responsavel'].values[0] != '0' else 'Não informado'}</h6>", unsafe_allow_html=True)
+                unidade_secti_responsavel = project_details['Unidade_SECTI_Responsavel'].values[0]
+                unidade_secti_adicional = project_details['Unidade_SECTI_adicional'].values[0]
 
                 if unidade_secti_responsavel == 0 or unidade_secti_responsavel == '0':
                     unidade_secti_responsavel = 'Não informado'
@@ -487,15 +613,15 @@ if st.session_state["authentication_status"]:
                 st.write("\n")
     
             with col3:
-                valor_encerramento = project_details['Encerramento da parceria'].values[0]
+                valor_encerramento = project_details['Encerramento_da_parceria'].values[0]
                 if valor_encerramento == "0":
                     valor_encerramento = "Não informado"
 
-                valor_ponto_focal = project_details['Ponto Focal na Instituição Parceira'].values[0]
+                valor_ponto_focal = project_details['Ponto_Focal_na_Instituição_Parceira'].values[0]
                 if valor_ponto_focal == "0":
                     valor_ponto_focal = "Não informado"
 
-                valor_mais_informacoes = project_details['Mais informações do fomento'].values[0]
+                valor_mais_informacoes = project_details['Mais_informações_do_fomento'].values[0]
                 if valor_mais_informacoes == "0":
                     valor_mais_informacoes = "Não informado"
 
@@ -506,7 +632,7 @@ if st.session_state["authentication_status"]:
                 st.write("\n")
                 st.write("\n")
                 st.write("\n")
-                st.markdown("<h5 style='text-align: center;'>Ponto Focal na Instituição Parceira</h5>", unsafe_allow_html=True)
+                st.markdown("<h5 style='text-align: center;'>Ponto_Focal_na_Instituição_Parceira</h5>", unsafe_allow_html=True)
                 st.markdown(f"<h6 style='text-align: center; color: #ffb74d;'>{valor_ponto_focal}</h6>", unsafe_allow_html=True)
                 st.write("\n")
                 st.write("\n")
@@ -515,7 +641,7 @@ if st.session_state["authentication_status"]:
                 st.markdown(f"<h6 style='text-align: center; color: #ffb74d;'>{valor_mais_informacoes}</h6>", unsafe_allow_html=True)
       
                 # Para centralizar os nomes e adicionar espaço
-                nomes = project_details['Comissão Gestora da Parceria'].values[0].split(',')
+                nomes = project_details['Comissão_Gestora_da_Parceria'].values[0].split(',')
                 if nomes == ['0']:
                     nomes = ['Não informado']
 
@@ -544,7 +670,7 @@ if st.session_state["authentication_status"]:
                         # Conteúdo do cartão
                         with mui.CardContent():
                             # Cabeçalho do cartão
-                            mui.Typography("Comissão Gestora da Parceria", style={"textAlign": "center", "fontSize": "17px", "fontFamily": "'sans serif', sans-serif" , "fontWeight": "bold", "color": "white", "marginBottom": "20px"})
+                            mui.Typography("Comissão_Gestora_da_Parceria", style={"textAlign": "center", "fontSize": "17px", "fontFamily": "'sans serif', sans-serif" , "fontWeight": "bold", "color": "white", "marginBottom": "20px"})
 
                             # Lista de nomes
                             for nome in nomes:
@@ -566,18 +692,18 @@ if st.session_state["authentication_status"]:
                         st.markdown("</ul>", unsafe_allow_html=True)
             
             
-            valor_fonte_custeio = project_details['Fonte de Custeio'].values[0]
+            valor_fonte_custeio = project_details['Fonte_de_Custeio'].values[0]
             if valor_fonte_custeio == "0":
                 valor_fonte_custeio = "Não informado"
 
-            valor_situacao_atual = project_details['Situação atual'].values[0]
+            valor_situacao_atual = project_details['Situação_atual'].values[0]
             if valor_situacao_atual == "0":
                 valor_situacao_atual = "Não informado"
 
             with col4:
                 st.markdown(f"""
                 <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 1rem 0;">
-                    <span style="font-size: 1.35rem; font-weight: bold; color: white; margin-bottom: 0.5rem;">Fonte de Custeio</span>
+                    <span style="font-size: 1.35rem; font-weight: bold; color: white; margin-bottom: 0.5rem;">Fonte_de_Custeio</span>
                     <span style="background-color: #1B1F23 ; padding: 0.25rem 0.75rem; border-radius: 10px; color: gray; font-weight: bold; font-size: 1.25rem;">{valor_fonte_custeio}</span>
                 </div>
                 """, unsafe_allow_html=True)
@@ -585,7 +711,7 @@ if st.session_state["authentication_status"]:
             with col3:
                 st.markdown(f"""
                 <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 1rem 0;">
-                    <span style="font-size: 1.35rem; font-weight: bold; color: white; margin-bottom: 0.5rem;">Situação Atual</span>
+                    <span style="font-size: 1.35rem; font-weight: bold; color: white; margin-bottom: 0.5rem;">Situação_atual</span>
                     <span style="background-color: #1B1F23 ; padding: 0.25rem 0.75rem; border-radius: 10px; color: #388e3c; font-weight: bold; font-size: 1.25rem;">{valor_situacao_atual}</span>
                 </div>
                 """, unsafe_allow_html=True)
@@ -595,9 +721,9 @@ if st.session_state["authentication_status"]:
             with col10:
                 st.markdown(f"""
                             <div style="display: block; align-items: center; gap: 10px;">
-                                <span>Processo SEI:</span>
+                                <span>Processo_SEI:</span>
                                 <div style="background-color: #1B1F23; border-radius: 10px; padding: 2px 10px;">
-                                    <span style="color: #03a9f4;">{project_details['Processo SEI'].values[0]}</span>
+                                    <span style="color: #03a9f4;">{project_details['Processo_SEI'].values[0]}</span>
                                 </div>
                             </div>
                         """, unsafe_allow_html=True)
@@ -613,13 +739,13 @@ if st.session_state["authentication_status"]:
                         """, unsafe_allow_html=True)
                 
             with col12:
-                valor_execucao_projeto = project_details['Execução do Projeto'].values[0]
+                valor_execucao_projeto = project_details['Execução_do_Projeto'].values[0]
                 if valor_execucao_projeto == "0":
                     valor_execucao_projeto = "Não informado"
 
                 st.markdown(f"""
                     <div style="display: block; align-items: center; gap: 10px;">
-                        <span>Execução do Projeto:</span>
+                        <span>Execução_do_Projeto:</span>
                         <div style="background-color: #1B1F23; border-radius: 10px; padding: 2px 10px;">
                             <span style="color: #03a9f4;">{valor_execucao_projeto}</span>
                         </div>
@@ -627,7 +753,7 @@ if st.session_state["authentication_status"]:
                 """, unsafe_allow_html=True)
             st.divider()           
             st.markdown("<h5 style='text-align: left;'>Finalidade do Projeto</h5>", unsafe_allow_html=True)
-            st.markdown(f"<h6 style='text-align: left; color: #0097a7;'>{project_details['Objeto/Finalidade'].values[0]}</h6>", unsafe_allow_html=True)
+            st.markdown(f"<h6 style='text-align: left; color: #0097a7;'>{project_details['Objeto_Finalidade'].values[0]}</h6>", unsafe_allow_html=True)
                 
     with tab2: #Chat
         st.markdown("<h4 style='text-align: center;'>{}</h4>".format(selected_project), unsafe_allow_html=True)
@@ -790,17 +916,17 @@ if st.session_state["authentication_status"]:
                                 input_value = st.number_input(f"{column} (novo projeto)", step=1.0, format="%.2f")
                                 # Explicitly cast the input to float64 to ensure compatibility
                                 new_project_data[column] = np.float64(input_value)
-                            elif column == 'Situação atual':
+                            elif column == 'Situação_atual':
                                 situacao_options = ['Pre Produção', 'Produção', 'Pós Produção', 'Relatório da Comissão Gestora', 'Prestação de Contas']
                                 new_project_data[column] = st.selectbox(f"{column} (novo projeto)", situacao_options)
-                            elif column == 'Unidade SECTI Responsável':
+                            elif column == 'Unidade_SECTI_Responsavel':
                                 unidade_options = ['DIDCI', 'DIJE', 'SUPCDT', 'DIEC', 'SICID']
                                 new_project_data[column] = st.selectbox(f"{column} (novo projeto)", unidade_options)
-                            elif column == 'Unidade SECTI adicional':
+                            elif column == 'Unidade_SECTI_adicional':
                                 unidade_options = ['Sem Colaboração','DIDCI', 'DIJE', 'SUPCDT', 'DIEC', 'SICID']
                                 new_project_data[column] = st.selectbox(f"{column} (novo projeto)", unidade_options)
-                            elif column == 'Processo SEI':
-                                # Campo para processo SEI com preenchimento automático do padrão
+                            elif column == 'Processo_SEI':
+                                # Campo para Processo_SEI com preenchimento automático do padrão
                                 sei_input = st.text_input(f"{column} (Adicione Apenas Números)", max_chars=19)
                                 sei_formatted = f"{sei_input[:5]}-{sei_input[5:13]}/{sei_input[13:17]}-{sei_input[17:]}"
                                 new_project_data[column] = sei_formatted
@@ -850,43 +976,67 @@ if st.session_state["authentication_status"]:
                  
                 if st.session_state.show_form:
                     with st.form(key='edit_form'):
-                        # Use um dicionário de compreensão para criar os campos de entrada, exceto para 'classificação' e 'Situação atual'
+                        # Use um dicionário de compreensão para criar os campos de entrada, exceto para 'classificação' e 'Situação_atual'
+                        df.drop(['Projeto_truncated'], axis=1, inplace=True)
                         new_values = {column: st.text_input(column, project_details[column]) 
                                       for column in df.columns 
-                                      if column not in ['id', 'classificacao', 'Situação atual', 'Unidade SECTI Responsável', 'Unidade SECTI adicional','Processo SEI']}
+                                      if column not in ['id', 'classificacao', 'Situação_atual', 'Unidade_SECTI_Responsavel', 'Unidade_SECTI_adicional','Processo_SEI', 'Valor']}
                         
-                        # Campo de entrada para o Processo SEI com formatação
-                        sei_input = st.text_input("Processo SEI (Adicione Apenas Números)", value=project_details['Processo SEI'].replace("-", "").replace("/", ""), max_chars=19)
+                        # Campo de entrada para o Processo_SEI com formatação
+                        sei_input = st.text_input("Processo_SEI (Adicione Apenas Números)", value=project_details['Processo_SEI'].replace("-", "").replace("/", ""), max_chars=19)
                         sei_formatted = f"{sei_input[:5]}-{sei_input[5:13]}/{sei_input[13:17]}-{sei_input[17:]}"
-                        new_values['Processo SEI'] = sei_formatted
+                        new_values['Processo_SEI'] = sei_formatted
 
 
                         # Adicione um selectbox para 'classificação' com as opções desejadas
+                        new_values['Valor'] = st.number_input('Valor', value=int(project_details['Valor']))
                         new_values['classificacao'] = st.selectbox(
                             'Classificação',
                             ['Termo de Fomento', 'Convênio', 'Termo de Colaboração', 'Novos Projetos'],
                             index=['Termo de Fomento', 'Convênio', 'Termo de Colaboração', 'Novos Projetos'].index(project_details['classificacao']) if project_details['classificacao'] in ['Termo de Fomento', 'Convênio', 'Termo de Colaboração', 'Novos Projetos'] else 0
                         )
-                        new_values['Situação atual'] = st.selectbox('Situação atual', ['Pre Produção', 'Produção', 'Pós Produção', 'Relatório da Comissão Gestora', 'Prestação de Contas'],
-                             index=['Pre Produção', 'Produção', 'Pós Produção', 'Relatório da Comissão Gestora', 'Prestação de Contas'].index(project_details['Situação atual']) if project_details['Situação atual'] in ['Pre Produção', 'Produção', 'Pós Produção', 'Relatório da Comissão Gestora', 'Prestação de Contas'] else 0
+                        new_values['Situação_atual'] = st.selectbox('Situação_atual', ['Pre Produção', 'Produção', 'Pós Produção', 'Relatório da Comissão Gestora', 'Prestação de Contas'],
+                             index=['Pre Produção', 'Produção', 'Pós Produção', 'Relatório da Comissão Gestora', 'Prestação de Contas'].index(project_details['Situação_atual']) if project_details['Situação_atual'] in ['Pre Produção', 'Produção', 'Pós Produção', 'Relatório da Comissão Gestora', 'Prestação de Contas'] else 0
                         )
-                        new_values['Unidade SECTI Responsável'] = st.selectbox('Unidade SECTI Responsável', ['DIDCI', 'DIJE', 'SUPCDT', 'DIEC', 'SICID'],
-                            index=['DIDCI', 'DIJE', 'SUPCDT', 'DIEC', 'SICID'].index(project_details['Unidade SECTI Responsável']) if project_details['Unidade SECTI Responsável'] in ['DIDCI', 'DIJE', 'SUPCDT', 'DIEC', 'SICID'] else 0
+                        new_values['Unidade_SECTI_Responsavel'] = st.selectbox('Unidade_SECTI_Responsavel', ['DIDCI', 'DIJE', 'SUPCDT', 'DIEC', 'SICID'],
+                            index=['DIDCI', 'DIJE', 'SUPCDT', 'DIEC', 'SICID'].index(project_details['Unidade_SECTI_Responsavel']) if project_details['Unidade_SECTI_Responsavel'] in ['DIDCI', 'DIJE', 'SUPCDT', 'DIEC', 'SICID'] else 0
                         )
-                        new_values['Unidade SECTI adicional'] = st.selectbox('Unidade SECTI adicional', ['Sem Colaboração','DIDCI', 'DIJE', 'SUPCDT', 'DIEC', 'SICID'],
-                            index=['Sem Colaboração','DIDCI', 'DIJE', 'SUPCDT', 'DIEC', 'SICID'].index(project_details['Unidade SECTI adicional']) if project_details['Unidade SECTI adicional'] in ['Sem Colaboração','DIDCI', 'DIJE', 'SUPCDT', 'DIEC', 'SICID'] else 0
+                        new_values['Unidade_SECTI_adicional'] = st.selectbox('Unidade_SECTI_adicional', ['Sem Colaboração','DIDCI', 'DIJE', 'SUPCDT', 'DIEC', 'SICID'],
+                            index=['Sem Colaboração','DIDCI', 'DIJE', 'SUPCDT', 'DIEC', 'SICID'].index(project_details['Unidade_SECTI_adicional']) if project_details['Unidade_SECTI_adicional'] in ['Sem Colaboração','DIDCI', 'DIJE', 'SUPCDT', 'DIEC', 'SICID'] else 0
                         )
                         submit_button = st.form_submit_button('Salvar Alterações')
                         close_form_button = st.form_submit_button('Fechar Formulário')
 
                         if submit_button:
-                            for column in df.columns:
+                            # Atualiza os valores no DataFrame
+                            for column in new_values.keys():
                                 df.at[project_details.name, column] = new_values[column]
                             st.session_state.show_form = False
-                            df.to_sql(name=table_name, con=engine, if_exists='replace', index=False)
+                            
+                            # Cria uma conexão com o banco de dados
+                            with engine.connect() as conn:
+                                # Prepara os dados para a atualização
+                                update_values = {key.replace(" ", "_").replace("/", "_"): value for key, value in new_values.items() if key in df.columns}
+                                update_values['Valor'] = int(update_values['Valor'])
+                                update_values['id'] = int(project_details['id'])
+                                # Adiciona o ID do projeto aos valores de atualização
+                                # Prepara a string de atualização SQL
+                                set_part = ', '.join([f"{key.replace(' ', '_').replace('/', '_')} = :{key.replace(' ', '_').replace('/', '_')}" for key in new_values.keys()])
+                                update_statement = f"UPDATE Projetos SET {set_part} WHERE id = :id"
+                                st.write(f"Executing SQL: {update_statement}")
+                                st.write(f"With values: {update_values}")
+                                # Executa a instrução de atualização
+                                try:
+                                    result = conn.execute(text(update_statement), update_values)
+                                    conn.commit()
+                                    st.write(f"Rows updated: {result.rowcount}")
+                                except Exception as e:
+                                    print(f"An error occurred: {e}")
+                            
                             st.success("Projeto atualizado com sucesso!")
-                            time.sleep(2)  # Sleep for 1 second to show the success message
-                            st.experimental_rerun()
+                            time.sleep(5)  # Pausa por 2 segundos para mostrar a mensagem de sucesso
+                            st.rerun()
+
 
                         if close_form_button:
                             st.session_state.show_form = False
