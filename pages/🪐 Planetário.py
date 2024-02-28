@@ -728,10 +728,13 @@ if st.session_state.get('show_2024', True):
     else:
         # Agrupando os dados por mês
         visitas_por_mes = visitas.groupby(visitas['dia'].dt.to_period('M'))['total_dia'].sum().reset_index()
+        st.write(visitas_por_mes)
         # Convertendo o índice de período para datetime para facilitar a visualização
         visitas_por_mes['dia'] = visitas_por_mes['dia'].dt.to_timestamp()
+        st.write(visitas_por_mes)
         # Renomeando colunas para melhor entendimento
         visitas_por_mes.columns = ['Mês', 'Total de Visitas']
+        st.write(visitas_por_mes)
         # Criando o gráfico de linha para visualização mensal com suavização e normalização
         fig_visitas_mensais = px.line(visitas_por_mes, x='Mês', y='Total de Visitas', title='Total de Visitas por Mês')
         fig_visitas_mensais.update_traces(line_shape='spline', line_smoothing=1.3)
