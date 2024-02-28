@@ -751,7 +751,7 @@ if st.session_state["authentication_status"]:
 
             with col5:
                 st.write("\n")
-                st.markdown("<u>Projeto Selecionado__________________________</u>", unsafe_allow_html=True)
+                st.markdown("<h4 style='text-align: left; color: #2596be;'>Projeto Selecionado__________________________</h4>", unsafe_allow_html=True)
                 st.markdown("<h4 style='text-align: left; color: #2596be;'>{}</h4>".format(selected_project), unsafe_allow_html=True)
                 st.divider()
                 if 'show_table' not in st.session_state:
@@ -873,8 +873,8 @@ if st.session_state["authentication_status"]:
                         new_values['Unidade SECTI Responsável'] = st.selectbox('Unidade SECTI Responsável', ['DIDCI', 'DIJE', 'SUPCDT', 'DIEC','DICID', 'SICID'],
                             index=['DIDCI', 'DIJE', 'SUPCDT', 'DIEC','DICID', 'SICID'].index(project_details['Unidade SECTI Responsável']) if project_details['Unidade SECTI Responsável'] in ['DIDCI', 'DIJE', 'SUPCDT', 'DIEC','DICID', 'SICID'] else 0
                         )
-                        new_values['Unidade SECTI adicional'] = st.selectbox('Unidade SECTI adicional', ['Sem Colaboração','DIDCI', 'DIJE', 'SUPCDT', 'DIEC','DICID', 'SICID', 'SUPCDT'],
-                            index=['Sem Colaboração','DIDCI', 'DIJE', 'SUPCDT', 'DIEC','DICID', 'SICID', 'SUPCDT'].index(project_details['Unidade SECTI adicional']) if project_details['Unidade SECTI adicional'] in ['Sem Colaboração','DIDCI', 'DIJE', 'SUPCDT', 'DIEC','DICID', 'SICID', 'SUPCDT'] else 0
+                        new_values['Unidade SECTI adicional'] = st.selectbox('Unidade SECTI adicional', ['Sem Colaboração','DIDCI', 'DIJE', 'SUPCDT', 'DIEC','DICID', 'SICID'],
+                            index=['Sem Colaboração','DIDCI', 'DIJE', 'SUPCDT', 'DIEC','DICID', 'SICID'].index(project_details['Unidade SECTI adicional']) if project_details['Unidade SECTI adicional'] in ['Sem Colaboração','DIDCI', 'DIJE', 'SUPCDT', 'DIEC','DICID', 'SICID'] else 0
                         )
                         submit_button = st.form_submit_button('Salvar Alterações')
                         close_form_button = st.form_submit_button('Fechar Formulário')
