@@ -751,7 +751,7 @@ if st.session_state["authentication_status"]:
 
             with col5:
                 st.write("\n")
-                st.markdown("<h4 style='text-align: left; color: #2596be;'>Projeto Selecionado__________________________</h4>", unsafe_allow_html=True)
+                st.markdown("<h5 style='text-align: left; color: white;'><i>Projeto Selecionado_</i></h5>", unsafe_allow_html=True)
                 st.markdown("<h4 style='text-align: left; color: #2596be;'>{}</h4>".format(selected_project), unsafe_allow_html=True)
                 st.divider()
                 if 'show_table' not in st.session_state:
