@@ -850,10 +850,10 @@ if st.session_state["authentication_status"]:
                  
                 if st.session_state.show_form:
                     with st.form(key='edit_form'):
-                        # Use um dicionário de compreensão para criar os campos de entrada, exceto para 'classificação' e 'Situação atual
+                        # Use um dicionário de compreensão para criar os campos de entrada, exceto para 'classificação' e 'Situação atual'
                         new_values = {column: st.text_input(column, project_details[column]) 
-                                    for column in df.columns 
-                                    if column not in ['classificacao', 'Situação atual', 'Unidade SECTI Responsável', 'Unidade SECTI adicional','Processo SEI']}
+                                      for column in df.columns 
+                                      if column not in ['id', 'classificacao', 'Situação atual', 'Unidade SECTI Responsável', 'Unidade SECTI adicional','Processo SEI']}
                         
                         # Campo de entrada para o Processo SEI com formatação
                         sei_input = st.text_input("Processo SEI (Adicione Apenas Números)", value=project_details['Processo SEI'].replace("-", "").replace("/", ""), max_chars=19)
