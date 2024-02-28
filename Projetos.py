@@ -19,6 +19,7 @@ import sqlalchemy
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter, landscape
 from streamlit_card import card
+import plotly.io as pio
 
 # Definir configurações da página
 st.set_page_config(
@@ -87,9 +88,10 @@ def load_messages():
         return {}
     
 def exportar_PDF(figs):
+    def exportar_PDF(figs):
     # Salve cada figura como uma imagem PNG
     for i, fig in enumerate(figs):
-        fig.savefig(f'fig{i}.png')
+        pio.write_image(fig, f'fig{i}.png')
 
     # Crie um novo PDF
     c = canvas.Canvas("report.pdf", pagesize=landscape(letter))
