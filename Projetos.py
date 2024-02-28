@@ -499,7 +499,7 @@ if st.session_state["authentication_status"]:
             import plotly.express as px
 
             # Normalize values above 6M to 6M
-            filtred_df_max = filtered_df.loc[filtered_df['Valor'] > 6000000, 'Valor'] = 6000000
+            filtred_df_max = filtered_df[filtered_df['Valor'] > 6000000, 'Valor'] = 6000000
 
             # Create a bar chart using Plotly
             # Create a new column with truncated project names
