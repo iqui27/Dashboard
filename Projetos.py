@@ -1075,7 +1075,7 @@ if st.session_state["authentication_status"]:
                         new_values['classificacao'] = st.selectbox(
                             'Classificação',
                             ['Termo de Fomento', 'Convênio', 'Termo de Colaboração', 'Novos Projetos'],
-                            index=['Termo de Fomento', 'Convênio', 'Termo de Colaboração', 'Novos Projetos'].index(project_details['classificacao']) if project_details['classificacao'] in ['Termo de Fomento', 'Convênio', 'Termo de Colaboração', 'Novos Projetos'] else 0
+                            index=['Termo de Fomento', 'Convênio', 'Termo de Colaboração', 'Novos Projetos'].index(project_details['classificacao'].iloc[0]) if project_details['classificacao'].iloc[0] in ['Termo de Fomento', 'Convênio', 'Termo de Colaboração', 'Novos Projetos'] else 0
                         )
                         new_values['Situação_atual'] = st.selectbox('Situação_atual', ['Pre Produção', 'Produção', 'Pós Produção', 'Relatório da Comissão Gestora', 'Prestação de Contas'],
                              index=['Pre Produção', 'Produção', 'Pós Produção', 'Relatório da Comissão Gestora', 'Prestação de Contas'].index(project_details['Situação_atual']) if project_details['Situação_atual'] in ['Pre Produção', 'Produção', 'Pós Produção', 'Relatório da Comissão Gestora', 'Prestação de Contas'] else 0
