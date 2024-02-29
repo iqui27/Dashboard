@@ -1007,6 +1007,8 @@ if st.session_state["authentication_status"]:
                                 new_project_data[key] = "-"
 
                         # Prepara os valores para a inserção, garantindo que todos os campos sejam tratados corretamente
+                        # Remove a coluna 'Projeto_truncated', se existir, do dicionário
+                        new_project_data.pop('Projeto_truncated', None)
                         placeholders = ", ".join([f":{key}" for key in new_project_data.keys()])
                         columns = ", ".join([f"{key}" for key in new_project_data.keys()])
                         insert_statement = f"INSERT INTO Projetos ({columns}) VALUES ({placeholders})"
