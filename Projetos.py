@@ -1052,7 +1052,7 @@ if st.session_state["authentication_status"]:
 
             # Verificar se um projeto foi selecionado
             if selected_project:
-                project_details = df[df['Projeto'] == selected_project].iloc[0]
+                project_details = df.loc[df['Projeto'] == selected_project]
 
             # Botão para mostrar o formulário
                  
