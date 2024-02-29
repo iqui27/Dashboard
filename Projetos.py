@@ -1065,7 +1065,7 @@ if st.session_state["authentication_status"]:
                                       if column not in ['id', 'classificacao', 'Situação_atual', 'Unidade_SECTI_Responsavel', 'Unidade_SECTI_adicional','Processo_SEI', 'Valor']}
                         
                         # Campo de entrada para o Processo_SEI com formatação
-                        sei_input = st.text_input("Processo_SEI (Adicione Apenas Números)", value=project_details['Processo_SEI'].replace("-", "").replace("/", ""), max_chars=19)
+                        sei_input = st.text_input("Processo_SEI (Adicione Apenas Números)", value=project_details['Processo_SEI'].iloc[0].replace("-", "").replace("/", ""), max_chars=19)
                         sei_formatted = f"{sei_input[:5]}-{sei_input[5:13]}/{sei_input[13:17]}-{sei_input[17:]}"
                         new_values['Processo_SEI'] = sei_formatted
 
