@@ -292,6 +292,8 @@ if st.session_state["authentication_status"]:
                     }
                     </style>
                     """
+                st.write(project_details)
+                st.write(df)
                 st.header("Bem vindo ao Dashboard SECTI")
                 st.write("Aqui você pode acompanhar os projetos da SECTI")
                 st.write("Para começar, selecione um projeto na barra lateral")
