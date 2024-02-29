@@ -1109,13 +1109,12 @@ if st.session_state["authentication_status"]:
                                     trans.commit()  # Commit apenas se não houver exceção
                                     st.success("Projeto atualizado com sucesso!")
                                     # Considerar o uso de st.experimental_rerun() ao invés de time.sleep() para recarregar a página
+                                    time.wait(2)
+                                    st.rerun()
                             except Exception as e:
                                 trans.rollback()  # Rollback em caso de erro
                                 st.error(f"An error occurred: {e}")
                             
-                            st.success("Projeto atualizado com sucesso!")
-                            time.sleep(5)  # Pausa por 2 segundos para mostrar a mensagem de sucesso
-                            st.rerun()
 
                         if close_form_button:
                             st.session_state.show_form = False
@@ -1129,11 +1128,15 @@ if st.session_state["authentication_status"]:
                     
                     # Botão para confirmar a ação de deletar
                     if st.button('Sim, deletar'):
-                        df.drop(project_details.name, inplace=True)
+                        delete_statement = text("DELETE FROM Projetos WHERE id = :id")  # Substitua 'table_name' pelo nome da sua tabela e 'id' pelo nome da coluna de identificação
                         st.session_state.show_delete_confirmation = True
-                        df.to_sql(name=table_name, con=engine, if_exists='replace', index=False)
+                        # Executa a instrução DELETE SQL
+                        with engine.connect() as connection:
+                            connection.execute(delete_statement, id=project_details.name)
                         st.session_state.show_delete_confirmation = False  # Esconder a confirmação
                         st.session_state.show_success_message = True  # Mostrar mensagem de sucesso temporariamente
+                        time.sleep(2)
+                        st.experimental_rerun() # Recarregar a página para atualizar a tabela de projetos
 
                     # Botão para cancelar a ação de deletar
                     if st.button('Não, cancelar'):
