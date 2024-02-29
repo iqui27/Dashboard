@@ -1122,23 +1122,21 @@ if st.session_state["authentication_status"]:
                 # Botão para mostrar a opção de deletar
 
                 # Se a opção de deletar foi selecionada, mostrar a confirmação
-                if st.session_state.get('show_delete_confirmation', False):
-                    # Mostrar mensagem de confirmação
-                    st.warning("Você tem certeza de que deseja deletar este projeto?")
-                    
-                    # Botão para confirmar a ação de deletar
-                    if st.button('Sim, deletar'):
-                        delete_statement = text("DELETE FROM Projetos WHERE id = :id")  # Substitua 'table_name' pelo nome da sua tabela e 'id' pelo nome da coluna de identificação
-                        st.session_state.show_delete_confirmation = True
-                        # Executa a instrução DELETE SQL
-                        # Executa a instrução DELETE SQL
+                if st.button('Sim, deletar'):
+                    delete_statement = text("DELETE FROM Projetos WHERE id = :id")
+                    try:
                         with engine.connect() as connection:
-                            id_value = int(project_details.id.values[0])  # Convert numpy.int64 to Python int
+                            trans = connection.begin()  # Inicia uma transação
+                            id_value = int(project_details.id.values[0])  # Supondo que project_details.id contém o ID correto
                             connection.execute(delete_statement, {'id': id_value})
-                        st.session_state.show_delete_confirmation = False  # Esconder a confirmação
-                        st.session_state.show_success_message = True  # Mostrar mensagem de sucesso temporariamente
-                        time.sleep(2)
-                        st.experimental_rerun() # Recarregar a página para atualizar a tabela de projetos
+                            trans.commit()  # Confirma a transação
+                            st.session_state.show_delete_confirmation = False
+                            st.session_state.show_success_message = True
+                            st.experimental_rerun()  # Recarregar a página para atualizar a tabela de projetos
+                    except Exception as e:
+                        st.error(f"Erro ao deletar o registro: {e}")
+                        if 'trans' in locals():
+                            trans.rollback()  # Reverte a transação em caso de erron() # Recarregar a página para atualizar a tabela de projetos
 
                     # Botão para cancelar a ação de deletar
                     if st.button('Não, cancelar'):
