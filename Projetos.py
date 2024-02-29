@@ -1131,10 +1131,11 @@ if st.session_state["authentication_status"]:
                         delete_statement = text("DELETE FROM Projetos WHERE id = :id")  # Substitua 'table_name' pelo nome da sua tabela e 'id' pelo nome da coluna de identificação
                         st.session_state.show_delete_confirmation = True
                         # Executa a instrução DELETE SQL
+                        # Executa a instrução DELETE SQL
                         with engine.connect() as connection:
                             st.write(project_details.id.values[0])
                             st.write(project_details.id)
-                            connection.execute(delete_statement, id=project_details.id.values[0])
+                            connection.execute(delete_statement, {'id': project_details.id.values[0]})
                         st.session_state.show_delete_confirmation = False  # Esconder a confirmação
                         st.session_state.show_success_message = True  # Mostrar mensagem de sucesso temporariamente
                         time.sleep(2)
