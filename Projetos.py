@@ -1077,20 +1077,22 @@ if st.session_state["authentication_status"]:
                                 # Prepara a string de atualização SQL de forma segura para evitar SQL Injection
                                 set_parts = ", ".join([f"{key} = :{key}" for key in update_values.keys() if key != 'id'])
                                 update_statement = f"UPDATE Projetos SET {set_parts} WHERE id = :id"
-
+                                st.write(list(update_values.keys()))
                                 st.write(f"Executing SQL: {update_statement}")
                                 st.write(f"With values: {update_values}")
                                 
-                                # Executa a instrução de atualização
-                                result = conn.execute(text(update_statement), update_values)
-                                trans.commit()  # Commit apenas se não houver exceção
-                                st.write(f"Rows updated: {result.rowcount}")
-                                st.success("Projeto atualizado com sucesso!")
-                                # Considerar o uso de st.experimental_rerun() ao invés de time.sleep() para recarregar a página
-                                
+
+                                if submit_button:
+                                    # Executa a instrução de atualização
+                                    result = conn.execute(text(update_statement), update_values)
+                                    trans.commit()  # Commit apenas se não houver exceção
+                                    st.write(f"Rows updated: {result.rowcount}")
+                                    st.success("Projeto atualizado com sucesso!")
+                                    # Considerar o uso de st.experimental_rerun() ao invés de time.sleep() para recarregar a página
+                                    
                             except Exception as e:
-                                trans.rollback()  # Rollback em caso de erro
-                                st.error(f"An error occurred: {e}")
+                                    trans.rollback()  # Rollback em caso de erro
+                                    st.error(f"An error occurred: {e}")
                             
                             st.success("Projeto atualizado com sucesso!")
                             time.sleep(5)  # Pausa por 2 segundos para mostrar a mensagem de sucesso
