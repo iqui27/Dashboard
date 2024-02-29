@@ -734,6 +734,7 @@ if st.session_state.get('show_2024', True):
         st.write(visitas_por_mes)
         # Renomeando colunas para melhor entendimento
         visitas_por_mes.columns = ['Mês', 'Total de Visitas']
+        
         st.write(visitas_por_mes)
         # Criando o gráfico de linha para visualização mensal com suavização e normalização
         fig_visitas_mensais = px.line(visitas_por_mes, x='Mês', y='Total de Visitas', title='Total de Visitas por Mês')

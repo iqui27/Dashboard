@@ -1064,31 +1064,32 @@ if st.session_state["authentication_status"]:
                         submit_button = st.form_submit_button('Salvar Alterações')
                         close_form_button = st.form_submit_button('Fechar Formulário')
 
-                        if submit_button:
-                            # Atualiza os valores no DataFrame
-                            for column in new_values.keys():
-                                df.at[project_details.name, column] = new_values[column]
-                            st.session_state.show_form = False
-                            
-                            # Cria uma conexão com o banco de dados
-                            with engine.connect() as conn:
+                        # Cria uma conexão com o banco de dados
+                        with engine.connect() as conn:
+                            # Inicia uma transação
+                            trans = conn.begin()
+                            try:
                                 # Prepara os dados para a atualização
-                                update_values = {key.replace(" ", "_").replace("/", "_"): value for key, value in new_values.items() if key in df.columns}
+                                update_values = new_values.copy()
                                 update_values['Valor'] = int(update_values['Valor'])
                                 update_values['id'] = int(project_details['id'])
-                                # Adiciona o ID do projeto aos valores de atualização
-                                # Prepara a string de atualização SQL
-                                set_part = ', '.join([f"{key.replace(' ', '_').replace('/', '_')} = :{key.replace(' ', '_').replace('/', '_')}" for key in new_values.keys()])
-                                update_statement = f"UPDATE Projetos SET {set_part} WHERE id = :id"
+                                
+                                # Prepara a string de atualização SQL de forma segura para evitar SQL Injection
+                                set_parts = ", ".join([f"{key} = :{key}" for key in update_values.keys() if key != 'id'])
+                                update_statement = f"UPDATE Projetos SET {set_parts} WHERE id = :id"
                                 st.write(f"Executing SQL: {update_statement}")
                                 st.write(f"With values: {update_values}")
+                                
                                 # Executa a instrução de atualização
-                                try:
-                                    result = conn.execute(text(update_statement), update_values)
-                                    conn.commit()
-                                    st.write(f"Rows updated: {result.rowcount}")
-                                except Exception as e:
-                                    print(f"An error occurred: {e}")
+                                result = conn.execute(text(update_statement), update_values)
+                                trans.commit()  # Commit apenas se não houver exceção
+                                st.write(f"Rows updated: {result.rowcount}")
+                                st.success("Projeto atualizado com sucesso!")
+                                # Considerar o uso de st.experimental_rerun() ao invés de time.sleep() para recarregar a página
+                                
+                            except Exception as e:
+                                trans.rollback()  # Rollback em caso de erro
+                                st.error(f"An error occurred: {e}")
                             
                             st.success("Projeto atualizado com sucesso!")
                             time.sleep(5)  # Pausa por 2 segundos para mostrar a mensagem de sucesso
