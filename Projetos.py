@@ -1060,7 +1060,7 @@ if st.session_state["authentication_status"]:
                     with st.form(key='edit_form'):
                         # Use um dicionário de compreensão para criar os campos de entrada, exceto para 'classificação' e 'Situação_atual'
                         df.drop(['Projeto_truncated'], axis=1, inplace=True)
-                        new_values = {column: st.text_input(column, project_details[column]) 
+                        new_values = {column: st.text_input(column, project_details[column].iloc[0] if project_details[column].iloc[0] != '0' else "") 
                                       for column in df.columns 
                                       if column not in ['id', 'classificacao', 'Situação_atual', 'Unidade_SECTI_Responsavel', 'Unidade_SECTI_adicional','Processo_SEI', 'Valor']}
                         
