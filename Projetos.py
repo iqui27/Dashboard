@@ -972,7 +972,8 @@ if st.session_state["authentication_status"]:
                                 # Numeric input field for 'Valor'
                                 input_value = st.number_input(f"{column} (novo projeto)", step=1.0, format="%.2f")
                                 # Explicitly cast the input to float64 to ensure compatibility
-                                new_project_data[column] = np.float64(input_value)
+                            elif column == 'id':
+                                    continue
                             elif column == 'Situação_atual':
                                 situacao_options = ['Pre Produção', 'Produção', 'Pós Produção', 'Relatório da Comissão Gestora', 'Prestação de Contas']
                                 new_project_data[column] = st.selectbox(f"{column} (novo projeto)", situacao_options)
