@@ -999,28 +999,37 @@ if st.session_state["authentication_status"]:
                         submit_new_project = st.form_submit_button('Adicionar Projeto')
                         close_new_project_form = st.form_submit_button('Cancelar')
 
+                     
+                        # Substitui campos vazios por um traço
+                        for key, value in new_project_data.items():
+                            if value == "":
+                                new_project_data[key] = "-"
+
+                        # Prepara os valores para a inserção, garantindo que todos os campos sejam tratados corretamente
+                        placeholders = ", ".join([f":{key}" for key in new_project_data.keys()])
+                        columns = ", ".join([f"{key}" for key in new_project_data.keys()])
+                        insert_statement = f"INSERT INTO {table_name} ({columns}) VALUES ({placeholders})"
+                        st.write(insert_statement)
+                        st.write(placeholders)
+                        st.write(columns)
                         if submit_new_project:
-                             # Replace empty fields with a dash
-                            for key, value in new_project_data.items():
-                                if value == "":
-                                    new_project_data[key] = "-"
+                            # Cria uma conexão com o banco de dados
+                            with engine.connect() as conn:
+                                trans = conn.begin()
+                                try:
+                                    # Executa a instrução de inserção
+                                    conn.execute(text(insert_statement), **new_project_data)
+                                    trans.commit()
+                                    st.success("Novo projeto adicionado com sucesso!")
+                                    st.session_state.show_new_project_form = False  # Fecha o formulário de novo projeto
+                                    # Considerar o uso de st.experimental_rerun() para recarregar a página/aplicativo
+                                except Exception as e:
+                                    trans.rollback()  # Reverte a transação em caso de erro
+                                    st.error(f"Ocorreu um erro: {e}")
 
-                            # Adiciona o novo projeto ao dataframe
-                            new_row = pd.DataFrame([new_project_data])
-                            df = pd.concat([df, new_row], ignore_index=True)
-                            
-                            # Salva o dataframe atualizado no arquivo CSV
-                            df.to_sql(name=table_name, con=engine, if_exists='replace', index=False)
-                            
-                            # Informa sucesso e reinicia a aplicação
-                            st.success("Novo projeto adicionado com sucesso!")
-                            st.session_state.show_new_project_form = False  # Fecha o formulário de novo projeto
-                            time.sleep(2)  # Dá uma pausa para mostrar a mensagem de sucesso
-                            st.experimental_rerun()  # Reinicia a aplicação para mostrar as mudanças
-
-                        if close_new_project_form:
-                            # Se cancelar, apenas fecha o formulário de novo projeto
-                            st.session_state.show_new_project_form = False
+if close_new_project_form:
+    # Se cancelar, apenas fecha o formulário de novo projeto
+    st.session_state.show_new_project_form = False
 
 
 
