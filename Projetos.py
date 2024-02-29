@@ -1132,11 +1132,12 @@ if st.session_state["authentication_status"]:
                         st.session_state.show_delete_confirmation = True
                         # Executa a instrução DELETE SQL
                         # Executa a instrução DELETE SQL
-                        with engine.connect() as connection:
+                        with engine.connect() as conn:
+                            trans = conn.begin()
                             id_value = int(project_details.id.values[0]) # Convert numpy.int64 to Python int
                             st.write(id_value)
                             st.write(delete_statement)  
-                            result = connection.execute(delete_statement, {'id': id_value})
+                            result = conn.execute(delete_statement, {'id': id_value})
                             trans.commit()
                             st.write(result)                           
                         st.session_state.show_delete_confirmation = False  # Esconder a confirmação
