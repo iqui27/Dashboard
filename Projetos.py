@@ -233,7 +233,10 @@ if st.session_state["authentication_status"]:
                 valor = project_details['Valor'].values[0]
                 # Convert the value to float
                 valor = float(valor) if isinstance(valor, str) and valor.replace('.', '', 1).isdigit() else valor
-                valor_formatado = locale.currency(valor, grouping=True)
+                if valor is not None:
+                    valor_formatado = locale.currency(valor, grouping=True)
+                else:
+                    st.error("Valor é None.")
                 # Aqui você pode exibir os detalhes do projeto selecionado, incluindo valor_formatado
             else:
                 project_details = None
@@ -972,6 +975,7 @@ if st.session_state["authentication_status"]:
                                 # Numeric input field for 'Valor'
                                 input_value = st.number_input(f"{column} (novo projeto)", step=1.0, format="%.2f")
                                 # Explicitly cast the input to float64 to ensure compatibility
+                                new_project_data[column] = input_value if input_value else 0.0
                             elif column == 'id':
                                     continue
                             elif column == 'Situação_atual':
