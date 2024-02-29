@@ -1078,13 +1078,13 @@ if st.session_state["authentication_status"]:
                             index=['Termo de Fomento', 'Convênio', 'Termo de Colaboração', 'Novos Projetos'].index(project_details['classificacao'].iloc[0]) if project_details['classificacao'].iloc[0] in ['Termo de Fomento', 'Convênio', 'Termo de Colaboração', 'Novos Projetos'] else 0
                         )
                         new_values['Situação_atual'] = st.selectbox('Situação_atual', ['Pre Produção', 'Produção', 'Pós Produção', 'Relatório da Comissão Gestora', 'Prestação de Contas'],
-                             index=['Pre Produção', 'Produção', 'Pós Produção', 'Relatório da Comissão Gestora', 'Prestação de Contas'].index(project_details['Situação_atual'].iloc[0]) if project_details['Situação_atual'] in ['Pre Produção', 'Produção', 'Pós Produção', 'Relatório da Comissão Gestora', 'Prestação de Contas'] else 0
+                             index=['Pre Produção', 'Produção', 'Pós Produção', 'Relatório da Comissão Gestora', 'Prestação de Contas'].index(project_details['Situação_atual'].iloc[0]) if project_details['Situação_atual'].iloc[0] in ['Pre Produção', 'Produção', 'Pós Produção', 'Relatório da Comissão Gestora', 'Prestação de Contas'] else 0
                         )
                         new_values['Unidade_SECTI_Responsavel'] = st.selectbox('Unidade_SECTI_Responsavel', ['DIDCI', 'DIJE', 'SUPCDT', 'DIEC', 'SICID'],
-                            index=['DIDCI', 'DIJE', 'SUPCDT', 'DIEC', 'SICID'].index(project_details['Unidade_SECTI_Responsavel'].iloc[0]) if project_details['Unidade_SECTI_Responsavel'] in ['DIDCI', 'DIJE', 'SUPCDT', 'DIEC', 'SICID'] else 0
+                            index=['DIDCI', 'DIJE', 'SUPCDT', 'DIEC', 'SICID'].index(project_details['Unidade_SECTI_Responsavel'].iloc[0]) if project_details['Unidade_SECTI_Responsavel'].iloc[0] in ['DIDCI', 'DIJE', 'SUPCDT', 'DIEC', 'SICID'] else 0
                         )
                         new_values['Unidade_SECTI_adicional'] = st.selectbox('Unidade_SECTI_adicional', ['Sem Colaboração','DIDCI', 'DIJE', 'SUPCDT', 'DIEC', 'SICID'],
-                            index=['Sem Colaboração','DIDCI', 'DIJE', 'SUPCDT', 'DIEC', 'SICID'].index(project_details['Unidade_SECTI_adicional'].iloc[0]) if project_details['Unidade_SECTI_adicional'] in ['Sem Colaboração','DIDCI', 'DIJE', 'SUPCDT', 'DIEC', 'SICID'] else 0
+                            index=['Sem Colaboração','DIDCI', 'DIJE', 'SUPCDT', 'DIEC', 'SICID'].index(project_details['Unidade_SECTI_adicional'].iloc[0]) if project_details['Unidade_SECTI_adicional'].iloc[0] in ['Sem Colaboração','DIDCI', 'DIJE', 'SUPCDT', 'DIEC', 'SICID'] else 0
                         )
                         submit_button = st.form_submit_button('Salvar Alterações')
                         close_form_button = st.form_submit_button('Fechar Formulário')
