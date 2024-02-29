@@ -1027,9 +1027,9 @@ if st.session_state["authentication_status"]:
                                     trans.rollback()  # Reverte a transação em caso de erro
                                     st.error(f"Ocorreu um erro: {e}")
 
-if close_new_project_form:
-    # Se cancelar, apenas fecha o formulário de novo projeto
-    st.session_state.show_new_project_form = False
+                        if close_new_project_form:
+                            # Se cancelar, apenas fecha o formulário de novo projeto
+                            st.session_state.show_new_project_form = False
 
 
 
