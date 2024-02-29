@@ -610,12 +610,12 @@ if st.session_state["authentication_status"]:
             with col1:
                 st.write("\n")
                 st.write("\n")
-                st.markdown("<h5 style='text-align: center;'>Instituição_Parceira</h5>", unsafe_allow_html=True)
+                st.markdown("<h5 style='text-align: center;'>Instituição Parceira</h5>", unsafe_allow_html=True)
                 st.markdown(f"<h6 style='text-align: center; color: #0097a7;'>{project_details['Instituição_Parceira'].values[0] if project_details['Instituição_Parceira'].values[0] != '0' else 'Não informado'}</h6>", unsafe_allow_html=True)
                 st.write("\n")
                 st.write("\n")
                 st.write("\n")
-                st.markdown("<h5 style='text-align: center;'>Execução_do_Projeto</h5>", unsafe_allow_html=True)
+                st.markdown("<h5 style='text-align: center;'>Execução do Projeto</h5>", unsafe_allow_html=True)
                 st.markdown(f"<h6 style='text-align: center; color: #0097a7;'>{project_details['Execução_do_Projeto'].values[0] if project_details['Execução_do_Projeto'].values[0] != '0' else 'Não informado'}</h6>", unsafe_allow_html=True)
                 st.write("\n")
                 st.write("\n")
@@ -656,7 +656,7 @@ if st.session_state["authentication_status"]:
                 st.write("\n")
                 st.write("\n")
                 st.write("\n")
-                st.markdown("<h5 style='text-align: center;'>Ponto_Focal_na_Instituição_Parceira</h5>", unsafe_allow_html=True)
+                st.markdown("<h5 style='text-align: center;'>Ponto Focal Instituição Parceira</h5>", unsafe_allow_html=True)
                 st.markdown(f"<h6 style='text-align: center; color: #ffb74d;'>{valor_ponto_focal}</h6>", unsafe_allow_html=True)
                 st.write("\n")
                 st.write("\n")
@@ -694,7 +694,7 @@ if st.session_state["authentication_status"]:
                         # Conteúdo do cartão
                         with mui.CardContent():
                             # Cabeçalho do cartão
-                            mui.Typography("Comissão_Gestora_da_Parceria", style={"textAlign": "center", "fontSize": "17px", "fontFamily": "'sans serif', sans-serif" , "fontWeight": "bold", "color": "white", "marginBottom": "20px"})
+                            mui.Typography("Comissão Gestora", style={"textAlign": "center", "fontSize": "17px", "fontFamily": "'sans serif', sans-serif" , "fontWeight": "bold", "color": "white", "marginBottom": "20px"})
 
                             # Lista de nomes
                             for nome in nomes:
@@ -727,7 +727,7 @@ if st.session_state["authentication_status"]:
             with col4:
                 st.markdown(f"""
                 <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 1rem 0;">
-                    <span style="font-size: 1.35rem; font-weight: bold; color: white; margin-bottom: 0.5rem;">Fonte_de_Custeio</span>
+                    <span style="font-size: 1.35rem; font-weight: bold; color: white; margin-bottom: 0.5rem;">Fonte de Custeio</span>
                     <span style="background-color: #1B1F23 ; padding: 0.25rem 0.75rem; border-radius: 10px; color: gray; font-weight: bold; font-size: 1.25rem;">{valor_fonte_custeio}</span>
                 </div>
                 """, unsafe_allow_html=True)
@@ -735,7 +735,7 @@ if st.session_state["authentication_status"]:
             with col3:
                 st.markdown(f"""
                 <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 1rem 0;">
-                    <span style="font-size: 1.35rem; font-weight: bold; color: white; margin-bottom: 0.5rem;">Situação_atual</span>
+                    <span style="font-size: 1.35rem; font-weight: bold; color: white; margin-bottom: 0.5rem;">Situação Atual</span>
                     <span style="background-color: #1B1F23 ; padding: 0.25rem 0.75rem; border-radius: 10px; color: #388e3c; font-weight: bold; font-size: 1.25rem;">{valor_situacao_atual}</span>
                 </div>
                 """, unsafe_allow_html=True)
@@ -745,7 +745,7 @@ if st.session_state["authentication_status"]:
             with col10:
                 st.markdown(f"""
                             <div style="display: block; align-items: center; gap: 10px;">
-                                <span>Processo_SEI:</span>
+                                <span>Processo SEI:</span>
                                 <div style="background-color: #1B1F23; border-radius: 10px; padding: 2px 10px;">
                                     <span style="color: #03a9f4;">{project_details['Processo_SEI'].values[0]}</span>
                                 </div>
@@ -769,7 +769,7 @@ if st.session_state["authentication_status"]:
 
                 st.markdown(f"""
                     <div style="display: block; align-items: center; gap: 10px;">
-                        <span>Execução_do_Projeto:</span>
+                        <span>Execução do Projeto:</span>
                         <div style="background-color: #1B1F23; border-radius: 10px; padding: 2px 10px;">
                             <span style="color: #03a9f4;">{valor_execucao_projeto}</span>
                         </div>
@@ -1063,7 +1063,7 @@ if st.session_state["authentication_status"]:
                                       if column not in ['id', 'classificacao', 'Situação_atual', 'Unidade_SECTI_Responsavel', 'Unidade_SECTI_adicional','Processo_SEI', 'Valor']}
                         
                         # Campo de entrada para o Processo_SEI com formatação
-                        sei_input = st.text_input("Processo_SEI (Adicione Apenas Números)", value=project_details['Processo_SEI'].iloc[0].replace("-", "").replace("/", ""), max_chars=19)
+                        sei_input = st.text_input("Processo SEI (Adicione Apenas Números)", value=project_details['Processo_SEI'].iloc[0].replace("-", "").replace("/", ""), max_chars=19)
                         sei_formatted = f"{sei_input[:5]}-{sei_input[5:13]}/{sei_input[13:17]}-{sei_input[17:]}"
                         new_values['Processo_SEI'] = sei_formatted
 
