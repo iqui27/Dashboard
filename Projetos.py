@@ -1021,7 +1021,7 @@ if st.session_state["authentication_status"]:
                                 trans = conn.begin()
                                 try:
                                     # Executa a instrução de inserção
-                                    conn.execute(text(insert_statement), **new_project_data)
+                                    conn.execute(text(insert_statement), new_project_data)
                                     trans.commit()
                                     st.success("Novo projeto adicionado com sucesso!")
                                     st.session_state.show_new_project_form = False  # Fecha o formulário de novo projeto
