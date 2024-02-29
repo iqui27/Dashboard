@@ -1009,7 +1009,9 @@ if st.session_state["authentication_status"]:
                         # Prepara os valores para a inserção, garantindo que todos os campos sejam tratados corretamente
                         placeholders = ", ".join([f":{key}" for key in new_project_data.keys()])
                         columns = ", ".join([f"{key}" for key in new_project_data.keys()])
-                        insert_statement = f"INSERT INTO {table_name} ({columns}) VALUES ({placeholders})"
+                        insert_statement = f"INSERT INTO Projeto ({columns}) VALUES ({placeholders})"
+                        st.write(new_project_data)
+                        st.write(list(new_project_data.keys()))
                         st.write(insert_statement)
                         st.write(placeholders)
                         st.write(columns)
@@ -1024,6 +1026,11 @@ if st.session_state["authentication_status"]:
                                     st.success("Novo projeto adicionado com sucesso!")
                                     st.session_state.show_new_project_form = False  # Fecha o formulário de novo projeto
                                     # Considerar o uso de st.experimental_rerun() para recarregar a página/aplicativo
+                                    st.write(new_project_data)
+                                    st.write(list(new_project_data.keys()))
+                                    st.write(insert_statement)
+                                    st.write(placeholders)
+                                    st.write(columns)
                                 except Exception as e:
                                     trans.rollback()  # Reverte a transação em caso de erro
                                     st.error(f"Ocorreu um erro: {e}")
