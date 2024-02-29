@@ -1071,7 +1071,7 @@ if st.session_state["authentication_status"]:
 
 
                         # Adicione um selectbox para 'classificação' com as opções desejadas
-                        new_values['Valor'] = st.number_input('Valor', value=int(project_details['Valor']))
+                        new_values['Valor'] = st.number_input('Valor', value=int(float(project_details['Valor'].iloc[0])))
                         new_values['classificacao'] = st.selectbox(
                             'Classificação',
                             ['Termo de Fomento', 'Convênio', 'Termo de Colaboração', 'Novos Projetos'],
