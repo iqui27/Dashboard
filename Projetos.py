@@ -1052,7 +1052,7 @@ if st.session_state["authentication_status"]:
 
             # Verificar se um projeto foi selecionado
             if selected_project:
-                project_details = df.loc[df['Projeto'] == selected_project]
+                project_details = project_details
 
             # Botão para mostrar o formulário
                  
@@ -1060,7 +1060,7 @@ if st.session_state["authentication_status"]:
                     with st.form(key='edit_form'):
                         # Use um dicionário de compreensão para criar os campos de entrada, exceto para 'classificação' e 'Situação_atual'
                         df.drop(['Projeto_truncated'], axis=1, inplace=True)
-                        new_values = {column: st.text_input(column, project_details[column].iloc[0]) 
+                        new_values = {column: st.text_input(column, project_details[column]) 
                                       for column in df.columns 
                                       if column not in ['id', 'classificacao', 'Situação_atual', 'Unidade_SECTI_Responsavel', 'Unidade_SECTI_adicional','Processo_SEI', 'Valor']}
                         
