@@ -1077,6 +1077,7 @@ if st.session_state["authentication_status"]:
                                 # Prepara a string de atualização SQL de forma segura para evitar SQL Injection
                                 set_parts = ", ".join([f"{key} = :{key}" for key in update_values.keys() if key != 'id'])
                                 update_statement = f"UPDATE Projetos SET {set_parts} WHERE id = :id"
+
                                 st.write(f"Executing SQL: {update_statement}")
                                 st.write(f"With values: {update_values}")
                                 
