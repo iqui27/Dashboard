@@ -236,7 +236,7 @@ if st.session_state["authentication_status"]:
                 if valor is not None:
                     valor_formatado = locale.currency(valor, grouping=True)
                 else:
-                    st.error("Valor é None.")
+                    valor_formatado = 0
                 # Aqui você pode exibir os detalhes do projeto selecionado, incluindo valor_formatado
             else:
                 project_details = None
