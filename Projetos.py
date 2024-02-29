@@ -292,8 +292,6 @@ if st.session_state["authentication_status"]:
                     }
                     </style>
                     """
-                st.write(project_details)
-                st.write(df)
                 st.header("Bem vindo ao Dashboard SECTI")
                 st.write("Aqui você pode acompanhar os projetos da SECTI")
                 st.write("Para começar, selecione um projeto na barra lateral")
@@ -1110,7 +1108,7 @@ if st.session_state["authentication_status"]:
                                     st.success("Projeto atualizado com sucesso!")
                                     # Considerar o uso de st.experimental_rerun() ao invés de time.sleep() para recarregar a página
                                     time.wait(2)
-                                    st.rerun()
+                                    st.experimental_rerun()
                             except Exception as e:
                                 trans.rollback()  # Rollback em caso de erro
                                 st.error(f"An error occurred: {e}")
@@ -1135,11 +1133,8 @@ if st.session_state["authentication_status"]:
                         with engine.connect() as conn:
                             trans = conn.begin()
                             id_value = int(project_details.id.values[0]) # Convert numpy.int64 to Python int
-                            st.write(id_value)
-                            st.write(delete_statement)  
                             result = conn.execute(delete_statement, {'id': id_value})
-                            trans.commit()
-                            st.write(result)                           
+                            trans.commit()                      
                         st.session_state.show_delete_confirmation = False  # Esconder a confirmação
                         st.session_state.show_success_message = True  # Mostrar mensagem de sucesso temporariamente
                         time.sleep(2)
