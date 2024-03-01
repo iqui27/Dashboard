@@ -1107,7 +1107,7 @@ if st.session_state["authentication_status"]:
                                     trans.commit()  # Commit apenas se não houver exceção
                                     st.success("Projeto atualizado com sucesso!")
                                     # Considerar o uso de st.experimental_rerun() ao invés de time.sleep() para recarregar a página
-                                    time.wait(2)
+                                    time.sleep(2)
                                     st.experimental_rerun()
                             except Exception as e:
                                 trans.rollback()  # Rollback em caso de erro
