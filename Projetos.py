@@ -10,7 +10,7 @@ import pytz
 import yaml
 from streamlit_elements import elements, mui
 import plotly.express as px
-import plotly.graph_objs as go
+import plotly.graph_objs as godas
 from sqlalchemy import create_engine, text
 import numpy as np
 import os
@@ -402,63 +402,53 @@ if st.session_state["authentication_status"]:
             lista_projetos = pd.merge(lista_projetos, df, left_on='projeto_id', right_on='id', how='inner')
             # Criar um menu dropdown com os nomes das pessoas
             selected_name = st.selectbox('Escolha uma pessoa', lista_projetos['Nome'].unique())
-            col1, col2, col3 = st.columns([3, 2, 1])
+            col1, col2, col3 = st.columns([3, 2, 3])
             with col2:
                 st.write("\n")
                 st.write("\n")
                 st.write("\n")
                 st.write("\n")
-                st.write("\n")
-                st.write("\n")
-                st.write("\n")
-                st.write("\n")
+          
+ 
+             
                 
                 # Filtrar os projetos da pessoa selecionada
                 filtered_projects = lista_projetos[lista_projetos['Nome'] == selected_name]
                 ## Supondo que 'nome' é a coluna que você deseja converter para uma lista
                 list_of_names = filtered_projects['Projeto'].tolist()
                 numero_projetos = filtered_projects['Projeto'].count()
-                st.write(f'Projetos `{numero_projetos}` ')
+                st.subheader(f'Projetos `{numero_projetos}` ')
                 # Agora você pode usar list_of_names em seu código
                 for name in list_of_names:
                     st.write(name)
-                st.divider()
+          
             # Supondo que filtered_projects seja o seu DataFrame e você tenha selecionado um projeto específico
             nome = filtered_projects['Nome'].iloc[0]
             matricula = filtered_projects['Matricula'].iloc[0]
             telefone = filtered_projects['Telefone'].iloc[0]
             unidade_secti = filtered_projects['Unidade_SECTI_Responsavel'].iloc[0]
+
+            with col3:
+                st.write("\n")
+                st.write("\n")
+                st.write("\n")
+                st.write("\n")
+                st.write("\n")
+
+                st.dataframe(filtered_projects)
             
 
             with col1:
-            # Criando um cartão para exibir as informações
-                res = card(
-                    title="Servidor",
-                    text=[
-                        f"{filtered_projects['Nome'].iloc[0]}",
-                        f"Matrícula: {filtered_projects['Matricula'].iloc[0]}",
-                        f"Telefone: {filtered_projects['Telefone'].iloc[0]}",
-                        f"Unidade SECTI: {filtered_projects['Unidade_SECTI_Responsavel'].iloc[0]}"
-                    ],
-                    image=None,
-                    styles={
-                        "card": {
-                            "borderRadius": "10px",
-                            "box-shadow": "0 4px 8px 0 rgba(0,0,0,0.2)",
-                            "backgroundColor": "#2d3839",
-                            "transparency": "0.2"
+                st.write("\n")
+                st.write("\n")
+                st.write("\n")
+                st.write("\n")
+                st.write("\n")
+                st.write(f"<span style='color: yellow;'>{filtered_projects['Nome'].iloc[0]}</span>", unsafe_allow_html=True)
+                st.write(f"Matrícula: {filtered_projects['Matricula'].iloc[0]}")
+                st.write(f"Telefone: {filtered_projects['Telefone'].iloc[0]}")
+                st.write(f"Unidade SECTI: {filtered_projects['Unidade_SECTI_Responsavel'].iloc[0]}")
 
-                        },
-                        "text":{
-                            "color": "#eaebeb"
-                        },
-                        "title": {
-                            "color": "#eaebeb"
-                        }
-
-                    }  # Você pode adicionar um link de imagem aqui, se desejar
-                )
-            
             
             
             # Count the number of people in each project
