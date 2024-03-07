@@ -604,8 +604,12 @@ if st.session_state.get('show_2024', True):
     proporcao_privadas = escolas_privadas / total_escolas
 
     # Distribuindo os alunos conforme a proporção calculada
-    alunos_publicas = round(total_alunos * proporcao_publicas)
-    alunos_privadas = total_alunos - alunos_publicas
+    if pd.isnull(total_alunos) or pd.isnull(proporcao_publicas):
+        print("Erro: total_alunos ou proporcao_publicas é NaN")
+        alunos_publicas = None
+    else:
+        alunos_publicas = round(total_alunos * proporcao_publicas)
+        alunos_privadas = total_alunos - alunos_publicas
 
     #Processamento Visitantes
     visitantes_df = filtered_visitas['df'].sum()
