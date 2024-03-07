@@ -13,7 +13,8 @@ import plotly.express as px
 import plotly.graph_objs as go
 import os
 import io
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, Table, MetaData
+from sqlalchemy.sql import text
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from Projetos import ra, relatorio2023, mes, process_data, process_multiple_entries  
 import datetime
@@ -65,11 +66,28 @@ mysql_engine = create_mysql_engine(mysql_user, mysql_password, mysql_host, mysql
 st.session_state['sql'] = False
 st.session_state['Erro1'] = False
 st.session_state['erro2'] = False
+def update_data_to_db(engine, table_name, data):
+    with engine.connect() as conn:
+        trans = conn.begin()
+        try:
+            for index, row in data.iterrows():
+                # Constrói a string de atualização com todas as colunas
+                update_str = ', '.join(f'{col} = :{col}' for col in data.columns)
+                row_dict = row.to_dict()
+                if 'dia' in row_dict:
+                    del row_dict['dia']
+                stmt = text(f"UPDATE {table_name} SET {update_str} WHERE dia = :dia").bindparams(dia=index, **row_dict)
+                st.write(stmt)
+                conn.execute(stmt)
+            trans.commit()
+            st.session_state['sql'] = True
+        except SQLAlchemyError as e:
+            trans.rollback()
+            st.error(f"Erro ao atualizar os dados: {str(e)}")
 
 
 # Função para inserir dados no banco de dados
-def insert_data_to_db(engine, data, table_name):
-    data = clean_column_names(data)
+def insert_data_to_db(engine, table_name, data):
     try:
         with engine.connect() as conn:
             data.to_sql(table_name, conn, if_exists='append', index=False)
@@ -549,6 +567,9 @@ if st.session_state.get('show_2024', True):
     alunos = pd.read_sql_query(load_sql_query_alunos, mysql_engine)
     cupula = pd.read_sql_query(load_sql_query_Cupula, mysql_engine)
     visitas = pd.read_sql_query(load_sql_query_Visitas, mysql_engine)
+    cupula['dia'] = pd.to_datetime(cupula['dia'])
+    alunos['dia'] = pd.to_datetime(alunos['dia'])
+    visitas['dia'] = pd.to_datetime(visitas['dia'])
     # Opção para selecionar os meses
     sorted_month_year = np.insert(cupula['dia'].dt.strftime('%B %Y').unique(), 0, "Todos os meses")
     selected_month = st.selectbox("Escolha o Mês:", sorted_month_year)
@@ -759,6 +780,9 @@ if st.session_state.get('show_2024', True):
 
 if st.session_state.get('show_files', True):
     st.title('Upload e Processamento de Dados')
+    # Criar um toggle para inserir ou atualizar dados
+    # Criar um toggle para inserir ou atualizar dados
+    update_data = st.checkbox("Atualizar dados")
 
 
     # Seleção do mês pelo usuário
@@ -776,19 +800,50 @@ if st.session_state.get('show_files', True):
         st.session_state['uploaded_file'] = uploaded_file
 
         process_button = st.button('Processar arquivo')
+        # Crie um dicionário que mapeia os nomes dos meses para números
+        month_to_number = {
+            'JANEIRO': '1',
+            'FEVEREIRO': '2',
+            'MARÇO': '3',
+            'ABRIL': '4',
+            'MAIO': '5',
+            'JUNHO': '6',
+            'JULHO': '7',
+            'AGOSTO': '8',
+            'SETEMBRO': '9',
+            'OUTUBRO': '10',
+            'NOVEMBRO': '11',
+            'DEZEMBRO': '12'
+        }
+
+        # Transforme o mês em um número
+        month_number = month_to_number[month]
     # Verifica se um arquivo foi carregado e um mês foi selecionado
         if process_button:  
             # Processamento do arquivo
             tabela_visitas, tabela_cupula, tabela_alunos = read_and_process_file(uploaded_file, month)
             # Mostrar o DataFrame
+           
+            tabela_visitas['DIA'] = tabela_visitas['DIA'].dt.strftime('%Y-%m-%d')
+            tabela_cupula['DIA'] = tabela_cupula['DIA'].dt.strftime('%Y-%m-%d')
+            tabela_alunos['DIA'] = tabela_alunos['DIA'].dt.strftime('%Y-%m-%d')
+            tabela_cupula.columns = ['dia', 'total_visitantes', 'sessões_público', 'sessões_escolas']
+            tabela_alunos.columns = ['dia', 'total', 'pública', 'privada']
+            tabela_visitas.columns = ['dia', 'df', 'oe', 'op', 'total_dia']
             st.write(tabela_visitas)
             st.write(tabela_cupula)
             st.write(tabela_alunos)
             
-            # Inserir dados no banco de dados
-            insert_data_to_db(mysql_engine, tabela_visitas, 'Visitas')
-            insert_data_to_db(mysql_engine, tabela_cupula, 'Cupula')
-            insert_data_to_db(mysql_engine, tabela_alunos, 'Alunos')
+
+            # Inserir ou atualizar dados no banco de dados
+            if update_data:
+                update_data_to_db(mysql_engine, 'Visitas', tabela_visitas)
+                update_data_to_db(mysql_engine, 'Cupula', tabela_cupula)
+                update_data_to_db(mysql_engine, 'Alunos', tabela_alunos)
+            else:
+                insert_data_to_db(mysql_engine, 'Visitas', tabela_visitas)
+                insert_data_to_db(mysql_engine, 'Cupula', tabela_cupula)
+                insert_data_to_db(mysql_engine, 'Alunos', tabela_alunos)
             if st.session_state['sql']:
                 st.success('Dados adicionados com sucesso ao banco de dados!')
                 time.sleep(2)
