@@ -687,11 +687,17 @@ if st.session_state.get('show_2024', True):
     values = [escolas_publicas, escolas_privadas]
 
     # Configuração do gráfico
-    fig_pizza = go.Figure(data=[go.Pie(labels=labels, values=values, hole=.3)])
-    fig_pizza.update_layout(title_text='Proporção de Alunos: Escolas Públicas x Privadas')
+    if alunos_publicas is None:
+        st.divider()
+        st.write("\n")
+        st.write("Sem informações disponíveis sobre escolas nesse período")
+        st.divider()
+    else:
+        fig_pizza = go.Figure(data=[go.Pie(labels=labels, values=values, hole=.3)])
+        fig_pizza.update_layout(title_text='Proporção de Alunos: Escolas Públicas x Privadas')
 
-    # Exibindo o gráfico no Streamlit
-    st.plotly_chart(fig_pizza, use_container_width=True)           
+        # Exibindo o gráfico no Streamlit
+        st.plotly_chart(fig_pizza, use_container_width=True)           
 
 
     # Opção para alternar entre visualização diária e mensal
