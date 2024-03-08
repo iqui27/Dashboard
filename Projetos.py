@@ -777,6 +777,9 @@ if st.session_state["authentication_status"]:
                 st.session_state.mostrar_gerenciamento = False
             
             st.subheader('Cronograma de Pagamentos')
+            # Carregar df_pagamentos_projeto do arquivo CSV, se existir
+            if os.path.exists('df_pagamentos_projeto.csv'):
+                df_pagamentos_projeto = pd.read_csv('df_pagamentos_projeto.csv')
             # Botão para mostrar/esconder gerenciamento de pagamentos
             if st.button("Gerenciar Pagamentos"):
                 st.session_state.mostrar_gerenciamento = not st.session_state.mostrar_gerenciamento
@@ -794,7 +797,8 @@ if st.session_state["authentication_status"]:
             # Atualização do df_pagamentos_projeto para garantir que esteja sempre disponível
             df_pagamentos_projeto = st.session_state.df_pagamentos[st.session_state.df_pagamentos['Projeto'] == selected_project]
 
-
+            
+            
            
 
             # Função para plotar o gráfico de barras
@@ -819,9 +823,13 @@ if st.session_state["authentication_status"]:
                     if st.button("Adicionar Pagamento"):
                         novo_pagamento = pd.DataFrame({'Projeto': [selected_project], 'Data': [data_pagamento], 'Valor': [valor_pagamento]})
                         st.session_state.df_pagamentos = pd.concat([st.session_state.df_pagamentos, novo_pagamento], ignore_index=True)
+                        
 
                     # Filtra os pagamentos pelo projeto selecionado
                     df_pagamentos_projeto = st.session_state.df_pagamentos[st.session_state.df_pagamentos['Projeto'] == selected_project]
+                    df_pagamentos_projeto.to_csv('df_pagamentos_projeto.csv', index=False)
+                    
+
 
                 if not df_pagamentos_projeto.empty:
                     with col2:
@@ -837,6 +845,8 @@ if st.session_state["authentication_status"]:
                         
                         # Atualiza o DataFrame para exibição após possíveis deleções
                         df_pagamentos_projeto = st.session_state.df_pagamentos[st.session_state.df_pagamentos['Projeto'] == selected_project]
+                        df_pagamentos_projeto.to_csv('df_pagamentos_projeto.csv', index=False)
+                        
                     st.write(df_pagamentos_projeto)
                     st.divider()
             st.plotly_chart(plot_pagamentos(df_pagamentos_projeto), use_container_width=True)
@@ -1022,7 +1032,7 @@ if st.session_state["authentication_status"]:
                                 new_project_data[column] = sei_formatted
                             elif column == 'classificacao':
                                 # Campo de seleção para classificação com opções pré-definidas
-                                classificacao_options = ['Termo de Fomento', 'Convênio', 'Termo de Colaboração', 'Novos Projetos', 'Apoio', 'Edital de Credenciamente','Parceria']
+                                classificacao_options = ['Termo de Fomento', 'Convênio', 'Termo de Colaboração', 'Novos Projetos', 'Apoio', 'Edital de Credenciamente','Convênio/Acordo de Cooperação Técnica']
                                 new_project_data[column] = st.selectbox(f"{column} (novo projeto)", classificacao_options)
                             else:
                                 # Campo de texto padrão para as outras colunas
@@ -1100,8 +1110,8 @@ if st.session_state["authentication_status"]:
                         new_values['Valor'] = st.number_input('Valor', value=int(float(project_details['Valor'].iloc[0])) if project_details['Valor'].iloc[0] is not None else 0)
                         new_values['classificacao'] = st.selectbox(
                             'Classificação',
-                            ['Termo de Fomento', 'Convênio', 'Termo de Colaboração', 'Novos Projetos', 'Apoio', 'Edital de Credenciamente','Parceria'],
-                            index=['Termo de Fomento', 'Convênio', 'Termo de Colaboração', 'Novos Projetos', 'Apoio', 'Edital de Credenciamente','Parceria'].index(project_details['classificacao'].iloc[0]) if project_details['classificacao'].iloc[0] in ['Termo de Fomento', 'Convênio', 'Termo de Colaboração', 'Novos Projetos', 'Apoio', 'Edital de Credenciamente','Parceria'] else 0
+                            ['Termo de Fomento', 'Convênio', 'Termo de Colaboração', 'Novos Projetos', 'Apoio', 'Edital de Credenciamente','Convênio/Acordo de Cooperação Técnica'],
+                            index=['Termo de Fomento', 'Convênio', 'Termo de Colaboração', 'Novos Projetos', 'Apoio', 'Edital de Credenciamente','Convênio/Acordo de Cooperação Técnica'].index(project_details['classificacao'].iloc[0]) if project_details['classificacao'].iloc[0] in ['Termo de Fomento', 'Convênio', 'Termo de Colaboração', 'Novos Projetos', 'Apoio', 'Edital de Credenciamente','Convênio/Acordo de Cooperação Técnica'] else 0
                         )
                         new_values['Situação_atual'] = st.selectbox('Situação_atual', ['Pre Produção', 'Produção', 'Pós Produção', 'Relatório da Comissão Gestora', 'Prestação de Contas', 'Encerrado'],
                              index=['Pre Produção', 'Produção', 'Pós Produção', 'Relatório da Comissão Gestora', 'Prestação de Contas', 'Encerrado' ].index(project_details['Situação_atual'].iloc[0]) if project_details['Situação_atual'].iloc[0] in ['Pre Produção', 'Produção', 'Pós Produção', 'Relatório da Comissão Gestora', 'Prestação de Contas','Encerrado'] else 0
