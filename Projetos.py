@@ -495,6 +495,7 @@ if st.session_state["authentication_status"]:
 
                 # Widget de seleção de Unidade_SECTI_Responsavel
                 selected_unidade = st.selectbox('Selecione a Unidade_SECTI_Responsavel', unidades)
+                
 
             # Filtrar o DataFrame com base nos filtros selecionados
             if enable_classificacao_filter and enable_unidade_filter:
@@ -1021,7 +1022,7 @@ if st.session_state["authentication_status"]:
                                 new_project_data[column] = sei_formatted
                             elif column == 'classificacao':
                                 # Campo de seleção para classificação com opções pré-definidas
-                                classificacao_options = ['Termo de Fomento', 'Convênio', 'Termo de Colaboração', 'Novos Projetos', 'Apoio', 'Edital de Credenciamente']
+                                classificacao_options = ['Termo de Fomento', 'Convênio', 'Termo de Colaboração', 'Novos Projetos', 'Apoio', 'Edital de Credenciamente','Parceria']
                                 new_project_data[column] = st.selectbox(f"{column} (novo projeto)", classificacao_options)
                             else:
                                 # Campo de texto padrão para as outras colunas
@@ -1099,8 +1100,8 @@ if st.session_state["authentication_status"]:
                         new_values['Valor'] = st.number_input('Valor', value=int(float(project_details['Valor'].iloc[0])) if project_details['Valor'].iloc[0] is not None else 0)
                         new_values['classificacao'] = st.selectbox(
                             'Classificação',
-                            ['Termo de Fomento', 'Convênio', 'Termo de Colaboração', 'Novos Projetos', 'Apoio', 'Edital de Credenciamente'],
-                            index=['Termo de Fomento', 'Convênio', 'Termo de Colaboração', 'Novos Projetos', 'Apoio', 'Edital de Credenciamente'].index(project_details['classificacao'].iloc[0]) if project_details['classificacao'].iloc[0] in ['Termo de Fomento', 'Convênio', 'Termo de Colaboração', 'Novos Projetos', 'Apoio', 'Edital de Credenciamente'] else 0
+                            ['Termo de Fomento', 'Convênio', 'Termo de Colaboração', 'Novos Projetos', 'Apoio', 'Edital de Credenciamente','Parceria'],
+                            index=['Termo de Fomento', 'Convênio', 'Termo de Colaboração', 'Novos Projetos', 'Apoio', 'Edital de Credenciamente','Parceria'].index(project_details['classificacao'].iloc[0]) if project_details['classificacao'].iloc[0] in ['Termo de Fomento', 'Convênio', 'Termo de Colaboração', 'Novos Projetos', 'Apoio', 'Edital de Credenciamente','Parceria'] else 0
                         )
                         new_values['Situação_atual'] = st.selectbox('Situação_atual', ['Pre Produção', 'Produção', 'Pós Produção', 'Relatório da Comissão Gestora', 'Prestação de Contas', 'Encerrado'],
                              index=['Pre Produção', 'Produção', 'Pós Produção', 'Relatório da Comissão Gestora', 'Prestação de Contas', 'Encerrado' ].index(project_details['Situação_atual'].iloc[0]) if project_details['Situação_atual'].iloc[0] in ['Pre Produção', 'Produção', 'Pós Produção', 'Relatório da Comissão Gestora', 'Prestação de Contas','Encerrado'] else 0
