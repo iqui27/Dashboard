@@ -772,15 +772,14 @@ if st.session_state["authentication_status"]:
             st.divider()
             # Inicializa o DataFrame de pagamentos no session state, se ainda não existir
             if 'df_pagamentos' not in st.session_state:
-                st.session_state.df_pagamentos = pd.DataFrame(columns=['Projeto', 'Data', 'Valor'])
+                df_pagamentos_projeto = pd.read_csv('df_pagamentos_projeto.csv')
+            df_pagamentos_projeto = pd.read_csv('df_pagamentos_projeto.csv')
+            st.session_state.df_pagamentos = df_pagamentos_projeto
             if 'mostrar_gerenciamento' not in st.session_state:
                 st.session_state.mostrar_gerenciamento = False
             
             st.subheader('Cronograma de Pagamentos')
-            # Carregar df_pagamentos_projeto do arquivo CSV, se existir
-            if os.path.exists('df_pagamentos_projeto.csv'):
-                df_pagamentos_projeto = pd.read_csv('df_pagamentos_projeto.csv')
-            # Botão para mostrar/esconder gerenciamento de pagamentos
+                        # Botão para mostrar/esconder gerenciamento de pagamentos
             if st.button("Gerenciar Pagamentos"):
                 st.session_state.mostrar_gerenciamento = not st.session_state.mostrar_gerenciamento
             st.write("""
@@ -804,7 +803,7 @@ if st.session_state["authentication_status"]:
             # Função para plotar o gráfico de barras
             def plot_pagamentos(df):
                 fig_pagamento = px.bar(df, x='Data', y='Valor', title="Pagamentos por Mês",
-                                    labels={'Valor': 'Valor Pago ($)', 'Data': 'Data'},
+                                    labels={'Valor': 'Valor Pago (RS)', 'Data': 'Data'},
                                     color='Valor', color_continuous_scale='Viridis')
                 fig_pagamento.update_xaxes(dtick="M1", tickformat="%b\n%Y")
                 fig_pagamento.update_layout(xaxis_title='Mês', yaxis_title='Valor Pago ($)')
@@ -822,6 +821,8 @@ if st.session_state["authentication_status"]:
                     # Adicionar pagamento ao DataFrame
                     if st.button("Adicionar Pagamento"):
                         novo_pagamento = pd.DataFrame({'Projeto': [selected_project], 'Data': [data_pagamento], 'Valor': [valor_pagamento]})
+                        novo_pagamento['Data'] = pd.to_datetime(novo_pagamento['Data']).dt.strftime('%d-%m-%Y')
+                        novo_pagamento['Valor'] = novo_pagamento['Valor'].apply(lambda x: f'R$ {x}')
                         st.session_state.df_pagamentos = pd.concat([st.session_state.df_pagamentos, novo_pagamento], ignore_index=True)
                         
 
