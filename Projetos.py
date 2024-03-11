@@ -886,8 +886,14 @@ if st.session_state["authentication_status"]:
             
             st.divider()
             st.plotly_chart(plot_pagamentos(df_pagamentos_projeto), use_container_width=True)
-
-            st.table(df_pagamentos_projeto)
+            # Calculate the total value of projects
+            valor_total_projetos = df_pagamentos_projeto['valor'].sum()
+            # Format the total value as currency
+            valor_total_projetos_formatado = locale.currency(valor_total_projetos, grouping=True, symbol=True)
+            # Display the total value
+            st.write(f"<span style='color: white;'>Valor total de desembolso: </span><span style='color: red;'>{valor_total_projetos_formatado}</span>", unsafe_allow_html=True)
+            st.table(df_pagamentos_projeto.style.format({'valor': 'R${:,.2f}'}))
+            
     with tab2: #Chat
         st.markdown("<h4 style='text-align: center;'>{}</h4>".format(selected_project), unsafe_allow_html=True)
         # Initialize session states if they are not already set
