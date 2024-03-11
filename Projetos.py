@@ -11,11 +11,11 @@ import yaml
 from streamlit_elements import elements, mui
 import plotly.express as px
 import plotly.graph_objs as godas
-from sqlalchemy import create_engine, text
+from sqlalchemy import create_engine, text, Column, Integer, String, Float, Date, Table, MetaData
+from sqlalchemy.orm import sessionmaker
 import numpy as np
 import os
 import sys
-import sqlalchemy
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter, landscape
 from streamlit_card import card
@@ -40,9 +40,21 @@ table_name = 'Projetos'
 
 # Create the SQLAlchemy engine
 engine = create_engine(f'mysql+mysqlconnector://{mysql_user}:{mysql_password}@{mysql_host}:{mysql_port}/{mysql_database}')
+Session = sessionmaker(bind=engine)
+session = Session()
+metadata = MetaData()
 
 # Replace 'your_sql_query' with your actual SQL query
 load_sql_query = f'SELECT * FROM {table_name}'
+
+# Definição da tabela de pagamentos
+pagamentos = Table('pagamentos', metadata,
+                   Column('id', Integer, primary_key=True),
+                   Column('projeto', String(255)),
+                   Column('data', Date),
+                   Column('valor', Float))
+
+metadata.create_all(engine)
 
 # Função para validar e armazenar os dados de entrada única
 def process_data(data):
@@ -78,7 +90,7 @@ def save_projects():
     with open('projects.json', 'w') as f:
         json.dump(st.session_state['projects'], f, indent=4)
 
-        
+
 # Função para carregar mensagens salvas
 def load_messages():
     try:
@@ -573,11 +585,17 @@ if st.session_state["authentication_status"]:
                 exportar_PDF(figs)
 
             # Main Area
-            mais_info = project_details['Mais_informações_do_fomento'].values[0]
-            
+            if project_details is not None and 'Fomento' in project_details and project_details['Fomento'].size > 0:
+                fomento = project_details['Fomento'].values[0]
+            else:
+                fomento = None
+
             with col2:
                 st.markdown("<h1 style='text-align: center;'>{}</h1>".format(selected_project), unsafe_allow_html=True)
-                st.markdown("<h3 style='text-align: center;'>{}</h3>".format(project_details['Fomento'].values[0]), unsafe_allow_html=True)
+                st.markdown("<h3 style='text-align: center;'>{}</h3>".format(fomento), unsafe_allow_html=True)
+                st.write("\n")
+                if valor_formatado == "R$ 0,00":
+                    valor_formatado = "Nenhum Valor Informado"
                 st.write("\n")
                 if valor_formatado == "R$ 0,00":
                     valor_formatado = "Nenhum Valor Informado"
@@ -602,19 +620,35 @@ if st.session_state["authentication_status"]:
                 st.write("\n")
                 st.write("\n")
                 st.markdown("<h5 style='text-align: center;'>Instituição Parceira</h5>", unsafe_allow_html=True)
-                st.markdown(f"<h6 style='text-align: center; color: #0097a7;'>{project_details['Instituição_Parceira'].values[0] if project_details['Instituição_Parceira'].values[0] != '0' else 'Não informado'}</h6>", unsafe_allow_html=True)
+                if project_details is not None and 'Instituição_Parceira' in project_details and project_details['Instituição_Parceira'].size > 0:
+                    instituicao_parceira = project_details['Instituição_Parceira'].values[0] if project_details['Instituição_Parceira'].values[0] != '0' else 'Não informado'
+                else:
+                    instituicao_parceira = 'Não informado'
+
+                st.markdown(f"<h6 style='text-align: center; color: #0097a7;'>{instituicao_parceira}</h6>", unsafe_allow_html=True)
                 st.write("\n")
                 st.write("\n")
                 st.write("\n")
                 st.markdown("<h5 style='text-align: center;'>Execução do Projeto</h5>", unsafe_allow_html=True)
-                st.markdown(f"<h6 style='text-align: center; color: #0097a7;'>{project_details['Execução_do_Projeto'].values[0] if project_details['Execução_do_Projeto'].values[0] != '0' else 'Não informado'}</h6>", unsafe_allow_html=True)
+                if project_details is not None and 'Execução_do_Projeto' in project_details and project_details['Execução_do_Projeto'].size > 0:
+                    execucao_projeto = project_details['Execução_do_Projeto'].values[0] if project_details['Execução_do_Projeto'].values[0] != '0' else 'Não informado'
+                else:
+                    execucao_projeto = 'Não informado'
+
+                st.markdown(f"<h6 style='text-align: center; color: #0097a7;'>{execucao_projeto}</h6>", unsafe_allow_html=True)
                 st.write("\n")
                 st.write("\n")
                 st.write("\n")
                 st.markdown("<h5 style='text-align: center;'>Unidade SECTI</h5>", unsafe_allow_html=True)
                 #t.markdown(f"<h6 style='text-align: center; color: #0097a7;'>{project_details['Unidade_SECTI_Responsavel'].values[0] if project_details['Unidade_SECTI_Responsavel'].values[0] != '0' else 'Não informado'}</h6>", unsafe_allow_html=True)
-                unidade_secti_responsavel = project_details['Unidade_SECTI_Responsavel'].values[0]
-                unidade_secti_adicional = project_details['Unidade_SECTI_adicional'].values[0]
+                if project_details is not None and 'Unidade_SECTI_Responsavel' in project_details and project_details['Unidade_SECTI_Responsavel'].size > 0:
+                    unidade_secti_responsavel = project_details['Unidade_SECTI_Responsavel'].values[0]
+                else:
+                    unidade_secti_responsavel = None
+                if project_details is not None and 'Unidade_SECTI_adicional' in project_details and project_details['Unidade_SECTI_adicional'].size > 0:
+                    unidade_secti_adicional = project_details['Unidade_SECTI_adicional'].values[0]
+                else:
+                    unidade_secti_adicional = None
 
                 if unidade_secti_responsavel == 0 or unidade_secti_responsavel == '0':
                     unidade_secti_responsavel = 'Não informado'
@@ -628,7 +662,10 @@ if st.session_state["authentication_status"]:
                 st.write("\n")
     
             with col3:
-                valor_encerramento = project_details['Encerramento_da_parceria'].values[0]
+                if project_details is not None and 'Encerramento_da_parceria' in project_details and project_details['Encerramento_da_parceria'].size > 0:
+                    valor_encerramento = project_details['Encerramento_da_parceria'].values[0]
+                else:
+                    valor_encerramento = None
                 if valor_encerramento == "0":
                     valor_encerramento = "Não informado"
 
@@ -770,18 +807,36 @@ if st.session_state["authentication_status"]:
             st.markdown("<h5 style='text-align: left;'>Finalidade do Projeto</h5>", unsafe_allow_html=True)
             st.markdown(f"<h6 style='text-align: left; color: #0097a7;'>{project_details['Objeto_Finalidade'].values[0]}</h6>", unsafe_allow_html=True)
             st.divider()
-            # Inicializa o DataFrame de pagamentos no session state, se ainda não existir
-            if 'df_pagamentos' not in st.session_state:
-                df_pagamentos_projeto = pd.read_csv('df_pagamentos_projeto.csv')
-            df_pagamentos_projeto = pd.read_csv('df_pagamentos_projeto.csv')
-            st.session_state.df_pagamentos = df_pagamentos_projeto
-            if 'mostrar_gerenciamento' not in st.session_state:
-                st.session_state.mostrar_gerenciamento = False
+            def adicionar_pagamento(projeto, data, valor):
+                """Adiciona um novo pagamento ao banco de dados."""
+                novo_pagamento = pagamentos.insert().values(projeto=projeto, data=data, valor=valor)
+                with engine.connect() as connection:
+                    connection.execute(novo_pagamento)
+                    connection.commit()
+                    
+
+            def listar_pagamentos(projeto):
+                """Lista todos os pagamentos para um dado projeto."""
+                selecao = pagamentos.select().where(pagamentos.c.projeto == projeto)
+                with engine.connect() as connection:
+                    result = connection.execute(selecao)
+                return pd.DataFrame(result.fetchall(), columns=result.keys())
+
+            def remover_pagamento(id):
+                """Remove um pagamento específico pelo ID."""
+                delete = pagamentos.delete().where(pagamentos.c.id == id)
+                with engine.connect() as connection:
+                    connection.execute(delete)
+                    connection.commit()
+    
+            df_pagamentos_projeto = pd.read_sql_query("SELECT * FROM pagamentos", engine)
+
             
             st.subheader('Cronograma de Pagamentos')
                         # Botão para mostrar/esconder gerenciamento de pagamentos
             if st.button("Gerenciar Pagamentos"):
-                st.session_state.mostrar_gerenciamento = not st.session_state.mostrar_gerenciamento
+                mostrar_gerenciamento = not st.session_state.get('mostrar_gerenciamento', False)
+                st.session_state['mostrar_gerenciamento'] = mostrar_gerenciamento
             st.write("""
                         <style>
                         p.small-text {
@@ -794,7 +849,7 @@ if st.session_state["authentication_status"]:
 
             
             # Atualização do df_pagamentos_projeto para garantir que esteja sempre disponível
-            df_pagamentos_projeto = st.session_state.df_pagamentos[st.session_state.df_pagamentos['Projeto'] == selected_project]
+            #df_pagamentos_projeto = st.session_state.df_pagamentos[st.session_state.df_pagamentos['Projeto'] == selected_project]
 
             
             
@@ -802,54 +857,34 @@ if st.session_state["authentication_status"]:
 
             # Função para plotar o gráfico de barras
             def plot_pagamentos(df):
-                fig_pagamento = px.bar(df, x='Data', y='Valor', title="Pagamentos por Mês",
+                fig_pagamento = px.bar(df, x='data', y='valor', title="Pagamentos por Mês",
                                     labels={'Valor': 'Valor Pago (RS)', 'Data': 'Data'},
-                                    color='Valor', color_continuous_scale='Viridis')
+                                    color='valor', color_continuous_scale='Viridis')
                 fig_pagamento.update_xaxes(dtick="M1", tickformat="%b\n%Y")
-                fig_pagamento.update_layout(xaxis_title='Mês', yaxis_title='Valor Pago ($)')
+                fig_pagamento.update_layout(xaxis_title='Mês', yaxis_title='Valor Pago (R$)')
                 return fig_pagamento
 
-           # Se a opção de gerenciar pagamentos estiver ativa, mostra as opções de adição e gerenciamento
-            if st.session_state.mostrar_gerenciamento:
-                st.divider()
-                col1, col2 = st.columns([1, 1])
-                with col1:  
-                    st.subheader('Adicionar Pagamento')
+            if st.session_state.get('mostrar_gerenciamento', False):
+                # Interface para adicionar um pagamento
+                with st.form("add_payment"):
+                    projeto = selected_project
                     data_pagamento = st.date_input("Data do Pagamento")
                     valor_pagamento = st.number_input("Valor do Pagamento", min_value=0.0)
+                    submitted = st.form_submit_button("Adicionar Pagamento")
+                    if submitted:
+                        adicionar_pagamento(projeto, data_pagamento, valor_pagamento)
 
-                    # Adicionar pagamento ao DataFrame
-                    if st.button("Adicionar Pagamento"):
-                        novo_pagamento = pd.DataFrame({'Projeto': [selected_project], 'Data': [data_pagamento], 'Valor': [valor_pagamento]})
-                        novo_pagamento['Data'] = pd.to_datetime(novo_pagamento['Data']).dt.strftime('%d-%m-%Y')
-                        novo_pagamento['Valor'] = novo_pagamento['Valor'].apply(lambda x: f'R$ {x}')
-                        st.session_state.df_pagamentos = pd.concat([st.session_state.df_pagamentos, novo_pagamento], ignore_index=True)
-                        
+                # Exibe os pagamentos
+                df_pagamentos_projeto = listar_pagamentos(selected_project)
+                st.write(df_pagamentos_projeto)
 
-                    # Filtra os pagamentos pelo projeto selecionado
-                    df_pagamentos_projeto = st.session_state.df_pagamentos[st.session_state.df_pagamentos['Projeto'] == selected_project]
-                    df_pagamentos_projeto.to_csv('df_pagamentos_projeto.csv', index=False)
-                    
+                # Interface para remover um pagamento
+                id_para_remover = st.selectbox("Selecione o ID do Pagamento para Remover", df_pagamentos_projeto['id'].tolist())
+                if st.button("Remover Pagamento"):
+                    remover_pagamento(id_para_remover)
 
-
-                if not df_pagamentos_projeto.empty:
-                    with col2:
-                        # Opção para selecionar e apagar uma linha específica
-                        st.subheader("Excluir")
-                        linha_para_apagar = st.selectbox("Selecione o Pagamento para Apagar", df_pagamentos_projeto.index)
-                        if st.button("Apagar Pagamento Selecionado"):
-                            st.session_state.df_pagamentos = st.session_state.df_pagamentos.drop(linha_para_apagar).reset_index(drop=True)
-                        
-                        # Botão para apagar todos os pagamentos do projeto selecionado
-                        if st.button("Apagar Todos os Pagamentos"):
-                            st.session_state.df_pagamentos = st.session_state.df_pagamentos[st.session_state.df_pagamentos['Projeto'] != selected_project].reset_index(drop=True)
-                        
-                        # Atualiza o DataFrame para exibição após possíveis deleções
-                        df_pagamentos_projeto = st.session_state.df_pagamentos[st.session_state.df_pagamentos['Projeto'] == selected_project]
-                        df_pagamentos_projeto.to_csv('df_pagamentos_projeto.csv', index=False)
-                        
-                    st.write(df_pagamentos_projeto)
-                    st.divider()
+            
+            st.divider()
             st.plotly_chart(plot_pagamentos(df_pagamentos_projeto), use_container_width=True)
 
             st.table(df_pagamentos_projeto)
@@ -1011,12 +1046,10 @@ if st.session_state["authentication_status"]:
                         # Loop pelos nomes das colunas para criar os widgets de entrada apropriados
                         for column in df.columns:
                             if column == 'Valor':
-                                # Numeric input field for 'Valor'
                                 input_value = st.number_input(f"{column} (novo projeto)", step=1.0, format="%.2f")
-                                # Explicitly cast the input to float64 to ensure compatibility
                                 new_project_data[column] = input_value if input_value else 0.0
                             elif column == 'id':
-                                    continue
+                                continue
                             elif column == 'Situação_atual':
                                 situacao_options = ['Pre Produção', 'Produção', 'Pós Produção', 'Relatório da Comissão Gestora', 'Prestação de Contas', 'Encerrado']
                                 new_project_data[column] = st.selectbox(f"{column} (novo projeto)", situacao_options)
@@ -1027,27 +1060,25 @@ if st.session_state["authentication_status"]:
                                 unidade_options = ['Sem Colaboração','DIDCI', 'DIJE', 'SUPCDT', 'DIEC', 'SICID']
                                 new_project_data[column] = st.selectbox(f"{column} (novo projeto)", unidade_options)
                             elif column == 'Processo_SEI':
-                                # Campo para Processo_SEI com preenchimento automático do padrão
                                 sei_input = st.text_input(f"{column} (Adicione Apenas Números)", max_chars=19)
-                                sei_formatted = f"{sei_input[:5]}-{sei_input[5:13]}/{sei_input[13:17]}-{sei_input[17:]}"
+                                sei_formatted = f"{sei_input[:5]}-{sei_input[5:13]}/{sei_input[13:17]}-{sei_input[17:]}" if sei_input else "0"
                                 new_project_data[column] = sei_formatted
                             elif column == 'classificacao':
-                                # Campo de seleção para classificação com opções pré-definidas
                                 classificacao_options = ['Termo de Fomento', 'Convênio', 'Termo de Colaboração', 'Novos Projetos', 'Apoio', 'Edital de Credenciamente','Convênio/Acordo de Cooperação Técnica']
                                 new_project_data[column] = st.selectbox(f"{column} (novo projeto)", classificacao_options)
                             else:
-                                # Campo de texto padrão para as outras colunas
-                                new_project_data[column] = st.text_input(f"{column} (novo projeto)")
+                                text_input = st.text_input(f"{column} (novo projeto)")
+                                new_project_data[column] = text_input if text_input is not None else "0"
 
                             # Botões para adicionar ou cancelar o novo projeto
                         submit_new_project = st.form_submit_button('Adicionar Projeto')
                         close_new_project_form = st.form_submit_button('Cancelar')
 
                      
-                        # Substitui campos vazios por um traço
+                        # Substitui campos vazios ou None por um traço ou 0 conforme necessário
                         for key, value in new_project_data.items():
-                            if value == "":
-                                new_project_data[key] = "-"
+                            if value == "" or value is None:
+                                new_project_data[key] = "0" if key == 'Valor' else "-"
 
                         # Prepara os valores para a inserção, garantindo que todos os campos sejam tratados corretamente
                         # Remove a coluna 'Projeto_truncated', se existir, do dicionário
@@ -1055,11 +1086,6 @@ if st.session_state["authentication_status"]:
                         placeholders = ", ".join([f":{key}" for key in new_project_data.keys()])
                         columns = ", ".join([f"{key}" for key in new_project_data.keys()])
                         insert_statement = f"INSERT INTO Projetos ({columns}) VALUES ({placeholders})"
-                        st.write(new_project_data)
-                        st.write(list(new_project_data.keys()))
-                        st.write(insert_statement)
-                        st.write(placeholders)
-                        st.write(columns)
                         if submit_new_project:
                             # Cria uma conexão com o banco de dados
                             with engine.connect() as conn:
