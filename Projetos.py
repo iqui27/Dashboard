@@ -523,7 +523,6 @@ if st.session_state["authentication_status"]:
                             try:
                                 connection.execute(update_statement, params)
                                 connection.commit()
-                                st.sleep(2) 
                                 st.success("Dados salvos com sucesso!")
                                 # Aguarde 2 segundos
                                 # Close the edit field after saving
