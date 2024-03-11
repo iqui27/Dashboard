@@ -529,7 +529,7 @@ if st.session_state["authentication_status"]:
                                 
                             except Exception as e:
                                 st.error(f"Erro ao salvar os dados: {str(e)}")
-                    st.session_state.edit = False
+                st.session_state.edit = False
 
             
             
