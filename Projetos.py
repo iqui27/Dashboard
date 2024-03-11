@@ -414,7 +414,7 @@ if st.session_state["authentication_status"]:
             lista_projetos = pd.merge(lista_projetos, df, left_on='projeto_id', right_on='id', how='inner')
             # Criar um menu dropdown com os nomes das pessoas
             selected_name = st.selectbox('Escolha uma pessoa', lista_projetos['Nome'].unique())
-            col1, col2, col3 = st.columns([3, 2, 3])
+            col1, col2 = st.columns([3, 6])
             with col2:
                 st.write("\n")
                 st.write("\n")
@@ -439,15 +439,7 @@ if st.session_state["authentication_status"]:
             matricula = filtered_projects['Matricula'].iloc[0]
             telefone = filtered_projects['Telefone'].iloc[0]
             unidade_secti = filtered_projects['Unidade_SECTI_Responsavel'].iloc[0]
-
-            with col3:
-                st.write("\n")
-                st.write("\n")
-                st.write("\n")
-                st.write("\n")
-                st.write("\n")
-
-                st.dataframe(filtered_projects)
+              
             
 
             with col1:
@@ -555,10 +547,7 @@ if st.session_state["authentication_status"]:
             # Convertendo o resultado para um DataFrame, que é necessário para o st.bar_chart()
             situacao_df = pd.DataFrame({'Número de Projetos': situacao_counts})
             st.divider()
-            col1, col2 = st.columns([1,2])
-            with col1:
-                
-                st.write(situacao_df)
+
 
             # Exibir o gráfico de barras no Streamlit
             fig_situacao = px.bar(situacao_df, x='Número de Projetos', color='Número de Projetos', hover_name='Número de Projetos', color_continuous_scale='geyser', orientation='h')
@@ -569,10 +558,11 @@ if st.session_state["authentication_status"]:
             fig_situacao.update_traces( textposition='outside')
             fig_situacao.update_layout(uniformtext_minsize=8, uniformtext_mode='hide')
 
-            # Show the chart
-            with col2:
-                st.plotly_chart(fig_situacao, use_container_width=True)
-                figs.append(fig_situacao) 
+            st.plotly_chart(fig_situacao, use_container_width=True)
+            figs.append(fig_situacao) 
+
+                
+            st.table(situacao_df)
 
     with tab3:
             st.write("\n")
