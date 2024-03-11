@@ -22,13 +22,47 @@ from dateutil import parser
 import numpy as np
 from plotly.subplots import make_subplots
 
+
 # Define your MySQL connection details
 mysql_user = 'usr_sectidf'
 mysql_password = 'DHS-14z4'
 mysql_host = '10.233.209.2'  # Or your database server IP or hostname
 mysql_database = 'db_sectidf'
 mysql_port = '3306'  # Default MySQL port
-table_name = 'Projetos' 
+table_name = 'Projetos'
+
+# Define your development MySQL connection details
+dev_mysql_user = 'admin'
+dev_mysql_password = '844612'
+dev_mysql_host = 'localhost'  # Replace with your development server IP or hostname
+dev_mysql_database = 'db_sectidf'
+dev_mysql_port = '3306'  # Default MySQL port
+dev_table_name = 'Projetos'
+
+# Initialize session state
+if 'use_dev_server' not in st.session_state:
+    st.session_state.use_dev_server = False
+
+# Function to switch to development server
+def switch_to_development():
+    st.session_state.use_dev_server = not st.session_state.use_dev_server
+
+# Create a button to switch to development server
+if st.sidebar.button('Switch to Development Server'):
+    switch_to_development()
+# Display the current mode
+mode = "Development" if st.session_state.use_dev_server else "Production"
+st.sidebar.markdown(f"**Current Mode:** {mode}")
+
+
+# Use the appropriate server details based on the session state
+if st.session_state.use_dev_server:
+    mysql_user = dev_mysql_user
+    mysql_password = dev_mysql_password
+    mysql_host = dev_mysql_host
+    mysql_database = dev_mysql_database
+    mysql_port = dev_mysql_port
+    table_name = dev_table_name
 
 def clean_column_names(dataframe):
     # Strip trailing spaces from column names

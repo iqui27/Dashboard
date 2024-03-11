@@ -36,7 +36,39 @@ mysql_password = 'DHS-14z4'
 mysql_host = '10.233.209.2'  # Or your database server IP or hostname
 mysql_database = 'db_sectidf'
 mysql_port = '3306'  # Default MySQL port
-table_name = 'Projetos' 
+table_name = 'Projetos'
+
+# Define your development MySQL connection details
+dev_mysql_user = 'admin'
+dev_mysql_password = '844612'
+dev_mysql_host = 'localhost'  # Replace with your development server IP or hostname
+dev_mysql_database = 'db_sectidf'
+dev_mysql_port = '3306'  # Default MySQL port
+dev_table_name = 'Projetos'
+
+# Initialize session state
+if 'use_dev_server' not in st.session_state:
+    st.session_state.use_dev_server = False
+
+# Function to switch to development server
+def switch_to_development():
+    st.session_state.use_dev_server = not st.session_state.use_dev_server
+
+# Create a button to switch to development server
+if st.sidebar.button('Switch to Development Server'):
+    switch_to_development()
+# Display the current mode
+mode = "Development" if st.session_state.use_dev_server else "Production"
+st.sidebar.markdown(f"**Current Mode:** {mode}")
+
+# Use the appropriate server details based on the session state
+if st.session_state.use_dev_server:
+    mysql_user = dev_mysql_user
+    mysql_password = dev_mysql_password
+    mysql_host = dev_mysql_host
+    mysql_database = dev_mysql_database
+    mysql_port = dev_mysql_port
+    table_name = dev_table_name
 
 # Create the SQLAlchemy engine
 engine = create_engine(f'mysql+mysqlconnector://{mysql_user}:{mysql_password}@{mysql_host}:{mysql_port}/{mysql_database}')
@@ -55,7 +87,9 @@ pagamentos = Table('pagamentos', metadata,
                    Column('valor', Float))
 
 metadata.create_all(engine)
-
+# Inicializa o estado da sessão
+if 'edit' not in st.session_state:
+    st.session_state.edit = False
 # Função para validar e armazenar os dados de entrada única
 def process_data(data):
     try:
@@ -171,7 +205,7 @@ authenticator.login()
 # Dataframe com os dados dos projetos
 df = pd.read_sql_query(load_sql_query, engine)
 servidores = pd.read_sql_table('servidores', engine)
-projetos_servidores = pd.read_sql_table('ProjetoParceiros', engine)
+projetos_servidores = pd.read_sql_table('projetoparceiros', engine)
 ra = pd.read_csv("RA.csv")
 relatorio2023 = pd.read_csv("Relatorio2023.csv")
 mes = pd.read_csv("mes.csv")
@@ -433,13 +467,19 @@ if st.session_state["authentication_status"]:
                 # Agora você pode usar list_of_names em seu código
                 for name in list_of_names:
                     st.write(name)
+
+                id_servidor = filtered_projects['parceiro_id'].iloc[0]
+                servidor_selecionado = servidores.loc[servidores['id'] == id_servidor]
+
+        
           
-            # Supondo que filtered_projects seja o seu DataFrame e você tenha selecionado um projeto específico
-            nome = filtered_projects['Nome'].iloc[0]
-            matricula = filtered_projects['Matricula'].iloc[0]
-            telefone = filtered_projects['Telefone'].iloc[0]
-            unidade_secti = filtered_projects['Unidade_SECTI_Responsavel'].iloc[0]
+
+           
               
+                
+                
+                
+
             
 
             with col1:
@@ -452,6 +492,45 @@ if st.session_state["authentication_status"]:
                 st.write(f"Matrícula: {filtered_projects['Matricula'].iloc[0]}")
                 st.write(f"Telefone: {filtered_projects['Telefone'].iloc[0]}")
                 st.write(f"Unidade SECTI: {filtered_projects['Unidade_SECTI_Responsavel'].iloc[0]}")
+
+                     # Alterna o estado de edição quando o botão é pressionado
+                if st.button("Editar"):
+                    st.session_state.edit = not st.session_state.edit
+                
+                # Mostra os campos de entrada de texto se o estado de edição é True
+                if st.session_state.edit:
+                    # Supondo que servidores seja o seu DataFrame e filtered_projects contenha o ID do servidor
+                    nome = st.text_input("Nome", value=servidor_selecionado['Nome'].iloc[0])
+                    matricula = st.text_input("Matrícula", value=servidor_selecionado['Matricula'].iloc[0])
+                    telefone = st.text_input("Telefone", value=servidor_selecionado['Telefone'].iloc[0])
+                    unidade_secti = st.text_input("Unidade SECTI", value=servidor_selecionado['Unidade_Secti_Responsavel'].iloc[0])
+                    
+                    if st.button("Salvar"):
+                        # Atualiza os dados no banco de dados
+                        with engine.connect() as connection:
+                            update_statement = text("""
+                                UPDATE servidores
+                                SET Nome = :nome, Matricula = :matricula, Telefone = :telefone, Unidade_SECTI_Responsavel = :unidade_secti
+                                WHERE id = :id
+                            """)
+                            params = {
+                                'nome': nome, 
+                                'matricula': matricula, 
+                                'telefone': telefone, 
+                                'unidade_secti': unidade_secti, 
+                                'id': int(servidor_selecionado['id'].iloc[0])  # Convert numpy.int64 to int
+                            }
+                            try:
+                                connection.execute(update_statement, params)
+                                connection.commit()
+                                st.sleep(2) 
+                                st.success("Dados salvos com sucesso!")
+                                # Aguarde 2 segundos
+                                # Close the edit field after saving
+                                
+                            except Exception as e:
+                                st.error(f"Erro ao salvar os dados: {str(e)}")
+                    st.session_state.edit = False
 
             
             
