@@ -22,7 +22,7 @@ credentials:
       email: bob@example.com
       id: # Will be generated automatically
       logged_in: False # Will be managed automatically
-      name: Leonardo Sosha
+      name: Leonardo Reisman
       password: $2b$12$.CCizVcGEMItd6RxXjwm5OsRq6NuwMfwssxmnRg5yWJ7hTT7yZSvO
     renato:
       email: bob@example.com
