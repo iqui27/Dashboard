@@ -24,6 +24,11 @@ from plotly.subplots import make_subplots
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 
+
+st.set_page_config(
+    layout='wide',  # Ativa o layout wide
+    initial_sidebar_state='auto'  # Define o estado inicial da sidebar (pode ser 'auto', 'expanded', 'collapsed')
+)
 # Caminho para o arquivo JSON de credenciais
 path_to_credentials = 'sheets.json'
 # Escopos necessários
