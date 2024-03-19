@@ -21,7 +21,16 @@ import datetime
 from dateutil import parser
 import numpy as np
 from plotly.subplots import make_subplots
+import gspread
+from oauth2client.service_account import ServiceAccountCredentials
 
+# Caminho para o arquivo JSON de credenciais
+path_to_credentials = 'sheets.json'
+# Escopos necessários
+scope = ['https://spreadsheets.google.com/feeds','https://www.googleapis.com/auth/drive']
+# Autenticar usando o arquivo de credenciais
+creds = ServiceAccountCredentials.from_json_keyfile_name(path_to_credentials, scope)
+client = gspread.authorize(creds)
 
 # Define your MySQL connection details
 mysql_user = 'usr_sectidf'
@@ -93,6 +102,7 @@ def read_and_process_file(uploaded_file, month):
     # Retorna as tabelas processadas
     return tabelas['visitas'], tabelas['cupula'], tabelas['alunos']
 
+     
 def create_mysql_engine(user, password, host, port, db):
     return create_engine(f'mysql+mysqlconnector://{user}:{password}@{host}:{port}/{db}')
 # Cria o engine do SQLAlchemy para a conexão com o MySQL
@@ -146,6 +156,26 @@ estados_brasil = [
         ]
 # Botão para adicionar visita
 st.image('ID_SECTI.png', width=200)
+# Nome da sua planilha
+spreadsheet_name = 'Relatório de visitas escolares por RA - 2024'
+# Abrir a planilha
+sheet = client.open(spreadsheet_name).sheet1  # ou use .get_worksheet(0) para a primeira folha
+sheet2 = client.open(spreadsheet_name).get_worksheet(1)
+# Carregar os dados da planilha
+data = sheet.get_all_values()
+# Criar um DataFrame a partir dos dados
+ra2 = pd.DataFrame(data[3:39], columns=data[2])
+data2 = sheet2.get_all_values()
+escola_nome = pd.DataFrame(data2[2:], columns=data2[1])
+# Obter os nomes das colunas pelo índice
+cols_to_drop = escola_nome.columns[[3, 6]]
+# Excluir as colunas
+escola_nome = escola_nome.drop(columns=cols_to_drop)
+
+
+
+
+
 if st.sidebar.button('Adicionar Visita'):
                 # Se o botão for clicado, mude o estado para mostrar o formulário
                 st.session_state['show_form'] = True
@@ -170,6 +200,7 @@ if st.sidebar.button('2024'):
                 st.session_state['show_2023'] = False
                 st.session_state['show_form'] = False
                 st.session_state['show_files'] = False
+
         
 
 if st.session_state.get('show_form', False):            
@@ -190,7 +221,7 @@ if st.session_state.get('show_form', False):
                             visit_month = st.date_input('Mês da Visita')
                             session_qty = st.number_input('Quantidade de Sessões', min_value=0)
                             visit_qty = st.number_input('Quantidade de Visitas', min_value=0)
-                            ra2 = st.selectbox('Região Administrativa', ra['Localização'].unique())
+                            ra3 = st.selectbox('Região Administrativa', ra['Localização'].unique())
                             submit_button = st.form_submit_button('Enviar')
 
                             if submit_button:
@@ -203,7 +234,7 @@ if st.session_state.get('show_form', False):
                                     'Mês da Visita': visit_month,
                                     'Quantidade de Sessões': session_qty,
                                     'Quantidade de Visitas': visit_qty,
-                                    'Ra': ra2
+                                    'Ra': ra3
                                 }
                                 process_data(data)
 
@@ -277,7 +308,7 @@ if st.session_state.get('show_2023', True):
             fig = px.treemap(ra, path=['DF','Localização'], values='Total de alunos',
                             color='Total de alunos', hover_data=['DF'],
                             color_continuous_scale='RdBu', title='Distribuição por Região Administrativa',)
-                    # Create gauge charts
+            # Create gauge charts
             total_sum = relatorio2023['Quantidade Visitas'].sum()
             # Convert 'Mês' to datetime if it's not already
             relatorio2023['Mês'] = pd.to_datetime(relatorio2023['Mês'])
@@ -752,7 +783,32 @@ if st.session_state.get('show_2024', True):
         fig_pizza.update_layout(title_text='Proporção de Alunos: Escolas Públicas x Privadas')
 
         # Exibindo o gráfico no Streamlit
-        st.plotly_chart(fig_pizza, use_container_width=True)           
+        st.plotly_chart(fig_pizza, use_container_width=True)
+
+    # Gerar um treemap usando plotly express
+    ra2['Total de alunos'] = ra2['Total de alunos'].replace(0, 0.1)
+    fig10 = px.treemap(ra2, path=['DF','Localização'], values='Total de alunos',
+                                color='Total de alunos', hover_data=['DF'],
+                                color_continuous_scale='RdBu', title='Distribuição por Região Administrativa',)
+
+    # Personalizar o tamanho da figura
+    fig10.update_layout(
+        autosize=False,
+        #width=1000,  # Largura da figura em pixels
+        height=600,#  Altura da figura em pixels
+        paper_bgcolor='rgba(0,0,0,0)',  # RGBA para cor de fundo transparente
+        plot_bgcolor='rgba(0,0,0,0)',     # Altura da figura em pixel
+    )
+    # Atualizar as propriedades do texto para os rótulos
+    fig10.update_traces(
+        textinfo="label+value",
+        textfont_size=15,  # Tamanho da fonte dos rótulos 
+    )
+
+    fig10.update_traces(marker=dict(cornerradius=5))
+
+    # Exibir o treemap no Streamlit
+    st.plotly_chart(fig10, use_container_width=True)           
 
 
     # Opção para alternar entre visualização diária e mensal
@@ -806,6 +862,11 @@ if st.session_state.get('show_2024', True):
         fig_visitas_mensais.update_traces(line_shape='spline', line_smoothing=1.3)
         fig_visitas_mensais.update_yaxes(rangemode="tozero")
         st.plotly_chart(fig_visitas_mensais, use_container_width=True)
+    
+    st.dataframe(escola_nome)
+
+
+
 
 
 
