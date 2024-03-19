@@ -25,6 +25,7 @@ import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 
 
+
 st.set_page_config(
     layout='wide',  # Ativa o layout wide
     initial_sidebar_state='auto'  # Define o estado inicial da sidebar (pode ser 'auto', 'expanded', 'collapsed')
@@ -187,11 +188,14 @@ if st.sidebar.button('Adicionar Visita'):
                 st.session_state['show_2023'] = False
                 st.session_state['show_2024'] = False
                 st.session_state['show_files'] = False
+                st.session_state['show_elogios'] = False
 if st.sidebar.button('Adicionar Arquivos'):
                 st.session_state['show_form'] = False
                 st.session_state['show_2023'] = False
                 st.session_state['show_2024'] = False
                 st.session_state['show_files'] = True
+                st.session_state['show_elogios'] = False
+                
 st.sidebar.divider()
 st.sidebar.title('Relatórios')
 st.sidebar.write('Selecione o ano para visualizar o relatório')
@@ -200,11 +204,19 @@ if st.sidebar.button('2023'):
             st.session_state['show_2024'] = False
             st.session_state['show_form'] = False
             st.session_state['show_files'] = False
+            st.session_state['show_elogios'] = False
 if st.sidebar.button('2024'):
                 st.session_state['show_2024'] = True
                 st.session_state['show_2023'] = False
                 st.session_state['show_form'] = False
                 st.session_state['show_files'] = False
+                st.session_state['show_elogios'] = False
+if st.sidebar.button('Elogios/Reclamações'):
+                st.session_state['show_2024'] = False
+                st.session_state['show_2023'] = False
+                st.session_state['show_form'] = False
+                st.session_state['show_files'] = False
+                st.session_state['show_elogios'] = True
 
         
 
@@ -958,7 +970,97 @@ if st.session_state.get('show_files', True):
         st.session_state['sql'] = False
         st.session_state['Erro1'] = False
         st.session_state['erro2'] = False
+
+
+if st.session_state.get('show_elogios', True):
+    st.title("Relatório de Avaliação do Planetário - Fevereiro 2024")
+    st.write("Este relatório sumariza as respostas dos visitantes sobre sua experiência no Planetário em Fevereiro de 2024, destacando expectativas, atendimento, oferta de visitas guiadas, qualidade do acervo e feedback geral.")
+
+
+    # Exemplo de dados
+    data20 = {
+        "Categoria": ["Expectativas Atendidas", "Atendimento", "Visita Guiada", "Qualidade dos Monitores", "Sinalização do Acervo"],
+        "QR Code": [76, 70, 100, 100, 79],
+        "Papel": [64, 77, 82, 57, 77]
+    }
+
+    df20 = pd.DataFrame(data20)
+    df20 = df20.set_index("Categoria")
+    categorias = ['Cúpula', 'Acervo', 'Atendimento', 'Ar condicionado']
+    reclamacoes = [21, 3, 1, 5]
+    fig10 = go.Figure([go.Bar(x=categorias, y=reclamacoes, marker_color='skyblue')])
+    fig10.update_layout(title_text='Reclamações por Categoria',
+                    xaxis_title="Categoria",
+                    yaxis_title="Número de Reclamações")
     
+    categorias_sugestoes = ['Telescópio', 'Divulgação', 'Acervo', 'Visita Interativa Infantil', 'Tecnologia']
+    quantidade_sugestoes = [2, 1, 4, 1, 1]
+
+    fig20 = go.Figure([go.Bar(x=categorias_sugestoes, y=quantidade_sugestoes, marker_color='lightgreen')])
+    fig20.update_layout(title_text='Sugestões por Categoria',
+                    xaxis_title="Categoria",
+                    yaxis_title="Quantidade de Sugestões")
+    
+    categorias_elogios = ['Limpeza/Organização', 'Funcionários', 'Prazeroso']
+    quantidade_elogios = [1, 4, 14]
+
+    fig30 = go.Figure(data=[go.Pie(labels=categorias_elogios, values=quantidade_elogios, pull=[0, 0.1, 0])])
+    fig30.update_layout(title_text='Elogios por Categoria')
+
+    # Plot
+    st.write("### Avaliações Gerais")
+    col1, col2, col3 = st.columns([1, 3, 1])
+    
+    with col2:
+        st.write("\n")
+        st.write("\n")
+        st.write("\n")
+        st.write("\n")
+        st.bar_chart(df20, height=500)
+        st.plotly_chart(fig20)
+        st.plotly_chart(fig10)
+        st.plotly_chart(fig30)
+
+         
+
+    
+
+
+
+    
+
+    
+
+    
+
+
+    st.write("### Feedback Detalhado")
+
+    with st.expander("Reclamações"):
+        st.write("""
+        - Mais vídeos sobre o espaço.
+        - Acesso a roupas e capacetes de astronauta.
+        - Uso de telescópio pelo público.
+        """)
+
+    with st.expander("Sugestões"):
+        st.write("""
+        - Uso de mais vídeos e tecnologias digitais.
+        - Divulgação ampliada do espaço.
+        - Inclusão de um telescópio para uso dos visitantes.
+        """)
+
+    with st.expander("Elogios"):
+        st.write("""
+        - Bom atendimento e organização.
+        - Qualidade informativa e educativa das exposições.
+        """)
+
+    st.write("### Conclusão")
+    st.write("O feedback dos visitantes é crucial para continuarmos melhorando a experiência no Planetário. As sugestões e elogios recebidos serão levados em consideração nas futuras melhorias do espaço e das atividades oferecidas.")
+
+
+
         
 
         
