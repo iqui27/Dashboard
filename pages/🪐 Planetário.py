@@ -1016,52 +1016,65 @@ if st.session_state.get('show_elogios', True):
         st.write("\n")
         st.write("\n")
         st.write("\n")
-        st.bar_chart(df20, height=500)
+        fig40 = px.bar(df20, x=df20.index, y=["QR Code", "Papel"], barmode="group")
+        st.plotly_chart(fig40)
         st.plotly_chart(fig20)
         st.plotly_chart(fig10)
         st.plotly_chart(fig30)
 
-         
+                
 
-    
+            # Suggestions, Complaints, and Compliments
+    st.header("Sugestões, Críticas e Elogios")
+
+    st.subheader("Sugestões:")
+    st.write("""
+    * Mais vídeos sobre o espaço, incluindo o canal do YouTube "Nasa Live".
+    * Roupa e capacete de astronauta acessíveis ao público.
+    * Telescópio para o público observar o céu.
+    * Investir em tecnologia para valorizar a história e publicar mais em plataformas digitais e TV.
+    * Criar um espaço mais imersivo com mais tecnologias e atualizações.
+    * Ter um telescópio que possa ser usado pelos visitantes.
+    * Telão com observação em tempo real dos telescópios Hubble e James Webb.
+    * Visitas específicas para crianças.
+    * Mais opções de entretenimento.
+    * Observatório no local.
+    * Mais maquetes.
+    """)
+
+    st.subheader("Críticas:")
+    st.write("""
+    * Monitores precisam pedir silêncio aos visitantes durante as explicações.
+    * Áudio da Cúpula muito alto para crianças especiais.
+    """)
+
+    st.subheader("Elogios:")
+    st.write("""
+    * Atendimento excelente, especialmente do brigadista Porfilho.
+    * Funcionárias simpáticas e atenciosas.
+    * Ambiente explicativo e aconchegante.
+    * Gráficos e imagens impressionantes.
+    * Espaço organizado, limpo e bem sinalizado.
+    """)
+
+    # Conclusion and Recommendations
+    st.header("Conclusão e Recomendações")
+    st.write("""
+    De modo geral, os visitantes ficaram satisfeitos com a visita ao Planetário. As áreas que receberam avaliações positivas incluem o atendimento das recepcionistas, a clareza das explicações dos monitores e a limpeza e organização do espaço. As sugestões mais frequentes foram a inclusão de mais vídeos e recursos interativos, bem como a disponibilização de um telescópio para uso dos visitantes. As críticas se concentraram no ruído durante as explicações e no volume do áudio na Cúpula.
+
+    Recomenda-se:
+    * Implementar as sugestões mais populares, como a inclusão de mais vídeos e recursos interativos.
+    * Abordar as críticas, como o ruído durante as explicações e o volume do áudio na Cúpula.
+    * Continuar investindo na qualidade do atendimento e na manutenção do espaço.
+    * Promover o Planetário em plataformas digitais e TV para aumentar a visibilidade.
+    """)
 
 
 
-    
-
-    
-
-    
-
-
-    st.write("### Feedback Detalhado")
-
-    with st.expander("Reclamações"):
-        st.write("""
-        - Mais vídeos sobre o espaço.
-        - Acesso a roupas e capacetes de astronauta.
-        - Uso de telescópio pelo público.
-        """)
-
-    with st.expander("Sugestões"):
-        st.write("""
-        - Uso de mais vídeos e tecnologias digitais.
-        - Divulgação ampliada do espaço.
-        - Inclusão de um telescópio para uso dos visitantes.
-        """)
-
-    with st.expander("Elogios"):
-        st.write("""
-        - Bom atendimento e organização.
-        - Qualidade informativa e educativa das exposições.
-        """)
-
-    st.write("### Conclusão")
-    st.write("O feedback dos visitantes é crucial para continuarmos melhorando a experiência no Planetário. As sugestões e elogios recebidos serão levados em consideração nas futuras melhorias do espaço e das atividades oferecidas.")
 
 
 
-        
 
-        
+
+
 
