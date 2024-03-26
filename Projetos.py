@@ -206,7 +206,6 @@ authenticator.login()
 # Dataframe com os dados dos projetos
 df = pd.read_sql_query(load_sql_query, engine)
 # Add the 'Etapa' column with unique options
-df['Etapa'] = pd.Categorical(df['Etapa'], categories=['1ª Etapa', '2ª Etapa', '3ª Etapa', '4ª Etapa'], ordered=True)
 servidores = pd.read_sql_table('servidores', engine)
 projetos_servidores = pd.read_sql_table('projetoparceiros', engine)
 ra = pd.read_csv("RA.csv")
@@ -276,9 +275,14 @@ if st.session_state["authentication_status"]:
         selected_classification = st.sidebar.selectbox("Selecione uma Classificação", grouped_filtered_projects.groups.keys())
         if selected_classification:
             projects = grouped_filtered_projects.get_group(selected_classification)
-            selected_project = st.sidebar.radio("Selecione um Projeto", projects['Projeto'], index=0)
+
+            # Get unique project names within the selected classification
+            unique_project_names = projects['Projeto'].unique()
+
+            selected_project = st.sidebar.radio("Selecione um Projeto", unique_project_names, index=0)
             if selected_project:
                 project_details = projects[projects['Projeto'] == selected_project]
+
                 # Display project name and stages based on project type
                 if project_details['Etapa'].iloc[0] not in ['Unica', np.nan]:
                     st.sidebar.markdown(f"{selected_project}", unsafe_allow_html=True)
@@ -289,9 +293,12 @@ if st.session_state["authentication_status"]:
                         # Get unique stages for the selected project
                         unique_stages = project_details['Etapa'].unique()
 
-                        # Create radio buttons for each stage
-                        for stage in unique_stages:
-                            st.sidebar.radio(str(stage), unique_stages, key=f"stage_radio_{selected_project}")
+                        # Create radio buttons for each stage with unique keys
+                        selected_stage = st.sidebar.radio("Selecione a Etapa", unique_stages, key=f"stage_radio_{selected_project}")
+                        # Filter project_details based on the selected stage
+                        project_details = project_details[project_details['Etapa'] == selected_stage]
+                        st.write(project_details)
+            
                 valor = project_details['Valor'].values[0]
                 # Convert the value to float
                 valor = float(valor) if isinstance(valor, str) and valor.replace('.', '', 1).isdigit() else valor
@@ -1219,7 +1226,7 @@ if st.session_state["authentication_status"]:
                         df.drop(['Projeto_truncated'], axis=1, inplace=True)
                         new_values = {column: st.text_input(column, project_details[column].iloc[0])
                                       for column in df.columns 
-                                      if column not in ['id', 'classificacao', 'Situação_atual', 'Unidade_SECTI_Responsavel', 'Unidade_SECTI_adicional','Processo_SEI', 'Valor']}
+                                      if column not in ['id', 'classificacao', 'Situação_atual', 'Unidade_SECTI_Responsavel', 'Unidade_SECTI_adicional','Processo_SEI', 'Valor', 'Etapa']}
                         
                         # Campo de entrada para o Processo_SEI com formatação
                         sei_input = st.text_input("Processo SEI (Adicione Apenas Números)", value=project_details['Processo_SEI'].iloc[0].replace("-", "").replace("/", ""), max_chars=19)
@@ -1243,7 +1250,7 @@ if st.session_state["authentication_status"]:
                         new_values['Unidade_SECTI_adicional'] = st.selectbox('Unidade_SECTI_adicional', ['Sem Colaboração','DIDCI', 'DIJE', 'SUPCDT', 'DIEC', 'SICID'],
                             index=['Sem Colaboração','DIDCI', 'DIJE', 'SUPCDT', 'DIEC', 'SICID'].index(project_details['Unidade_SECTI_adicional'].iloc[0]) if project_details['Unidade_SECTI_adicional'].iloc[0] in ['Sem Colaboração','DIDCI', 'DIJE', 'SUPCDT', 'DIEC', 'SICID'] else 0
                         )
-                        # Add 'Etapa' selectbox with current value pre-selected
+                        # Add 'Etapa' selectbox with current value pre-selected (only once)
                         etapa_options = ['Unica', '1ª Etapa', '2ª Etapa', '3ª Etapa', '4ª Etapa']
                         current_etapa = project_details['Etapa'].iloc[0]
                         new_values['Etapa'] = st.selectbox(
