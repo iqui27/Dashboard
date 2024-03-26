@@ -754,6 +754,17 @@ if st.session_state["authentication_status"]:
                 
                 st.write("\n")
                 st.write("\n")
+                if selected_project == "RECICLOTECH" and project_details['Etapa'].iloc[0] == "3a Etapa":
+                    st.write("\n")
+                    st.write("\n")
+                    st.write("\n")
+                    st.write("\n")
+                    st.write("\n")
+                    st.write("\n")
+                    col = st.columns(1)
+                    col[0].image('Macrorregioes.png', width=600)
+                    # Add your custom code here
+       
     
             with col3:
                 if project_details is not None and 'Encerramento_da_parceria' in project_details and project_details['Encerramento_da_parceria'].size > 0:
