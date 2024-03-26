@@ -297,7 +297,6 @@ if st.session_state["authentication_status"]:
                         selected_stage = st.sidebar.radio("Selecione a Etapa", unique_stages, key=f"stage_radio_{selected_project}")
                         # Filter project_details based on the selected stage
                         project_details = project_details[project_details['Etapa'] == selected_stage]
-                        st.write(project_details)
             
                 valor = project_details['Valor'].values[0]
                 # Convert the value to float
@@ -666,8 +665,11 @@ if st.session_state["authentication_status"]:
             st.table(situacao_df)
 
     with tab3:
-            st.write("\n")
-            st.write("\n")
+              # Display Etapa and project name in a single line
+            st.markdown(f"""
+            <span style="color: white;">Etapa: </span>
+            <span style="color: yellow;">{project_details['Etapa'].iloc[0]}</span>
+            """, unsafe_allow_html=True)
             st.write("\n")
             st.write("\n")
             col1, col2, col3 = st.columns([3, 6, 3])
@@ -680,6 +682,7 @@ if st.session_state["authentication_status"]:
                 fomento = project_details['Fomento'].values[0]
             else:
                 fomento = None
+            
 
             with col2:
                 st.markdown("<h1 style='text-align: center;'>{}</h1>".format(selected_project), unsafe_allow_html=True)
