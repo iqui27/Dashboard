@@ -20,6 +20,7 @@ from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter, landscape
 from streamlit_card import card
 import plotly.io as pio
+from sqlalchemy.orm import sessionmaker  # Add this line to import sqlalchemy.orm
 
 # Definir configurações da página
 st.set_page_config(
@@ -41,7 +42,7 @@ table_name = 'Projetos'
 # Define your development MySQL connection details
 dev_mysql_user = 'admin'
 dev_mysql_password = '844612'
-dev_mysql_host = 'localhost'  # Replace with your development server IP or hostname
+dev_mysql_host = '192.168.18.52'  # Replace with your development server IP or hostname
 dev_mysql_database = 'db_sectidf'
 dev_mysql_port = '3306'  # Default MySQL port
 dev_table_name = 'Projetos'
@@ -204,6 +205,8 @@ authenticator.login()
 
 # Dataframe com os dados dos projetos
 df = pd.read_sql_query(load_sql_query, engine)
+# Add the 'Etapa' column with unique options
+df['Etapa'] = pd.Categorical(df['Etapa'], categories=['1ª Etapa', '2ª Etapa', '3ª Etapa', '4ª Etapa'], ordered=True)
 servidores = pd.read_sql_table('servidores', engine)
 projetos_servidores = pd.read_sql_table('projetoparceiros', engine)
 ra = pd.read_csv("RA.csv")
@@ -276,6 +279,19 @@ if st.session_state["authentication_status"]:
             selected_project = st.sidebar.radio("Selecione um Projeto", projects['Projeto'], index=0)
             if selected_project:
                 project_details = projects[projects['Projeto'] == selected_project]
+                # Display project name and stages based on project type
+                if project_details['Etapa'].iloc[0] not in ['Unica', np.nan]:
+                    st.sidebar.markdown(f"{selected_project}", unsafe_allow_html=True)
+
+                    # Create a container for stages
+                    stages_container = st.sidebar.container()
+                    with stages_container:
+                        # Get unique stages for the selected project
+                        unique_stages = project_details['Etapa'].unique()
+
+                        # Create radio buttons for each stage
+                        for stage in unique_stages:
+                            st.sidebar.radio(str(stage), unique_stages, key=f"stage_radio_{selected_project}")
                 valor = project_details['Valor'].values[0]
                 # Convert the value to float
                 valor = float(valor) if isinstance(valor, str) and valor.replace('.', '', 1).isdigit() else valor
@@ -1140,6 +1156,10 @@ if st.session_state["authentication_status"]:
                             elif column == 'classificacao':
                                 classificacao_options = ['Termo de Fomento', 'Convênio', 'Termo de Colaboração', 'Novos Projetos', 'Apoio', 'Edital de Credenciamente','Convênio/Acordo de Cooperação Técnica']
                                 new_project_data[column] = st.selectbox(f"{column} (novo projeto)", classificacao_options)
+                            elif column == 'Etapa':
+                                # Add 'Etapa' selectbox
+                                etapa_options = ['Unica','1ª Etapa', '2ª Etapa', '3ª Etapa', '4ª Etapa']
+                                new_project_data['Etapa'] = st.selectbox(f"Etapa (novo projeto)", etapa_options)
                             else:
                                 text_input = st.text_input(f"{column} (novo projeto)")
                                 new_project_data[column] = text_input if text_input is not None else "0"
@@ -1222,6 +1242,14 @@ if st.session_state["authentication_status"]:
                         )
                         new_values['Unidade_SECTI_adicional'] = st.selectbox('Unidade_SECTI_adicional', ['Sem Colaboração','DIDCI', 'DIJE', 'SUPCDT', 'DIEC', 'SICID'],
                             index=['Sem Colaboração','DIDCI', 'DIJE', 'SUPCDT', 'DIEC', 'SICID'].index(project_details['Unidade_SECTI_adicional'].iloc[0]) if project_details['Unidade_SECTI_adicional'].iloc[0] in ['Sem Colaboração','DIDCI', 'DIJE', 'SUPCDT', 'DIEC', 'SICID'] else 0
+                        )
+                        # Add 'Etapa' selectbox with current value pre-selected
+                        etapa_options = ['Unica', '1ª Etapa', '2ª Etapa', '3ª Etapa', '4ª Etapa']
+                        current_etapa = project_details['Etapa'].iloc[0]
+                        new_values['Etapa'] = st.selectbox(
+                            'Etapa',
+                            etapa_options,
+                            index=etapa_options.index(current_etapa) if current_etapa in etapa_options else 0
                         )
                         submit_button = st.form_submit_button('Salvar Alterações')
                         close_form_button = st.form_submit_button('Fechar Formulário')
